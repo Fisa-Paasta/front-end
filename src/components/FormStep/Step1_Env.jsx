@@ -1,3 +1,4 @@
+// src/components/FormStep/Step1_Env.jsx
 import { useSurvey } from '@/context/SurveyContext';
 
 export default function Step1_Env() {
@@ -5,9 +6,9 @@ export default function Step1_Env() {
 
   return (
     <div className="formbold-form-step">
-      <label className="formbold-form-label">1. IaaS / PaaS</label>
+      <label className="formbold-form-label">1. 환경 선택</label>
       <select
-        name="service_type"
+        name="env"
         className="formbold-form-input"
         value={formData.env || ''}
         onChange={(e) => updateFormData('env', e.target.value)}

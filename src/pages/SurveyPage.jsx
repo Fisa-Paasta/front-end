@@ -1,3 +1,4 @@
+// src/pages/SurveyPage.jsx
 import SidebarSummary from '@/components/SidebarSummary';
 import StepNavigator from '@/components/StepNavigator';
 import FormStep from '@/components/FormStep';
@@ -7,14 +8,16 @@ import '@/styles/global.css';
 export default function SurveyPage() {
   return (
     <SurveyProvider>
-      <div className="formbold-main-wrapper split-layout">
-        {/* 좌측 요약 영역 */}
-        <SidebarSummary />
+      <div className="formbold-main-wrapper">
+        <div className="split-layout">
+          {/* 좌측 요약 영역 */}
+          <SidebarSummary />
 
-        {/* 우측 설문 폼 영역 */}
-        <div className="formbold-form-wrapper">
-          <StepNavigator />
-          <FormStep />
+          {/* 우측 설문 폼 영역 */}
+          <div className="formbold-form-wrapper">
+            <StepNavigator />
+            <FormStep />
+          </div>
         </div>
       </div>
     </SurveyProvider>

@@ -1,70 +1,106 @@
+// src/components/FormStep.jsx
 import { useSurvey } from '@/context/SurveyContext';
 import { useState } from 'react';
-import Step1 from './FormStep/Step1_Env';
-import Step2 from './FormStep/Step2_Resource';
-import Step3 from './FormStep/Step3_Security';
-import Step4 from './FormStep/Step4_K8s';
-import Step5 from './FormStep/Step5_DB';
-import Step6 from './FormStep/Step6_Framework';
+import Step1_Env from './FormStep/Step1_Env';
+import Step2_K8s from './FormStep/Step2_K8s';
+import Step3_Resources from './FormStep/Step3_Resources';
+import Step4_OS from './FormStep/Step4_OS';
+import Step5_Frontend from './FormStep/Step5_Frontend';
+import Step6_Backend from './FormStep/Step6_Backend';
+import Step7_WebServer from './FormStep/Step7_WebServer';
+import Step8_DB from './FormStep/Step8_DB';
+import Step9_CICD from './FormStep/Step9_CICD';
 import ConfirmModal from './ConfirmModal';
 
-const steps = [Step1, Step2, Step3, Step4, Step5, Step6];
+const steps = [
+  Step1_Env,
+  Step2_K8s,
+  Step3_Resources,
+  Step4_OS,
+  Step5_Frontend,
+  Step6_Backend,
+  Step7_WebServer,
+  Step8_DB,
+  Step9_CICD
+];
 
 export default function FormStep() {
   const {
     currentStep,
     goToNextStep,
     goToPrevStep,
-    formData
+    formData,
+    TOTAL_STEPS
   } = useSurvey();
 
   const [showModal, setShowModal] = useState(false);
   const StepComponent = steps[currentStep];
 
   const handleNext = () => {
-    if (currentStep === steps.length - 1) {
-      setShowModal(true);
-    } else {
-      goToNextStep();
+    // 유효성 검사 통과 시에만 다음 단계로 이동
+    if (isCurrentStepValid()) {
+      if (currentStep === TOTAL_STEPS - 1) {
+        setShowModal(true);
+      } else {
+        goToNextStep();
+      }
     }
   };
 
+  // 더 간단한 유효성 검사 로직으로 수정
   const isCurrentStepValid = () => {
     switch (currentStep) {
-      case 0:
+      case 0: // Environment
         return !!formData.env;
-      case 1:
-        return !!formData.cpu && !!formData.ram && !!formData.disk;
-      case 2:
-        return !!formData.sec;
-      case 3:
-        return !!formData.k8s?.node && !!formData.k8s?.rs && !!formData.k8s?.namespace;
-      case 4:
-        return !!formData.db?.db_type && !!formData.db?.db_version && !!formData.db?.db_size;
-      case 5:
+      case 1: // K8s
         return (
-          !!formData.framework?.backend?.name &&
-          !!formData.framework?.backend?.version &&
-          !!formData.framework?.frontend?.name &&
-          !!formData.framework?.frontend?.version &&
-          !!formData.framework?.cicd?.name &&
-          !!formData.framework?.cicd?.version
+          !!formData.k8s?.type && 
+          !!formData.k8s?.version && 
+          !!formData.k8s?.node
         );
+      case 2: // Resources
+        return (
+          !!formData.resources?.cpu && 
+          !!formData.resources?.ram && 
+          !!formData.resources?.disk
+        );
+      case 3: // OS
+        return !!formData.os?.name;
+      case 4: // Frontend
+        return formData.frontendItems && formData.frontendItems.some(item => 
+          !!item.framework && !!item.version
+        );
+      case 5: // Backend
+        return formData.backendItems && formData.backendItems.some(item => 
+          !!item.language && !!item.framework
+        );
+      case 6: // Web Server
+        return formData.webServerItems && formData.webServerItems.some(item => 
+          !!item.server
+        );
+      case 7: // DB
+        return formData.dbItems && formData.dbItems.some(item => 
+          !!item.type && !!item.name
+        );
+      case 8: // CI/CD
+        return !!formData.cicd?.tool;
       default:
-        return false;
+        return true; // 기본적으로 진행 허용
     }
   };
 
+  // 확인 버튼 활성화 여부
   const isAllStepsValid = () => {
     return (
       !!formData.env &&
-      !!formData.cpu && !!formData.ram && !!formData.disk &&
-      !!formData.sec &&
-      !!formData.k8s?.node && !!formData.k8s?.rs && !!formData.k8s?.namespace &&
-      !!formData.db?.db_type && !!formData.db?.db_version && !!formData.db?.db_size &&
-      !!formData.framework?.backend?.name && !!formData.framework?.backend?.version &&
-      !!formData.framework?.frontend?.name && !!formData.framework?.frontend?.version &&
-      !!formData.framework?.cicd?.name && !!formData.framework?.cicd?.version
+      !!formData.k8s?.type && 
+      !!formData.resources?.cpu &&
+      !!formData.os?.name &&
+      formData.frontendItems?.some(item => !!item.framework) &&
+      formData.backendItems?.some(item => !!item.language) &&
+      formData.webServerItems?.some(item => !!item.server) &&
+      formData.dbItems?.some(item => !!item.type) &&
+      !!formData.cicd?.tool
     );
   };
 
@@ -72,21 +108,33 @@ export default function FormStep() {
     <div>
       <StepComponent />
 
-      <div className="formbold-form-btn-wrapper">
-        <button onClick={goToPrevStep} disabled={currentStep === 0}>
+      <div className="nav-buttons">
+        <button 
+          className="prev-button"
+          onClick={goToPrevStep} 
+          disabled={currentStep === 0}
+          style={{visibility: currentStep === 0 ? 'hidden' : 'visible'}}
+        >
           이전
         </button>
         <button
+          className="next-button"
           onClick={handleNext}
-          disabled={currentStep === steps.length - 1 ? !isAllStepsValid() : !isCurrentStepValid()}
-          className={currentStep === steps.length - 1 ? 'confirm-button' : ''}
+          disabled={!isCurrentStepValid()}
         >
-          {currentStep === steps.length - 1 ? '확인' : '다음'}
+          {currentStep === TOTAL_STEPS - 1 ? '확인' : '다음'}
         </button>
       </div>
 
       {showModal && (
-        <ConfirmModal formData={formData} onClose={() => setShowModal(false)} />
+        <ConfirmModal 
+          formData={formData} 
+          onClose={() => setShowModal(false)} 
+          onSubmit={() => {
+            alert('제출이 완료되었습니다!');
+            setShowModal(false);
+          }}
+        />
       )}
     </div>
   );

@@ -1,9 +1,20 @@
+// src/components/StepNavigator.jsx
 import { useSurvey } from '@/context/SurveyContext';
-import '@/styles/StepProgress.css'; // CSS 따로 분리 가능
+import '@/styles/StepProgress.css';
 
 export default function StepNavigator() {
-  const { currentStep } = useSurvey();
-  const steps = ['환경 선택', '자원 선택', '보안 등급', 'k8s', 'DB', 'Framework'];
+  const { currentStep, TOTAL_STEPS } = useSurvey();
+  const steps = [
+    '환경 선택',     // Step 1
+    'k8s',          // Step 2
+    '자원 선택',     // Step 3
+    'OS',           // Step 4
+    '프론트엔드',    // Step 5
+    '백엔드',        // Step 6
+    '웹 서버/WAS',   // Step 7
+    'DB',           // Step 8
+    'CI/CD'         // Step 9
+  ];
 
   return (
     <div className="step-progress-container">
@@ -16,7 +27,7 @@ export default function StepNavigator() {
         >
           <div className="step-circle">{idx + 1}</div>
           <div className="step-label">{label}</div>
-          {idx !== steps.length - 1 && <div className="step-line" />}
+          {idx !== TOTAL_STEPS - 1 && <div className="step-line" />}
         </div>
       ))}
     </div>

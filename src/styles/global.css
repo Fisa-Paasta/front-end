@@ -1,332 +1,559 @@
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  body {
-    font-family: "Inter", sans-serif;
-  }
-  body, .formbold-main-wrapper {
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center;     /* Center vertically */
-    height: 100vh;           /* Full viewport height */
-    margin: 0;               /* Remove default margin */
-  }
-  
-  /* Ensure the form itself is centered within the wrapper */
-  .formbold-main-wrapper {
-    max-width: 1200px;   /* Set max width */
-    width: 100%;         /* Allow it to stretch fully */
-    padding: 32px 16px;  /* Adjust padding */
-    font-size: 18px;     /* Adjust font size */
-    height: 600px; /* Fixed height for all steps */
-    overflow-y: auto; /* Enable scrolling for the entire wrapper */
-  }
-  
-  .formbold-form-wrapper {
-    width: 700px;            /* ✅ 4단계 기준 너비로 고정 */
-    max-width: 700px;
-    min-width: 700px;
-    background-color: white;
-    height: 100%;
-    overflow-y: auto;
-  }
-
-  .formbold-steps-row {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
-  }
-
-  .formbold-steps {
-    display: flex;
-    gap: 30px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-wrap: nowrap;         /* 한 줄 유지 */
-  }
-  .formbold-steps li {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 500;
-    font-size: 14px;
-    color: #536387;
-  }
-  
-  .formbold-steps li span {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #dde3ec;
-    color: #536387;
-  }
-  
-  .formbold-steps li.active span {
-    background: #6A64F1;
-    color: #fff;
-  }
-  
-  .formbold-steps li.active {
-    color: #07074D;
-  }
-  
-
-  .formbold-input-flex {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 22px;
-  }
-  .formbold-input-flex > div {
-    width: 50%;
-  }
-  .formbold-form-input {
-    width: 100%;
-    padding: 16px 24px;
-    border-radius: 5px;
-    border: 1px solid #DDE3EC;
-    background: #FFFFFF;
-    font-weight: 500;
-    font-size: 20px;
-    color: #536387;
-    outline: none;
-    resize: none;
-  }
-  .formbold-form-input:focus {
-    border-color: #6a64f1;
-    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
-  }
-  .formbold-form-label {
-    color: #07074D;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 24px;
-    display: block;
-    margin-bottom: 10px;
-  }
-
-  .formbold-form-confirm {
-    border-bottom: 1px solid #DDE3EC;
-    padding-bottom: 35px;
-  }
-  .formbold-form-confirm p {
-    font-size: 16px;
-    line-height: 24px;
-    color: #536387;
-    margin-bottom: 22px;
-    width: 75%;
-  }
-  .formbold-form-confirm > div {
-    display: flex;
-    gap: 15px;
-  }
-
-  .formbold-confirm-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #FFFFFF;
-    border: 0.5px solid #DDE3EC;
-    border-radius: 5px;
-    font-size: 16px;
-    line-height: 24px;
-    color: #536387;
-    cursor: pointer;
-    padding: 10px 20px;
-    transition: all .3s ease-in-out;
-  }
-  .formbold-confirm-btn {
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.12);
-  }
-  .formbold-confirm-btn.active {
-    background: #6A64F1;
-    color: #FFFFFF;
-  }
-
-  .formbold-form-step-1,
-  .formbold-form-step-2,
-  .formbold-form-step-3,
-  .formbold-form-step-4,
-  .formbold-form-step-5,
-  .formbold-form-step-6,
-  .formbold-form-step-7 {
-    display: none;
-  }
-  .formbold-form-step-1.active,
-  .formbold-form-step-2.active,
-  .formbold-form-step-3.active,
-  .formbold-form-step-4.active,
-  .formbold-form-step-5.active,
-  .formbold-form-step-6.active,
-  .formbold-form-step-7.active {
-    display: block;
-  }
-
-  .formbold-form-btn-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 25px;
-    margin-top: 25px;
-  }
-  .formbold-back-btn {
-    cursor: pointer;
-    background: #FFFFFF;
-    border: none;
-    color: #07074D;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
-    display: none;
-  }
-  .formbold-back-btn.active {
-    display: block;
-  }
-  .formbold-btn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 16px;
-    border-radius: 5px;
-    padding: 10px 25px;
-    border: none;
-    font-weight: 500;
-    background-color: #6A64F1;
-    color: white;
-    cursor: pointer;
-  }
-  .formbold-btn:hover {
-    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
-  }
-  .formbold-input-with-unit {
-    position: relative;
-    margin-bottom: 20px;
-  }
-
-  .formbold-input-with-unit .formbold-form-input {
-    padding-right: 60px;
-  }
-
-  .formbold-input-with-unit .unit {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
-    color: #888;
-    pointer-events: none;
-  }
-  .formbold-divider {
-  border: none;
-  border-top: 1px solid #DDE3EC;
-  margin: 20px 0 30px 0;
+/* 수정된 CSS - 라벨 및 버튼 문제 해결 */
+.formbold-main-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  padding: 20px;
+  margin: 0 auto;
 }
+
 .split-layout {
   display: flex;
-  justify-content: center;   /* 중심 정렬 */
-  align-items: flex-start;
-  gap: 80px;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  gap: 30px;
+  justify-content: center;
   height: 600px;
-  box-sizing: border-box;
 }
 
-
-
 .formbold-sidebar {
-  width: 300px;          /* ✅ 기본 너비 */
-  min-width: 300px;      /* ✅ 줄어들지 않게 */
-  max-width: 300px;      /* ✅ 늘어나지도 않게 */
+  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
   background-color: #e0f7fa;
   height: 100%;
   overflow-y: auto;
-  padding: 32px;
+  padding: 20px;
+  border-radius: 8px;
 }
 
-.formbold-summary {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.formbold-form-wrapper {
+  flex: 1;
+  background-color: white;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  min-width: 600px;
 }
 
-.formbold-summary li {
+/* 폼 그룹 스타일 - 라벨이 위에 표시되도록 */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+/* 다중 항목 선택을 위한 스타일 */
+.item-list {
+  margin-bottom: 15px;
+}
+
+.item-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+/* 버튼 스타일 개선 */
+.add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background-color: #6A64F1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.add-button:hover {
+  background-color: #5953d4;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.remove-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.remove-button:hover {
+  background-color: #ff7875;
+  transform: scale(1.05);
+}
+
+/* 하단 네비게이션 버튼 개선 */
+.formbold-form-btn-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.formbold-back-btn {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: #6A64F1;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.formbold-back-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.formbold-btn {
+  background-color: #6A64F1;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 25px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.formbold-btn:hover {
+  background-color: #5953d4;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.formbold-btn:disabled {
+  background-color: #a5a2e3;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 기존 스타일도 유지 */
+.formbold-form-step {
+  padding: 20px 0;
+}
+
+.form-section {
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.form-section h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #444;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.formbold-form-input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 5px;
+  border: 1px solid #DDE3EC;
+  background: #FFFFFF;
+  font-weight: 500;
+  font-size: 16px;
+  color: #536387;
+  outline: none;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.formbold-form-input:focus {
+  border-color: #6a64f1;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.formbold-form-label {
+  color: #07074D;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+  display: block;
   margin-bottom: 18px;
-  line-height: 1.6;
-}
-.formbold-summary li div {
-  margin-left: 10px;  /* 들여쓰기 */
 }
 
+/* 스텝 네비게이터 스타일 개선 */
+.step-progress-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 0 30px 0;
+  padding: 10px 0;
+  overflow-x: auto;
+}
 
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  min-width: 70px;
+}
+
+.step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #ccc;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.step-item.active .step-circle {
+  background-color: #6A64F1;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(106, 100, 241, 0.2);
+}
+
+.step-item.completed .step-circle {
+  background-color: #6A64F1;
+}
+
+.step-line {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  right: -50%;
+  height: 3px;
+  background-color: #ccc;
+  z-index: 1;
+}
+
+.step-item.completed .step-line {
+  background-color: #6A64F1;
+}
+
+.step-label {
+  margin-top: 10px;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+  color: #888;
+  transition: all 0.3s ease;
+}
+
+.step-item.active .step-label {
+  color: #333;
+  font-weight: 600;
+}
+
+.step-item.completed .step-label {
+  color: #6A64F1;
+}
+
+/* 하단 네비게이션 버튼 개선 */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.prev-button, .next-button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.prev-button {
+  background-color: transparent;
+  color: #6A64F1;
+  border: 1px solid #6A64F1;
+}
+
+.next-button {
+  background-color: #6A64F1;
+  color: white;
+  border: none;
+}
+
+.prev-button:hover {
+  background-color: #f0f0f0;
+}
+
+.next-button:hover {
+  background-color: #5953d4;
+}
+
+/* 모달 및 추가 스타일 개선 (global.css에 추가) */
+
+/* 모달 스타일 개선 */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(2px);
 }
 
 .modal-content {
-  width: 80vw;
-  height: 80vh;
+  width: 80%;
+  max-width: 800px;
+  max-height: 90vh;
   background: white;
-  padding: 40px;
-  border-radius: 12px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-content h2 {
+  margin: 0;
+  padding: 20px;
+  background-color: #6A64F1;
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 20px;
   overflow-y: auto;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  max-height: 60vh;
+}
+
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summary-list li {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-list li:last-child {
+  border-bottom: none;
+}
+
+.summary-list strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #6A64F1;
+  font-size: 16px;
+}
+
+.summary-list div {
+  padding-left: 15px;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+.item-entry {
+  background-color: #f9f9f9;
+  padding: 8px 15px;
+  margin: 5px 0;
+  border-radius: 4px;
+  border-left: 3px solid #6A64F1;
 }
 
 .modal-actions {
-  margin-top: 24px;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+  gap: 10px;
 }
 
-.modal-actions button {
+.cancel-button {
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.submit-button {
   padding: 10px 20px;
   background-color: #6A64F1;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  font-weight: 500;
 }
 
-.framework-group {
-  margin-bottom: 24px;
+.cancel-button:hover {
+  background-color: #e0e0e0;
 }
 
-.framework-option {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 12px;
+.submit-button:hover {
+  background-color: #5953d4;
 }
 
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.version-dropdown {
-  margin-top: 6px;
-  padding-left: 24px;
-}
-
-.version-label {
+/* 라벨 스타일 추가 개선 */
+.input-label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
   font-size: 14px;
+}
+
+/* 폼 그룹 간격 조정 */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* 입력 필드 포커스 효과 개선 */
+.formbold-form-input:focus {
+  border-color: #6a64f1;
+  box-shadow: 0 0 0 2px rgba(106, 100, 241, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* 버튼 hover 효과 개선 */
+.next-button, .prev-button {
+  transition: all 0.2s ease;
+}
+
+.next-button:hover {
+  background-color: #5953d4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(106, 100, 241, 0.3);
+}
+
+.prev-button:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+}
+
+/* 비활성화된 버튼 스타일 */
+.next-button:disabled {
+  background-color: #a5a2e3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 일반 컨테이너 패딩 개선 */
+.formbold-form-step {
+  padding: 25px 0;
+}
+
+/* 스텝 순서 스타일 개선 */
+.step-circle {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.step-item.active .step-circle {
+  box-shadow: 0 0 0 4px rgba(106, 100, 241, 0.2);
+  transform: scale(1.1);
+}
+
+/* 입력 필드 스타일 개선 */
+.formbold-form-input {
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* 추가/삭제 버튼 위치 및 여백 개선 */
+.add-button {
+  margin: 15px 0 5px 0;
+}
+
+.item-row {
+  position: relative;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.item-row:hover {
+  background-color: #f0f0f0;
+}
+
+.remove-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* 필수 입력 필드 표시 */
+.required-field::after {
+  content: "*";
+  color: #ff4d4f;
+  margin-left: 4px;
+}
+
+/* 데스크탑 레이아웃 최적화 - 중앙 정렬 */
+.formbold-main-wrapper {
+  justify-content: center;
+  padding: 30px;
+}
+
+.split-layout {
+  margin: 0 auto;
+}
+
+/* 다중 선택 항목 개선 */
+.item-list {
+  padding: 0 5px;
+}
+
+.item-list > .item-row:nth-child(odd) {
+  background-color: #f5f5f5;
+}
+
+.item-list > .item-row:nth-child(even) {
+  background-color: #fafafa;
 }
