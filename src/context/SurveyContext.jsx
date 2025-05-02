@@ -45,9 +45,13 @@ export function SurveyProvider({ children }) {
   const [formData, setFormData] = useState(initialFormData);
 
   const updateFormData = (key, value) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    // 기존 값과 새 값이 다를 경우에만 상태 변경
+    setFormData(prev => {
+      if (prev[key] === value) return prev; // 값이 변경되지 않았다면 상태를 업데이트하지 않음
+      return { ...prev, [key]: value };
+    });
   };
-
+  
   const [currentStep, setCurrentStep] = useState(0);
   const TOTAL_STEPS = 9;
 

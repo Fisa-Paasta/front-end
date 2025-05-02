@@ -54,41 +54,48 @@ export default function FormStep() {
         return !!formData.env;
       case 1: // K8s
         return (
-          !!formData.k8s?.type && 
-          !!formData.k8s?.version && 
-          !!formData.k8s?.node
+          !!formData.k8s?.type &&
+          !!formData.k8s?.version &&
+          !!formData.k8s?.node &&
+          !!formData.k8s?.runtime &&        // runtime 추가
+          !!formData.k8s?.runtimeVersion && // runtimeVersion 추가
+          !!formData.k8s?.namespace        // namespace 추가
         );
       case 2: // Resources
         return (
-          !!formData.resources?.cpu && 
-          !!formData.resources?.ram && 
+          !!formData.resources?.cpu &&
+          !!formData.resources?.ram &&
           !!formData.resources?.disk
         );
       case 3: // OS
-        return !!formData.os?.name;
+        return (
+          !!formData.os?.name &&
+          !!formData.os?.version
+        );
       case 4: // Frontend
-        return formData.frontendItems && formData.frontendItems.some(item => 
+        return formData.frontendItems && formData.frontendItems.some(item =>
           !!item.framework && !!item.version
         );
       case 5: // Backend
-        return formData.backendItems && formData.backendItems.some(item => 
+        return formData.backendItems && formData.backendItems.some(item =>
           !!item.language && !!item.framework
         );
       case 6: // Web Server
-        return formData.webServerItems && formData.webServerItems.some(item => 
+        return formData.webServerItems && formData.webServerItems.some(item =>
           !!item.server
         );
       case 7: // DB
-        return formData.dbItems && formData.dbItems.some(item => 
-          !!item.type && !!item.name
+        return formData.dbItems && formData.dbItems.some(item =>
+          !!item.type && !!item.name && item.size !== '' && item.version !== undefined // 수정된 부분
         );
+      
       case 8: // CI/CD
         return !!formData.cicd?.tool;
       default:
         return true; // 기본적으로 진행 허용
     }
   };
-
+  
   // 확인 버튼 활성화 여부
   const isAllStepsValid = () => {
     return (
@@ -99,11 +106,11 @@ export default function FormStep() {
       formData.frontendItems?.some(item => !!item.framework) &&
       formData.backendItems?.some(item => !!item.language) &&
       formData.webServerItems?.some(item => !!item.server) &&
-      formData.dbItems?.some(item => !!item.type) &&
+      formData.dbItems?.some(item => !!item.type && !!item.name && item.size !== '' && item.version !== undefined) &&  // 수정된 부분
       !!formData.cicd?.tool
     );
   };
-
+  
   return (
     <div>
       <StepComponent />
