@@ -1,5 +1,5 @@
 // src/context/SurveyContext.jsx
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const SurveyContext = createContext();
 
@@ -15,6 +15,12 @@ export function SurveyProvider({ children }) {
     namespace: ''
   };
   
+  const defaultVM = {
+    provider: '',
+    type: '',
+    count: ''
+  };
+  
   const defaultOS = {
     name: '',
     version: ''
@@ -28,6 +34,7 @@ export function SurveyProvider({ children }) {
   const initialFormData = {
     env: '',
     k8s: defaultK8s,
+    vm: defaultVM,
     resources: {
       cpu: '',
       ram: '',
@@ -43,6 +50,44 @@ export function SurveyProvider({ children }) {
   };
 
   const [formData, setFormData] = useState(initialFormData);
+  const [currentStep, setCurrentStep] = useState(0);
+  
+  // 환경에 따라 스텝 구성을 달리함
+  const [steps, setSteps] = useState([
+    { id: 0, title: '환경 선택' }
+  ]);
+  
+  // 환경 선택에 따라 스텝 구성 변경
+  useEffect(() => {
+    if (formData.env === 'iaas') {
+      setSteps([
+        { id: 0, title: '환경 선택' },
+        { id: 1, title: 'VM' },
+        { id: 2, title: '자원 선택' },
+        { id: 3, title: 'OS' },
+        { id: 4, title: '프론트엔드' },
+        { id: 5, title: '백엔드' },
+        { id: 6, title: '웹 서버/WAS' },
+        { id: 7, title: 'DB' },
+        { id: 8, title: 'CI/CD' }
+      ]);
+    } else if (formData.env === 'paas') {
+      setSteps([
+        { id: 0, title: '환경 선택' },
+        { id: 1, title: 'k8s' },
+        { id: 2, title: '자원 선택' },
+        { id: 3, title: 'OS' },
+        { id: 4, title: '프론트엔드' },
+        { id: 5, title: '백엔드' },
+        { id: 6, title: '웹 서버/WAS' },
+        { id: 7, title: 'DB' },
+        { id: 8, title: 'CI/CD' }
+      ]);
+    } else {
+      // 환경 선택 전 또는 기타 환경
+      setSteps([{ id: 0, title: '환경 선택' }]);
+    }
+  }, [formData.env]);
 
   const updateFormData = (key, value) => {
     // 기존 값과 새 값이 다를 경우에만 상태 변경
@@ -52,11 +97,8 @@ export function SurveyProvider({ children }) {
     });
   };
   
-  const [currentStep, setCurrentStep] = useState(0);
-  const TOTAL_STEPS = 9;
-
   const goToNextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS - 1));
+    setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
   };
 
   const goToPrevStep = () => {
@@ -71,7 +113,7 @@ export function SurveyProvider({ children }) {
       setCurrentStep,
       goToNextStep,
       goToPrevStep,
-      TOTAL_STEPS
+      steps
     }}>
       {children}
     </SurveyContext.Provider>

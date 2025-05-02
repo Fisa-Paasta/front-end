@@ -5,22 +5,19 @@ import { useState, useEffect } from 'react';
 export default function Step9_CICD() {
   const { formData, updateFormData } = useSurvey();
   
+  // Updated CI/CD options
   const cicdOptions = {
-    "jenkins": ["2.414.x (가장 널리 사용되는 CI/CD 도구)"],
-    "gitlab_ci": ["최신 버전"],
-    "github_actions": ["최신 버전"],
-    "argocd": ["2.8.x (쿠버네티스 GitOps)"],
-    "tekton": ["0.53.x (클라우드 네이티브 CI/CD)"],
-    "circleci": ["최신 버전"]
+    "jenkins": ["2.440.1", "2.426.3 (LTS)", "2.414.3 (LTS)"],
+    "gitlab_ci": ["16.10.1", "16.9.4", "16.8.3"],
+    "github_actions": ["Latest GitHub-hosted runner"],
+    "argocd": ["2.9.3", "2.8.4", "2.7.14"]
   };
   
   const toolDisplayNames = {
     "jenkins": "Jenkins",
     "gitlab_ci": "GitLab CI/CD",
     "github_actions": "GitHub Actions",
-    "argocd": "ArgoCD",
-    "tekton": "Tekton",
-    "circleci": "CircleCI"
+    "argocd": "ArgoCD"
   };
 
   // Create local state

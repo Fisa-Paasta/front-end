@@ -6,22 +6,21 @@ export default function Step2_K8s() {
   const { formData, updateFormData } = useSurvey();
   const [showAdditionalOptions, setShowAdditionalOptions] = useState(false);
 
-  // K8s options
+  // K8s options - Updated with current versions
   const orchestrationOptions = {
     "": [],
-    "kubernetes": ["1.28 (최신 안정 버전)", "1.27", "1.26"],
-    "amazon_eks": ["Latest Amazon EKS"],
+    "kubernetes": ["1.32.2", "1.31.6", "1.30.10"],
+    "amazon_eks": ["1.32.2 - eks.4", "1.31.6 - eks.20", "1.30.10 - eks.28"],
     "google_gke": ["Latest Google GKE"],
     "azure_aks": ["Latest Azure AKS"]
   };
   
   const runtimeOptions = {
-    "docker": ["19.03", "20.10", "23.0 (현재 가장 널리 사용)"],
-    "containerd": ["1.6.x", "1.7.x (쿠버네티스가 점차 표준으로 채택)"],
-    "cri-o": ["1.26", "1.27", "1.28 (Red Hat 환경에서 인기)"]
+    "docker": ["28.1.1", "27.5.1", "26.1.4"],
+    "containerd": ["1.6 (LTS)", "1.7 (LTS)", "2.0 (Active)"]
   };
   
-  const cniOptions = ["Calico", "Flannel", "Weave Net", "Cilium"];
+  const cniOptions = ["Calico", "Flannel", "Cilium"];
 
   // Create local state to manage form data
   const [localK8s, setLocalK8s] = useState(() => {

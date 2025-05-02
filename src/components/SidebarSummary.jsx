@@ -83,8 +83,8 @@ export default function SidebarSummary() {
           ) : (
             formData.backendItems.map((item, index) => (
               <div key={item.id || index}>
-                {index + 1}. {formatName(item.language) || '-'} / 
-                {formatName(item.framework) || '-'} {item.version || '-'}
+                {index + 1}. {formatName(item.language) || '-'} {item.languageVersion || '-'} / 
+                {formatName(item.framework) || '-'} {item.frameworkVersion || '-'}
               </div>
             ))
           )}

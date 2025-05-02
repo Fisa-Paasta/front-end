@@ -7,8 +7,7 @@ export default function Step8_DB() {
   
   const dbTypes = [
     { value: "relational", label: "관계형 DB" },
-    { value: "nosql", label: "NoSQL DB" },
-    { value: "newsql", label: "NewSQL" }
+    { value: "nosql", label: "NoSQL DB" }
   ];
   
   const dbOptions = {
@@ -23,10 +22,6 @@ export default function Step8_DB() {
       "redis",
       "elasticsearch",
       "cassandra"
-    ],
-    "newsql": [
-      "cockroachdb",
-      "cloud_spanner"
     ]
   };
   
@@ -38,22 +33,19 @@ export default function Step8_DB() {
     "mongodb": "MongoDB",
     "redis": "Redis",
     "elasticsearch": "Elasticsearch",
-    "cassandra": "Cassandra",
-    "cockroachdb": "CockroachDB",
-    "cloud_spanner": "Google Cloud Spanner"
+    "cassandra": "Cassandra"
   };
   
+  // Updated database versions
   const dbVersions = {
-    "mysql": ["8.0.x"],
-    "postgresql": ["16.x"],
-    "mariadb": ["11.x"],
-    "oracle": ["19c", "21c"],
-    "mongodb": ["7.0.x"],
-    "redis": ["7.2.x"],
-    "elasticsearch": ["8.x"],
-    "cassandra": ["4.1.x"],
-    "cockroachdb": ["23.1.x"],
-    "cloud_spanner": ["Latest"]
+    "mysql": ["8.4.0", "8.0.36 (LTS)", "5.7.44 (Legacy)"],
+    "postgresql": ["16.1", "15.5", "14.10"],
+    "mariadb": ["11.2.2", "10.11.6 (LTS)", "10.6.17 (LTS)"],
+    "oracle": ["23c (Free)", "21c", "19c (LTS)"],
+    "mongodb": ["7.0.5", "6.0.12", "5.0.23"],
+    "redis": ["7.2.4", "7.0.14", "6.2.14"],
+    "elasticsearch": ["8.12.1", "8.11.4", "7.17.16"],
+    "cassandra": ["4.1.3", "4.0.12", "3.11.16"]
   };
 
   // 로컬 상태 초기화 - DB 항목의 배열로 관리

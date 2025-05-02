@@ -2,7 +2,13 @@
 import { useSurvey } from '@/context/SurveyContext';
 
 export default function Step1_Env() {
-  const { formData, updateFormData } = useSurvey();
+  const { formData, updateFormData, setCurrentStep } = useSurvey();
+
+  // 환경 변경 시, 현재 스텝 유지 (첫 단계)
+  const handleEnvChange = (value) => {
+    updateFormData('env', value);
+    setCurrentStep(0);
+  };
 
   return (
     <div className="formbold-form-step">
@@ -11,7 +17,7 @@ export default function Step1_Env() {
         name="env"
         className="formbold-form-input"
         value={formData.env || ''}
-        onChange={(e) => updateFormData('env', e.target.value)}
+        onChange={(e) => handleEnvChange(e.target.value)}
       >
         <option value="">선택</option>
         <option value="iaas">IaaS</option>

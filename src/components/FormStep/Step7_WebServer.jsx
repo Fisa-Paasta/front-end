@@ -5,20 +5,17 @@ import { useState, useEffect } from 'react';
 export default function Step7_WebServer() {
   const { formData, updateFormData } = useSurvey();
   
+  // Updated web server options with latest versions
   const webServerOptions = {
-    "nginx": ["1.24.x", "1.25.x (가장 인기 있는 웹 서버)"],
-    "apache": ["2.4.x"],
-    "tomcat": ["9.x", "10.x (Java 애플리케이션에 인기)"],
-    "jboss": ["30.x (Java EE 애플리케이션에 적합)"],
-    "undertow": ["2.2.x (경량 Java 웹 서버)"]
+    "nginx": ["1.25.4", "1.24.0 (LTS)", "1.22.1 (Legacy)"],
+    "apache": ["2.4.58", "2.4.57", "2.4.56"],
+    "tomcat": ["10.1.18", "9.0.85", "8.5.99"]
   };
   
   const serverDisplayNames = {
     "nginx": "Nginx",
     "apache": "Apache HTTP Server",
-    "tomcat": "Tomcat",
-    "jboss": "JBoss/WildFly",
-    "undertow": "Undertow"
+    "tomcat": "Tomcat"
   };
 
   // 로컬 상태 초기화 - 웹서버 항목의 배열로 관리

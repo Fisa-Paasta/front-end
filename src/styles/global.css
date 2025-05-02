@@ -651,3 +651,101 @@ html, body {
     font-size: 14px;
   }
 }
+
+/* X 버튼 위치 조정 */
+.item-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.item-content {
+  width: calc(100% - 40px);
+  margin-right: 10px;
+}
+
+.remove-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.remove-button:hover {
+  background-color: #e0e0e0;
+  color: #ff0000;
+}
+
+/* DB 크기 입력 필드 스타일 */
+.formbold-input-with-unit {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.formbold-input-with-unit input {
+  width: calc(100% - 40px);
+}
+
+.formbold-input-with-unit .unit {
+  position: absolute;
+  right: 15px;
+  color: #666;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* 추가 여백 및 디자인 개선 */
+.form-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-section h4 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* 입력 필드 디자인 개선 */
+.formbold-form-input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 5px;
+  border: 1px solid #DDE3EC;
+  background: #FFFFFF;
+  font-weight: 500;
+  font-size: 16px;
+  color: #536387;
+  outline: none;
+  resize: none;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.formbold-form-input:focus {
+  border-color: #6a64f1;
+  box-shadow: 0 0 0 3px rgba(106, 100, 241, 0.1);
+}

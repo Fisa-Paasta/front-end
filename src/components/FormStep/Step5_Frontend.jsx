@@ -5,12 +5,13 @@ import { useState, useEffect } from 'react';
 export default function Step5_Frontend() {
   const { formData, updateFormData } = useSurvey();
   
+  // Updated frontend frameworks and their versions
   const frontendOptions = {
-    "react": ["18.x (가장 인기 있는 프론트엔드 라이브러리)"],
-    "vue": ["3.x (쉬운 학습 곡선으로 인기)"],
-    "angular": ["16.x", "17.x (엔터프라이즈급 애플리케이션에 적합)"],
-    "nextjs": ["14.x (React 기반 SSR 프레임워크)"],
-    "nuxtjs": ["3.x (Vue 기반 SSR 프레임워크)"]
+    "react": ["18.2.0", "18.0.0", "17.0.2"],
+    "vue": ["3.4.15", "3.3.12", "3.2.47"],
+    "angular": ["17.3.0", "16.2.12", "15.2.10"],
+    "nextjs": ["14.1.0", "14.0.4", "13.5.6"],
+    "nuxtjs": ["3.10.0", "3.9.3", "3.8.2"]
   };
   
   const frameworkNames = {

@@ -5,12 +5,13 @@ import { useState, useEffect } from 'react';
 export default function Step4_OS() {
   const { formData, updateFormData } = useSurvey();
   
+  // Updated OS options with latest LTS versions
   const osOptions = {
-    "ubuntu": ["20.04 LTS", "22.04 LTS (클라우드 환경에서 가장 인기)"],
-    "rhel": ["8.x", "9.x (기업 환경에서 인기)"],
-    "amazon_linux": ["2", "2023 (AWS 환경에 최적화)"],
-    "centos": ["Stream 8", "Stream 9 (RHEL 호환 무료 버전)"],
-    "debian": ["11 (Bullseye)", "12 (Bookworm) (안정성 우수)"]
+    "ubuntu": ["20.04.6 (LTS / Focal Fossa)", "22.04.5 (LTS / Jammy Jellyfish)", "24.04.2 (LTS / Noble Numbat)"],
+    "rhel": ["RHEL 8", "RHEL 9"],
+    "suse": ["SUSE Linux 15.6", "SUSE Linux 12.5"],
+    "debian": ["Debian 11 \"Bullseye\"", "Debian 10 \"Buster\"", "Debian 9 \"Stretch\""],
+    "amazon_linux": ["Amazon Linux 2", "Amazon Linux 2023"]
   };
 
   // Create local state
@@ -52,9 +53,9 @@ export default function Step4_OS() {
             <option value="">OS 선택</option>
             <option value="ubuntu">Ubuntu</option>
             <option value="rhel">Red Hat Enterprise Linux (RHEL)</option>
-            <option value="amazon_linux">Amazon Linux</option>
-            <option value="centos">CentOS</option>
+            <option value="suse">SUSE Linux</option>
             <option value="debian">Debian</option>
+            <option value="amazon_linux">Amazon Linux</option>
           </select>
 
           <select

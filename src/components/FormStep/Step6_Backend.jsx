@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 export default function Step6_Backend() {
   const { formData, updateFormData } = useSurvey();
   
+  // Backend languages and their versions
   const backendLanguages = [
     "java",
     "nodejs",
@@ -12,7 +13,17 @@ export default function Step6_Backend() {
     "go",
     "ruby"
   ];
+
+  // Language versions
+  const languageVersions = {
+    "java": ["JDK 21 (LTS)", "JDK 17 (LTS)", "JDK 11 (LTS)"],
+    "nodejs": ["20.12.2 (LTS)", "18.19.1 (LTS)", "16.20.2 (LTS)"],
+    "python": ["3.12.3", "3.11.8", "3.10.14"],
+    "go": ["1.22.3", "1.21.8", "1.20.14"],
+    "ruby": ["3.3.0", "3.2.3", "3.1.5"]
+  };
   
+  // Backend frameworks
   const backendFrameworks = {
     "java": [
       "spring_boot",
@@ -39,22 +50,24 @@ export default function Step6_Backend() {
     ]
   };
   
+  // Framework versions
   const frameworkVersions = {
-    "spring_boot": ["2.7.x", "3.2.x"],
-    "quarkus": ["3.x"],
-    "micronaut": ["4.x"],
-    "express": ["4.x"],
-    "nestjs": ["10.x"],
-    "fastify": ["4.x"],
-    "django": ["4.2.x", "5.0.x"],
-    "fastapi": ["0.104.x"],
-    "flask": ["2.3.x"],
-    "gin": ["1.9.x"],
-    "echo": ["4.x"],
-    "fiber": ["2.x"],
-    "rails": ["7.1.x"]
+    "spring_boot": ["3.2.4", "3.1.10", "2.7.18"],
+    "quarkus": ["3.8.2", "3.6.5", "3.2.9"],
+    "micronaut": ["4.3.3", "4.2.0", "4.1.9"],
+    "express": ["4.18.2", "4.17.3", "4.16.4"],
+    "nestjs": ["10.3.0", "9.4.3", "8.4.7"],
+    "fastify": ["4.26.1", "3.29.5", "2.15.3"],
+    "django": ["5.0.1", "4.2.10", "3.2.23"],
+    "fastapi": ["0.109.2", "0.104.1", "0.100.1"],
+    "flask": ["3.0.2", "2.3.3", "2.2.5"],
+    "gin": ["1.9.1", "1.8.2", "1.7.7"],
+    "echo": ["4.11.4", "4.10.2", "4.9.0"],
+    "fiber": ["2.52.2", "2.51.0", "2.50.0"],
+    "rails": ["7.1.3", "7.0.8", "6.1.7"]
   };
   
+  // Display names for frameworks
   const frameworkNames = {
     "spring_boot": "Spring Boot",
     "quarkus": "Quarkus",
@@ -71,48 +84,48 @@ export default function Step6_Backend() {
     "rails": "Ruby on Rails"
   };
 
-  // 로컬 상태 초기화 - 백엔드 항목의 배열로 관리
+  // Local state for backend items
   const [backendItems, setBackendItems] = useState(() => {
-    // formData에 기존 백엔드 항목이 있으면 그것을 사용, 없으면 빈 항목 하나 생성
+    // Use existing data or initialize with empty item
     if (formData.backendItems && formData.backendItems.length > 0) {
       return formData.backendItems;
     }
-    return [{ id: Date.now(), language: '', framework: '', version: '' }];
+    return [{ id: Date.now(), language: '', languageVersion: '', framework: '', frameworkVersion: '' }];
   });
 
-  // 부모 폼 데이터 업데이트 - 로컬 상태가 변경될 때마다 호출
+  // Update parent form data when local state changes
   useEffect(() => {
     updateFormData('backendItems', backendItems);
   }, [backendItems, updateFormData]);
 
-  // 백엔드 항목 추가
+  // Add backend item
   const addBackendItem = () => {
     setBackendItems([
       ...backendItems,
-      { id: Date.now(), language: '', framework: '', version: '' }
+      { id: Date.now(), language: '', languageVersion: '', framework: '', frameworkVersion: '' }
     ]);
   };
 
-  // 백엔드 항목 제거
+  // Remove backend item
   const removeBackendItem = (id) => {
-    if (backendItems.length <= 1) return; // 항상 최소 하나는 유지
+    if (backendItems.length <= 1) return; // Always keep at least one item
     setBackendItems(backendItems.filter(item => item.id !== id));
   };
 
-  // 특정 항목의 필드 변경 처리
+  // Handle field changes
   const handleChange = (id, field, value) => {
     const updatedItems = backendItems.map(item => {
       if (item.id === id) {
         const newItem = { ...item, [field]: value };
         
-        // 언어가 변경되면 프레임워크와 버전 초기화
+        // Reset dependent fields when parent fields change
         if (field === 'language') {
+          newItem.languageVersion = '';
           newItem.framework = '';
-          newItem.version = '';
+          newItem.frameworkVersion = '';
         } 
-        // 프레임워크가 변경되면 버전 초기화
         else if (field === 'framework') {
-          newItem.version = '';
+          newItem.frameworkVersion = '';
         }
         
         return newItem;
@@ -134,6 +147,7 @@ export default function Step6_Backend() {
           {backendItems.map((item) => (
             <div key={item.id} className="item-row">
               <div style={{ flex: 1 }}>
+                {/* Language selection */}
                 <select
                   className="formbold-form-input"
                   value={item.language || ''}
@@ -147,34 +161,48 @@ export default function Step6_Backend() {
                   ))}
                 </select>
                 
+                {/* Language version selection */}
                 {item.language && (
-                  <>
-                    <select
-                      className="formbold-form-input"
-                      value={item.framework || ''}
-                      onChange={(e) => handleChange(item.id, 'framework', e.target.value)}
-                    >
-                      <option value="">프레임워크 선택</option>
-                      {backendFrameworks[item.language]?.map(framework => (
-                        <option key={framework} value={framework}>
-                          {frameworkNames[framework]}
-                        </option>
-                      ))}
-                    </select>
-                    
-                    {item.framework && (
-                      <select
-                        className="formbold-form-input"
-                        value={item.version || ''}
-                        onChange={(e) => handleChange(item.id, 'version', e.target.value)}
-                      >
-                        <option value="">버전 선택</option>
-                        {frameworkVersions[item.framework]?.map(version => (
-                          <option key={version} value={version}>{version}</option>
-                        ))}
-                      </select>
-                    )}
-                  </>
+                  <select
+                    className="formbold-form-input"
+                    value={item.languageVersion || ''}
+                    onChange={(e) => handleChange(item.id, 'languageVersion', e.target.value)}
+                  >
+                    <option value="">언어 버전 선택</option>
+                    {languageVersions[item.language]?.map(version => (
+                      <option key={version} value={version}>{version}</option>
+                    ))}
+                  </select>
+                )}
+                
+                {/* Framework selection */}
+                {item.language && (
+                  <select
+                    className="formbold-form-input"
+                    value={item.framework || ''}
+                    onChange={(e) => handleChange(item.id, 'framework', e.target.value)}
+                  >
+                    <option value="">프레임워크 선택</option>
+                    {backendFrameworks[item.language]?.map(framework => (
+                      <option key={framework} value={framework}>
+                        {frameworkNames[framework]}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                
+                {/* Framework version selection */}
+                {item.framework && (
+                  <select
+                    className="formbold-form-input"
+                    value={item.frameworkVersion || ''}
+                    onChange={(e) => handleChange(item.id, 'frameworkVersion', e.target.value)}
+                  >
+                    <option value="">프레임워크 버전 선택</option>
+                    {frameworkVersions[item.framework]?.map(version => (
+                      <option key={version} value={version}>{version}</option>
+                    ))}
+                  </select>
                 )}
               </div>
               
