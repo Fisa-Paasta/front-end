@@ -110,14 +110,14 @@ export default function SidebarSummary() {
               <div key={item.id || index}>
                 {index + 1}. {formatName(item.type) || '-'} / 
                 {formatName(item.name) || '-'} {item.version || '-'}
-                {item.size && <span> ({item.size} GB)</span>}
+                {item.size && <span> {item.size} GB</span>}
               </div>
             ))
           )}
         </li>
         
         <li><strong>9. CI/CD:</strong> 
-          <div>Tool: {formatName(formData.cicd?.tool) || '-'} {formData.cicd?.version || '-'}</div>
+          <div>{formatName(formData.cicd?.tool) || '-'} {formData.cicd?.version || '-'}</div>
         </li>
       </ul>
     </div>

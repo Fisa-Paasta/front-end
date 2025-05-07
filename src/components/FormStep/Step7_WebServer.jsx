@@ -7,9 +7,9 @@ export default function Step7_WebServer() {
   
   // Updated web server options with latest versions
   const webServerOptions = {
-    "nginx": ["1.25.4", "1.24.0 (LTS)", "1.22.1 (Legacy)"],
-    "apache": ["2.4.58", "2.4.57", "2.4.56"],
-    "tomcat": ["10.1.18", "9.0.85", "8.5.99"]
+    "nginx": ["1.28.0 (LTS)", "1.27.5"],
+    "apache": ["2.4.63 (Latest)", "2.4.0"],
+    "tomcat": ["11.0", "10.1", "9.0"]
   };
   
   const serverDisplayNames = {

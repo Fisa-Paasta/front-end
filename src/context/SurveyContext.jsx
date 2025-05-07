@@ -105,6 +105,9 @@ export function SurveyProvider({ children }) {
     setCurrentStep(prev => Math.max(prev - 1, 0));
   };
 
+  // TOTAL_STEPS 계산 추가
+  const TOTAL_STEPS = steps.length;
+
   return (
     <SurveyContext.Provider value={{
       formData,
@@ -113,7 +116,8 @@ export function SurveyProvider({ children }) {
       setCurrentStep,
       goToNextStep,
       goToPrevStep,
-      steps
+      steps,
+      TOTAL_STEPS  // TOTAL_STEPS를 추가
     }}>
       {children}
     </SurveyContext.Provider>

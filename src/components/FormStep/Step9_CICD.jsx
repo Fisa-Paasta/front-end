@@ -7,16 +7,12 @@ export default function Step9_CICD() {
   
   // Updated CI/CD options
   const cicdOptions = {
-    "jenkins": ["2.440.1", "2.426.3 (LTS)", "2.414.3 (LTS)"],
-    "gitlab_ci": ["16.10.1", "16.9.4", "16.8.3"],
-    "github_actions": ["Latest GitHub-hosted runner"],
-    "argocd": ["2.9.3", "2.8.4", "2.7.14"]
+    "jenkins": ["2.504.1", "2.492.3 (LTS)", "2.479.3 (LTS)"],
+    "argocd": ["2.14.11", "2.13.7", "2.12.12"]
   };
   
   const toolDisplayNames = {
     "jenkins": "Jenkins",
-    "gitlab_ci": "GitLab CI/CD",
-    "github_actions": "GitHub Actions",
     "argocd": "ArgoCD"
   };
 

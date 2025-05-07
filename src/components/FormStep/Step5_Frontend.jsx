@@ -7,11 +7,10 @@ export default function Step5_Frontend() {
   
   // Updated frontend frameworks and their versions
   const frontendOptions = {
-    "react": ["18.2.0", "18.0.0", "17.0.2"],
-    "vue": ["3.4.15", "3.3.12", "3.2.47"],
-    "angular": ["17.3.0", "16.2.12", "15.2.10"],
-    "nextjs": ["14.1.0", "14.0.4", "13.5.6"],
-    "nuxtjs": ["3.10.0", "3.9.3", "3.8.2"]
+    "react": ["19.1.0", "18.3.1", "17.0.2"],
+    "vue": ["3.5.13 (Latest)", "3.5.0"],
+    "angular": ["19.2.9 (Latest)", "19.2.0"],
+    "nextjs": ["15.3.0", "14.2.0"]
   };
   
   const frameworkNames = {
@@ -19,7 +18,6 @@ export default function Step5_Frontend() {
     "vue": "Vue.js",
     "angular": "Angular",
     "nextjs": "Next.js",
-    "nuxtjs": "Nuxt.js"
   };
 
   // 로컬 상태 초기화 - 프론트엔드 항목의 배열로 관리

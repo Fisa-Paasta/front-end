@@ -659,25 +659,25 @@ html, body {
   align-items: flex-start;
   margin-bottom: 20px;
   padding: 15px;
+  padding-right: 50px; /* 오른쪽 패딩 추가 */
   background-color: #f9f9f9;
   border-radius: 8px;
 }
 
 .item-content {
-  width: calc(100% - 40px);
-  margin-right: 10px;
+  width: 100%;
 }
 
 .remove-button {
   position: absolute;
   top: 15px;
-  right: 15px;
-  width: 30px;
-  height: 30px;
+  right: -10px; /* 상자 밖으로 이동 */
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background-color: #f0f0f0;
-  color: #333;
-  font-size: 18px;
+  background-color: #e1e1f9;
+  color: #6A64F1;
+  font-size: 16px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -685,11 +685,13 @@ html, body {
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .remove-button:hover {
-  background-color: #e0e0e0;
-  color: #ff0000;
+  background-color: #6A64F1;
+  color: white;
+  transform: scale(1.1);
 }
 
 /* DB 크기 입력 필드 스타일 */

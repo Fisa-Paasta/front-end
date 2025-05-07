@@ -150,11 +150,10 @@ export default function Step8_DB() {
                           <input
                             type="number"
                             className="formbold-form-input"
-                            placeholder="DB Size"
+                            placeholder="DB Size (GB)"
                             value={item.size || ''}
                             onChange={(e) => handleChange(item.id, 'size', e.target.value)}
                           />
-                          <span className="unit">GB</span>
                         </div>
                       </>
                     )}

@@ -137,6 +137,7 @@ export default function FormStep() {
           onSubmit={() => {
             alert('제출이 완료되었습니다!');
             setShowModal(false);
+            // 폼 초기화 또는 다른 작업을 추가할 수 있습니다
           }}
         />
       )}

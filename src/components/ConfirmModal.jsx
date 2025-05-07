@@ -112,7 +112,7 @@ export default function ConfirmModal({ onClose, onSubmit }) {
                 formData.dbItems.map((item, index) => (
                   <div key={item.id || index} className="item-entry">
                     {index + 1}. {formatName(item.type) || '-'} / {formatName(item.name) || '-'} {item.version || '-'}
-                    {item.size && <span> ({item.size} GB)</span>}
+                    {item.size && <span> {item.size} GB</span>}
                   </div>
                 ))
               )}
@@ -120,7 +120,7 @@ export default function ConfirmModal({ onClose, onSubmit }) {
 
             <li>
               <strong>9. CI/CD:</strong>
-              <div className="item-entry">Tool: {formatName(formData.cicd?.tool) || '-'} {formData.cicd?.version || '-'}</div>
+              <div className="item-entry">{formatName(formData.cicd?.tool) || '-'} {formData.cicd?.version || '-'}</div>
             </li>
           </ul>
         </div>
