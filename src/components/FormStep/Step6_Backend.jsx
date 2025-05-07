@@ -16,28 +16,24 @@ export default function Step6_Backend() {
 
   // Language versions
   const languageVersions = {
-    "java": ["JDK 21 (LTS)", "JDK 17 (LTS)", "JDK 11 (LTS)"],
-    "nodejs": ["20.12.2 (LTS)", "18.19.1 (LTS)", "16.20.2 (LTS)"],
-    "python": ["3.12.3", "3.11.8", "3.10.14"],
-    "go": ["1.22.3", "1.21.8", "1.20.14"],
-    "ruby": ["3.3.0", "3.2.3", "3.1.5"]
+    "java": ["JDK 11 (LTS)", "JDK 17 (LTS)", "JDK 21 (LTS)"],
+    "nodejs": ["v20 (Maintenance)", "v22 (LTS)", "v23 (Maintenance)"],
+    "python": ["3.10", "3.11", "3.12"],
+    "go": ["1.23.9", "1.24.3"],
+    "ruby": ["3.2.8", "3.3.8", "3.4.3"]
   };
   
   // Backend frameworks
   const backendFrameworks = {
     "java": [
-      "spring_boot",
-      "quarkus",
-      "micronaut"
+      "spring_boot"
     ],
     "nodejs": [
       "express",
-      "nestjs",
-      "fastify"
+      "nestjs"
     ],
     "python": [
       "django",
-      "fastapi",
       "flask"
     ],
     "go": [
@@ -52,34 +48,22 @@ export default function Step6_Backend() {
   
   // Framework versions
   const frameworkVersions = {
-    "spring_boot": ["3.2.4", "3.1.10", "2.7.18"],
-    "quarkus": ["3.8.2", "3.6.5", "3.2.9"],
-    "micronaut": ["4.3.3", "4.2.0", "4.1.9"],
-    "express": ["4.18.2", "4.17.3", "4.16.4"],
-    "nestjs": ["10.3.0", "9.4.3", "8.4.7"],
-    "fastify": ["4.26.1", "3.29.5", "2.15.3"],
+    "spring_boot": ["3.1.2", "3.3.3", "3.4.4"],
+    "express": ["4.18.2", "4.21.2", "5.1.0"],
+    "nestjs": ["11.0.13", "11.0.21", "11.1.0"],
     "django": ["5.0.1", "4.2.10", "3.2.23"],
-    "fastapi": ["0.109.2", "0.104.1", "0.100.1"],
-    "flask": ["3.0.2", "2.3.3", "2.2.5"],
-    "gin": ["1.9.1", "1.8.2", "1.7.7"],
-    "echo": ["4.11.4", "4.10.2", "4.9.0"],
-    "fiber": ["2.52.2", "2.51.0", "2.50.0"],
-    "rails": ["7.1.3", "7.0.8", "6.1.7"]
+    "flask": ["2.1.0", "2.3.0", "3.1.0"],
+    "fiber": ["2.52.6", "2.52.5", "2.52.4"],
+    "rails": ["4.2", "5.2", "6.1"]
   };
   
   // Display names for frameworks
   const frameworkNames = {
     "spring_boot": "Spring Boot",
-    "quarkus": "Quarkus",
-    "micronaut": "Micronaut",
     "express": "Express",
     "nestjs": "NestJS",
-    "fastify": "Fastify",
     "django": "Django",
-    "fastapi": "FastAPI",
     "flask": "Flask",
-    "gin": "Gin",
-    "echo": "Echo",
     "fiber": "Fiber",
     "rails": "Ruby on Rails"
   };
