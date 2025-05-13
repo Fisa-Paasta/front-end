@@ -11,11 +11,11 @@ function App() {
   return (
     <Routes>
       {/* 로그인 페이지는 누구나 접근 가능 */}
-      <Route path="/init" element={<InitPage />} />
+      <Route path="/" element={<InitPage />} />
 
       {/* 인증된 사용자만 홈 접근 가능 */}
       <Route
-        path="/"
+        path="/home"
         element={isAuthenticated ? <HomePage /> : <Navigate to="/init" replace />}
       />
       <Route
