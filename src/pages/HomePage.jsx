@@ -1,3 +1,4 @@
+import { useSubmitted } from '@/context/SubmittedContext';
 import { useState } from 'react';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
@@ -6,27 +7,14 @@ import { useNavigate } from 'react-router-dom';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [dashboards, setDashboards] = useState([
-    { id: 1, title: 'EKS 클러스터 구축', desc: '프로덕션용 EKS 클러스터 구축 요청입니다.', date: '2024.01.15', starred: true, status: '접수중' },
-    { id: 2, title: '개발 환경 구성', desc: '개발팀을 위한 테스트 클러스터 환경 구성', date: '2024.01.14', starred: false, status: '승인완료' },
-    { id: 3, title: '모니터링 시스템', desc: 'Prometheus/Grafana 기반 모니터링 구축', date: '2024.01.13', starred: true, status: '구축중' },
-    { id: 4, title: 'CI/CD 파이프라인', desc: 'GitOps 기반 배포 파이프라인 구성', date: '2024.01.12', starred: true, status: '구축완료' },
-    { id: 5, title: '백업 시스템', desc: '클러스터 및 데이터 백업 시스템 구축', date: '2024.01.11', starred: false, status: '접수완료' },
-    { id: 6, title: '로깅 시스템', desc: 'EFK 스택 기반 중앙 로깅 시스템', date: '2024.01.10', starred: true, status: '승인처리중' },
-    { id: 7, title: '스테이징 환경', desc: '스테이징용 경량 클러스터 구성', date: '2024.01.09', starred: false, status: '구축완료' },
-    { id: 8, title: '서비스 메시', desc: 'Istio 기반 서비스 메시 구축', date: '2024.01.08', starred: true, status: '접수중' },
-  ]);
-
+  const context = useSubmitted();
+  const { submittedCards } = context;
   const [sortType, setSortType] = useState('date');
   const [selectedDashboard, setSelectedDashboard] = useState(null);
 
-  const toggleStar = (id) => {
-    setDashboards(prev =>
-      prev.map(card =>
-        card.id === id ? { ...card, starred: !card.starred } : card
-      )
-    );
-  };
+  console.log('📦 submittedCards:', submittedCards);
+  const submitted = useSubmitted();
+  console.log('useSubmitted 내부 값:', submitted);
 
   const statusPriority = {
     '접수중': 1,
@@ -38,7 +26,7 @@ export default function HomePage() {
   };
 
   const sortDashboards = (list) => {
-    return list.sort((a, b) => {
+    return list.slice().sort((a, b) => {
       if (sortType === 'title') return a.title.localeCompare(b.title);
       if (sortType === 'status') return statusPriority[a.status] - statusPriority[b.status];
       return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -57,16 +45,14 @@ export default function HomePage() {
     return map[status] || 'bg-white text-black';
   };
 
-  const starredDashboards = sortDashboards(dashboards.filter(d => d.starred));
-  const normalDashboards = sortDashboards(dashboards.filter(d => !d.starred));
+  const starredDashboards = sortDashboards(submittedCards.filter(d => d.starred));
+  const normalDashboards = sortDashboards(submittedCards.filter(d => !d.starred));
 
   return (
     <div className="min-h-screen transition-colors duration-500 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark text-[15px]">
       <Header />
-
       <div className="flex">
         <Sidebar />
-
         <main className="flex-1 p-10">
           <div className="flex items-center justify-between mb-6 min-w-0">
             <h2 className="text-2xl font-bold truncate">대시보드</h2>
@@ -101,15 +87,7 @@ export default function HomePage() {
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.desc}</p>
                     <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                       <span>{item.date}</span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleStar(item.id);
-                        }}
-                        className="hover:scale-110 transition-transform"
-                      >
-                        {item.starred ? '⭐' : '☆'}
-                      </button>
+                      <span>{item.starred ? '⭐' : '☆'}</span>
                     </div>
                   </div>
                 ))}
@@ -135,15 +113,7 @@ export default function HomePage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.desc}</p>
                 <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                   <span>{item.date}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleStar(item.id);
-                    }}
-                    className="hover:scale-110 transition-transform"
-                  >
-                    {item.starred ? '⭐' : '☆'}
-                  </button>
+                  <span>{item.starred ? '⭐' : '☆'}</span>
                 </div>
               </div>
             ))}

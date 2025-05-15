@@ -1,4 +1,3 @@
-// src/App.tsx
 import { Routes, Route, Navigate } from 'react-router-dom';
 import InitPage from './pages/InitPage';
 import HomePage from './pages/HomePage';
@@ -7,26 +6,25 @@ import ListPage from './pages/ListPage';
 import SettingsPage from './pages/SettingsPage';
 import DashboardDetail from './pages/DashboardDetail';
 import CostPage from './pages/CostPage';
-import MonitoringPage from './pages/MonitoringPage.jsx';
+import MonitoringPage from './pages/MonitoringPage';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   const isAuthenticated = !!localStorage.getItem('token');
 
   return (
     <Routes>
-      {/* 로그인 페이지는 누구나 접근 가능 */}
       <Route path="/" element={<InitPage />} />
       <Route path="/cost" element={<CostPage />} />
       <Route path="/monitoring" element={<MonitoringPage />} />
-
-      {/* 인증된 사용자만 홈 접근 가능 */}
+      <Route path="/admin" element={<AdminPage />} />
       <Route
         path="/home"
         element={isAuthenticated ? <HomePage /> : <Navigate to="/init" replace />}
       />
       <Route
         path="/survey"
-        element={isAuthenticated ? <SurveyPage /> : <Navigate to="/survey" replace />}
+        element={isAuthenticated ? <SurveyPage /> : <Navigate to="/init" replace />}
       />
       <Route
         path="/list"
@@ -34,7 +32,6 @@ function App() {
       />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/dashboard/:id" element={<DashboardDetail />} />
-      {/* 기타 경로는 /init 으로 리디렉션 */}
       <Route path="*" element={<Navigate to="/init" replace />} />
     </Routes>
   );

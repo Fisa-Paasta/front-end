@@ -1,29 +1,63 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+interface ConfirmModalProps {
+  title?: string;
+  onClose: () => void;
+  onSubmit: (data: { title: string; description: string }) => void; // ✅ 여기!
+  historyList?: any[];
+}
 
 export default function ConfirmModal({
   title = '제목 없음',
   onClose,
   onSubmit,
   historyList = []
-}) {
+}: ConfirmModalProps) {
+  const [inputTitle, setInputTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const navigate = useNavigate();
+
+  const handleConfirm = () => {
+    onSubmit({ title: inputTitle, description });
+    navigate('/home');
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
       <div
         className="bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-md shadow-2xl transition-colors duration-500 text-foreground-light dark:text-foreground-dark"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 제목 */}
-        <h2 className="text-lg font-bold mb-2 flex items-center gap-2">
-          🗂️ <span>{title || '제목 없음'}</span>
+        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+          📋 <span>신청 정보 입력</span>
         </h2>
 
-        {/* 승인 이력 */}
-        {historyList.length === 0 ? (
-          <div className="text-sm text-gray-400 flex items-center gap-2 mt-2">
-            💬 승인 이력이 없습니다
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold mb-1">제목</label>
+            <input
+              type="text"
+              value={inputTitle}
+              onChange={(e) => setInputTitle(e.target.value)}
+              className="formbold-form-input w-full"
+              placeholder="예: 백엔드 클러스터 요청"
+            />
           </div>
-        ) : (
-          <ul className="mt-3 space-y-2 text-sm">
+          <div>
+            <label className="block text-sm font-semibold mb-1">설명</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="formbold-form-input w-full"
+              placeholder="요청 목적 또는 세부사항"
+            />
+          </div>
+        </div>
+
+        {historyList.length > 0 && (
+          <ul className="mt-6 space-y-2 text-sm">
             {historyList.map((entry, index) => (
               <li
                 key={index}
@@ -39,7 +73,6 @@ export default function ConfirmModal({
           </ul>
         )}
 
-        {/* 버튼 영역 */}
         <div className="mt-6 flex justify-end space-x-2">
           <button
             onClick={onClose}
@@ -48,7 +81,7 @@ export default function ConfirmModal({
             닫기
           </button>
           <button
-            onClick={onSubmit}
+            onClick={handleConfirm}
             className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
           >
             확인

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
-import { useState } from 'react';
+import { useSubmitted } from '@/context/SubmittedContext';
 
 export default function DashboardDetail({ item, onClose }) {
   const [showHistory, setShowHistory] = useState(false);
+  const { submittedCards } = useSubmitted();
 
   if (!item) return null;
 
@@ -24,7 +25,7 @@ export default function DashboardDetail({ item, onClose }) {
         onClick={(e) => e.stopPropagation()}
         className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-md shadow-2xl text-foreground-light dark:text-foreground-dark transition-colors duration-500"
       >
-        {/* 닫기 버튼 (바깥 상단 위치) */}
+        {/* 닫기 버튼 */}
         <button
           onClick={onClose}
           className="absolute -top-4 -right-4 z-10 bg-white dark:bg-panel-dark text-gray-500 hover:text-gray-800 dark:hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center text-xl"
@@ -55,10 +56,10 @@ export default function DashboardDetail({ item, onClose }) {
 
         {showHistory && (
           <ConfirmModal
+            title={item.title}
+            historyList={item.historyList || []}
             onClose={() => setShowHistory(false)}
-            onSubmit={() => {
-              setShowHistory(false);
-            }}
+            onSubmit={() => setShowHistory(false)}
           />
         )}
       </div>

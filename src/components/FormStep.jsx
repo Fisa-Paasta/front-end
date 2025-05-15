@@ -1,4 +1,3 @@
-// src/components/FormStep.jsx
 import { useSurvey } from '@/context/SurveyContext';
 import { useState } from 'react';
 import Step1_Env from './FormStep/Step1_Env';
@@ -11,6 +10,7 @@ import Step7_WebServer from './FormStep/Step7_WebServer';
 import Step8_DB from './FormStep/Step8_DB';
 import Step9_CICD from './FormStep/Step9_CICD';
 import ConfirmModal from './ConfirmModal';
+import { useSubmitted } from '@/context/SubmittedContext';
 
 const steps = [
   Step1_Env,
@@ -33,6 +33,7 @@ export default function FormStep() {
     TOTAL_STEPS
   } = useSurvey();
 
+  const { addSubmittedCard } = useSubmitted();
   const [showModal, setShowModal] = useState(false);
   const StepComponent = steps[currentStep];
 
@@ -45,6 +46,22 @@ export default function FormStep() {
       }
     }
   };
+
+const handleConfirmSubmit = ({ title, description }) => {
+  const newCard = {
+    id: Date.now().toString(),
+    title,
+    desc: description.trim() || '—',  // ⛳ 사용자가 입력 안 하면 '—'로 대체
+    date: new Date().toISOString().split('T')[0],
+    starred: false,
+    status: '접수중',
+    historyList: []
+  };
+  addSubmittedCard(newCard);
+  setShowModal(false);
+};
+
+
 
   const isCurrentStepValid = () => {
     switch (currentStep) {
@@ -63,25 +80,34 @@ export default function FormStep() {
           !!formData.resources?.disk
         );
       case 3:
-        return (
-          !!formData.os?.name &&
-          !!formData.os?.version
-        );
+        return !!formData.os?.name && !!formData.os?.version;
       case 4:
-        return formData.frontendItems && formData.frontendItems.some(item =>
-          !!item.framework && !!item.version
+        return (
+          formData.frontendItems &&
+          formData.frontendItems.some(item => !!item.framework && !!item.version)
         );
       case 5:
-        return formData.backendItems && formData.backendItems.some(item =>
-          !!item.language && !!item.languageVersion && !!item.framework && !!item.frameworkVersion
+        return (
+          formData.backendItems &&
+          formData.backendItems.some(
+            item =>
+              !!item.language &&
+              !!item.languageVersion &&
+              !!item.framework &&
+              !!item.frameworkVersion
+          )
         );
       case 6:
-        return formData.webServerItems && formData.webServerItems.some(item =>
-          !!item.server && !!item.version
+        return (
+          formData.webServerItems &&
+          formData.webServerItems.some(item => !!item.server && !!item.version)
         );
       case 7:
-        return formData.dbItems && formData.dbItems.some(item =>
-          !!item.type && !!item.name && !!item.version && item.size !== ''
+        return (
+          formData.dbItems &&
+          formData.dbItems.some(
+            item => !!item.type && !!item.name && !!item.version && item.size !== ''
+          )
         );
       case 8:
         return !!formData.cicd?.tool && !!formData.cicd?.version;
@@ -90,30 +116,16 @@ export default function FormStep() {
     }
   };
 
-  const isAllStepsValid = () => {
-    return (
-      !!formData.env &&
-      !!formData.k8s?.type && 
-      !!formData.resources?.cpu &&
-      !!formData.os?.name &&
-      formData.frontendItems?.some(item => !!item.framework && !!item.version) &&
-      formData.backendItems?.some(item => !!item.language && !!item.languageVersion) &&
-      formData.webServerItems?.some(item => !!item.server && !!item.version) &&
-      formData.dbItems?.some(item => !!item.type && !!item.name && !!item.version && item.size !== '') &&
-      !!formData.cicd?.tool && !!formData.cicd?.version
-    );
-  };
-
   return (
     <div>
       <StepComponent />
 
       <div className="flex justify-between items-center mt-8 px-4">
-        <button 
+        <button
           className={`
             px-6 py-2.5 rounded-lg font-medium transition-all duration-200
-            ${currentStep === 0 
-              ? 'opacity-0 cursor-default' 
+            ${currentStep === 0
+              ? 'opacity-0 cursor-default'
               : 'bg-white dark:bg-panel-dark text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-opacity-80 shadow-sm border border-border-light dark:border-border-dark'
             }
           `}
@@ -138,12 +150,9 @@ export default function FormStep() {
       </div>
 
       {showModal && (
-        <ConfirmModal 
-          onClose={() => setShowModal(false)} 
-          onSubmit={() => {
-            alert('제출이 완료되었습니다!');
-            setShowModal(false);
-          }}
+        <ConfirmModal
+          onClose={() => setShowModal(false)}
+          onSubmit={handleConfirmSubmit}
         />
       )}
     </div>
