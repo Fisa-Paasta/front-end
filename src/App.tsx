@@ -4,6 +4,10 @@ import InitPage from './pages/InitPage';
 import HomePage from './pages/HomePage';
 import SurveyPage from './pages/SurveyPage';
 import ListPage from './pages/ListPage';
+import SettingsPage from './pages/SettingsPage';
+import DashboardDetail from './pages/DashboardDetail';
+import CostPage from './pages/CostPage';
+import MonitoringPage from './pages/MonitoringPage.jsx';
 
 function App() {
   const isAuthenticated = !!localStorage.getItem('token');
@@ -12,6 +16,8 @@ function App() {
     <Routes>
       {/* 로그인 페이지는 누구나 접근 가능 */}
       <Route path="/" element={<InitPage />} />
+      <Route path="/cost" element={<CostPage />} />
+      <Route path="/monitoring" element={<MonitoringPage />} />
 
       {/* 인증된 사용자만 홈 접근 가능 */}
       <Route
@@ -20,13 +26,14 @@ function App() {
       />
       <Route
         path="/survey"
-        element={isAuthenticated ? <SurveyPage /> : <Navigate to="/init" replace />}
+        element={isAuthenticated ? <SurveyPage /> : <Navigate to="/survey" replace />}
       />
       <Route
         path="/list"
         element={isAuthenticated ? <ListPage /> : <Navigate to="/init" replace />}
       />
-
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/dashboard/:id" element={<DashboardDetail />} />
       {/* 기타 경로는 /init 으로 리디렉션 */}
       <Route path="*" element={<Navigate to="/init" replace />} />
     </Routes>

@@ -1,23 +1,16 @@
-// src/components/SidebarSummary.jsx
 import { useSurvey } from '@/context/SurveyContext';
 
 export default function SidebarSummary() {
-  const { formData } = useSurvey();
+  const { formData, currentStep } = useSurvey();
 
-  // 환경 포맷: iaas → IaaS, paas → PaaS
   const formatEnv = (env) => {
     if (!env) return '-';
     const lowered = env.toLowerCase();
-    if (lowered === 'iaas') return 'IaaS';
-    if (lowered === 'paas') return 'PaaS';
-    return env;
+    return lowered === 'iaas' ? 'IaaS' : lowered === 'paas' ? 'PaaS' : env;
   };
 
-  // 이름 포맷: snake_case를 Title Case로 변환
   const formatName = (key) => {
     if (!key) return '-';
-    
-    // 특수 케이스 매핑
     const mappings = {
       'spring_boot': 'Spring Boot',
       'nextjs': 'Next.js',
@@ -28,98 +21,115 @@ export default function SidebarSummary() {
       'github_actions': 'GitHub Actions',
       'gitlab_ci': 'GitLab CI/CD'
     };
-    
-    if (mappings[key]) return mappings[key];
-    
-    // 기본 포맷팅: snake_case를 Title Case로 변환
-    return key.split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return mappings[key] || key.split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
   };
 
   return (
-    <div className="formbold-sidebar">
-      <h3>입력 요약</h3>
-      <ul className="formbold-summary">
-        <li><strong>1. 환경:</strong> 
-          <div>{formatEnv(formData.env)}</div>
-        </li>
+    <div className="sticky top-24 bg-panel-light dark:bg-panel-dark text-foreground-light dark:text-foreground-dark rounded-2xl p-6 border border-border-light dark:border-border-dark shadow-sm space-y-6 h-fit">
+      <h2 className="text-lg font-semibold">🧾 현재 입력 항목</h2>
 
-        <li><strong>2. k8s settings:</strong>
-          <div>Type: {formatName(formData.k8s?.type) || '-'}</div>
-          <div>Version: {formData.k8s?.version || '-'}</div>
-          {formData.k8s?.runtime && <div>Runtime: {formatName(formData.k8s?.runtime)} {formData.k8s?.runtimeVersion}</div>}
-          {formData.k8s?.cni && <div>CNI: {formData.k8s?.cni}</div>}
-          <div>Node: {formData.k8s?.node || '0'}</div>
-          <div>ReplicaSets: {formData.k8s?.rs || '0'}</div>
-          <div>NameSpace: {formData.k8s?.namespace || '-'}</div>
-        </li>
+      <div className="text-sm space-y-4">
+        {currentStep === 0 && (
+          <SummaryItem label="1. 환경" value={formatEnv(formData.env)} />
+        )}
 
-        <li><strong>3. 자원:</strong>
-          <div>Cpu: {formData.resources?.cpu || '0'} cores</div>
-          <div>Ram: {formData.resources?.ram || '0'} GB</div>
-          <div>Disk: {formData.resources?.disk || '0'} GB</div>
-        </li>
+        {currentStep === 1 && (
+          <SummaryItem label="2. Kubernetes">
+            <div>Type: {formatName(formData.k8s?.type)}</div>
+            <div>Version: {formData.k8s?.version || '-'}</div>
+            {formData.k8s?.runtime && (
+              <div>Runtime: {formatName(formData.k8s.runtime)} {formData.k8s.runtimeVersion}</div>
+            )}
+            {formData.k8s?.cni && <div>CNI: {formData.k8s.cni}</div>}
+            <div>Node: {formData.k8s?.node || '0'}</div>
+            <div>ReplicaSets: {formData.k8s?.rs || '0'}</div>
+            <div>Namespace: {formData.k8s?.namespace || '-'}</div>
+          </SummaryItem>
+        )}
 
-        <li><strong>4. OS:</strong> 
-          <div>{formatName(formData.os?.name) || '-'} {formData.os?.version || '-'}</div>
-        </li>
-        
-        <li><strong>5. 프론트엔드:</strong>
-          {!formData.frontendItems || formData.frontendItems.length === 0 ? (
-            <div>-</div>
-          ) : (
-            formData.frontendItems.map((item, index) => (
-              <div key={item.id || index}>
-                {index + 1}. {formatName(item.framework) || '-'} {item.version || '-'}
-              </div>
-            ))
-          )}
-        </li>
-        
-        <li><strong>6. 백엔드:</strong>
-          {!formData.backendItems || formData.backendItems.length === 0 ? (
-            <div>-</div>
-          ) : (
-            formData.backendItems.map((item, index) => (
-              <div key={item.id || index}>
-                {index + 1}. {formatName(item.language) || '-'} {item.languageVersion || '-'} / 
-                {formatName(item.framework) || '-'} {item.frameworkVersion || '-'}
-              </div>
-            ))
-          )}
-        </li>
-        
-        <li><strong>7. 웹 서버/WAS:</strong>
-          {!formData.webServerItems || formData.webServerItems.length === 0 ? (
-            <div>-</div>
-          ) : (
-            formData.webServerItems.map((item, index) => (
-              <div key={item.id || index}>
-                {index + 1}. {formatName(item.server) || '-'} {item.version || '-'}
-              </div>
-            ))
-          )}
-        </li>
-        
-        <li><strong>8. DB:</strong>
-          {!formData.dbItems || formData.dbItems.length === 0 ? (
-            <div>-</div>
-          ) : (
-            formData.dbItems.map((item, index) => (
-              <div key={item.id || index}>
-                {index + 1}. {formatName(item.type) || '-'} / 
-                {formatName(item.name) || '-'} {item.version || '-'}
-                {item.size && <span> {item.size} GB</span>}
-              </div>
-            ))
-          )}
-        </li>
-        
-        <li><strong>9. CI/CD:</strong> 
-          <div>{formatName(formData.cicd?.tool) || '-'} {formData.cicd?.version || '-'}</div>
-        </li>
-      </ul>
+        {currentStep === 2 && (
+          <SummaryItem label="3. 자원">
+            <div>CPU: {formData.resources?.cpu || '0'} cores</div>
+            <div>RAM: {formData.resources?.ram || '0'} GB</div>
+            <div>Disk: {formData.resources?.disk || '0'} GB</div>
+          </SummaryItem>
+        )}
+
+        {currentStep === 3 && (
+          <SummaryItem
+            label="4. OS"
+            value={`${formatName(formData.os?.name)} ${formData.os?.version || '-'}`}
+          />
+        )}
+
+        {currentStep === 4 && (
+          <SummaryItem label="5. 프론트엔드">
+            {formData.frontendItems?.length
+              ? formData.frontendItems.map((item, i) => (
+                  <div key={item.id || i}>
+                    {i + 1}. {formatName(item.framework)} {item.version || '-'}
+                  </div>
+                ))
+              : <div>-</div>}
+          </SummaryItem>
+        )}
+
+        {currentStep === 5 && (
+          <SummaryItem label="6. 백엔드">
+            {formData.backendItems?.length
+              ? formData.backendItems.map((item, i) => (
+                  <div key={item.id || i}>
+                    {i + 1}. {formatName(item.language)} {item.languageVersion || '-'} / {formatName(item.framework)} {item.frameworkVersion || '-'}
+                  </div>
+                ))
+              : <div>-</div>}
+          </SummaryItem>
+        )}
+
+        {currentStep === 6 && (
+          <SummaryItem label="7. 웹 서버/WAS">
+            {formData.webServerItems?.length
+              ? formData.webServerItems.map((item, i) => (
+                  <div key={item.id || i}>
+                    {i + 1}. {formatName(item.server)} {item.version || '-'}
+                  </div>
+                ))
+              : <div>-</div>}
+          </SummaryItem>
+        )}
+
+        {currentStep === 7 && (
+          <SummaryItem label="8. DB">
+            {formData.dbItems?.length
+              ? formData.dbItems.map((item, i) => (
+                  <div key={item.id || i}>
+                    {i + 1}. {formatName(item.type)} / {formatName(item.name)} {item.version || '-'}{item.size && ` ${item.size} GB`}
+                  </div>
+                ))
+              : <div>-</div>}
+          </SummaryItem>
+        )}
+
+        {currentStep === 8 && (
+          <SummaryItem
+            label="9. CI/CD"
+            value={`${formatName(formData.cicd?.tool) || '-'} ${formData.cicd?.version || '-'}`}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SummaryItem({ label, value, children }) {
+  return (
+    <div>
+      <div className="font-semibold text-foreground-light dark:text-white mb-1">{label}</div>
+      {value ? (
+        <div className="text-gray-700 dark:text-gray-300">{value}</div>
+      ) : (
+        <div className="text-gray-700 dark:text-gray-300 space-y-1">{children}</div>
+      )}
     </div>
   );
 }

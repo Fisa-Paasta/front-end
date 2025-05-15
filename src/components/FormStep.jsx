@@ -37,7 +37,6 @@ export default function FormStep() {
   const StepComponent = steps[currentStep];
 
   const handleNext = () => {
-    // 유효성 검사 통과 시에만 다음 단계로 이동
     if (isCurrentStepValid()) {
       if (currentStep === TOTAL_STEPS - 1) {
         setShowModal(true);
@@ -47,54 +46,50 @@ export default function FormStep() {
     }
   };
 
-  // 유효성 검사 로직 업데이트
   const isCurrentStepValid = () => {
     switch (currentStep) {
-      case 0: // Environment
+      case 0:
         return !!formData.env;
-      case 1: // K8s
+      case 1:
         return (
           !!formData.k8s?.type &&
           !!formData.k8s?.version &&
           !!formData.k8s?.node
         );
-      case 2: // Resources
+      case 2:
         return (
           !!formData.resources?.cpu &&
           !!formData.resources?.ram &&
           !!formData.resources?.disk
         );
-      case 3: // OS
+      case 3:
         return (
           !!formData.os?.name &&
           !!formData.os?.version
         );
-      case 4: // Frontend
+      case 4:
         return formData.frontendItems && formData.frontendItems.some(item =>
           !!item.framework && !!item.version
         );
-      case 5: // Backend
-        // Updated for new backend structure with language version
+      case 5:
         return formData.backendItems && formData.backendItems.some(item =>
           !!item.language && !!item.languageVersion && !!item.framework && !!item.frameworkVersion
         );
-      case 6: // Web Server
+      case 6:
         return formData.webServerItems && formData.webServerItems.some(item =>
           !!item.server && !!item.version
         );
-      case 7: // DB
+      case 7:
         return formData.dbItems && formData.dbItems.some(item =>
           !!item.type && !!item.name && !!item.version && item.size !== ''
         );
-      
-      case 8: // CI/CD
+      case 8:
         return !!formData.cicd?.tool && !!formData.cicd?.version;
       default:
-        return true; // 기본적으로 진행 허용
+        return true;
     }
   };
-  
-  // 확인 버튼 활성화 여부 업데이트
+
   const isAllStepsValid = () => {
     return (
       !!formData.env &&
@@ -108,26 +103,37 @@ export default function FormStep() {
       !!formData.cicd?.tool && !!formData.cicd?.version
     );
   };
-  
+
   return (
     <div>
       <StepComponent />
 
-      <div className="nav-buttons">
+      <div className="flex justify-between items-center mt-8 px-4">
         <button 
-          className="prev-button"
-          onClick={goToPrevStep} 
+          className={`
+            px-6 py-2.5 rounded-lg font-medium transition-all duration-200
+            ${currentStep === 0 
+              ? 'opacity-0 cursor-default' 
+              : 'bg-white dark:bg-panel-dark text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-opacity-80 shadow-sm border border-border-light dark:border-border-dark'
+            }
+          `}
+          onClick={goToPrevStep}
           disabled={currentStep === 0}
-          style={{visibility: currentStep === 0 ? 'hidden' : 'visible'}}
         >
-          이전
+          ← 이전
         </button>
         <button
-          className="next-button"
+          className={`
+            px-6 py-2.5 rounded-lg font-medium transition-all duration-200
+            ${!isCurrentStepValid()
+              ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary-hover text-white shadow-sm'
+            }
+          `}
           onClick={handleNext}
           disabled={!isCurrentStepValid()}
         >
-          {currentStep === TOTAL_STEPS - 1 ? '확인' : '다음'}
+          {currentStep === TOTAL_STEPS - 1 ? '확인 ✓' : '다음 →'}
         </button>
       </div>
 
@@ -137,7 +143,6 @@ export default function FormStep() {
           onSubmit={() => {
             alert('제출이 완료되었습니다!');
             setShowModal(false);
-            // 폼 초기화 또는 다른 작업을 추가할 수 있습니다
           }}
         />
       )}

@@ -1,15 +1,12 @@
-/* Base styles */
+/* ✅ Reset & Base */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: #213547;
-  background-color: #ffffff;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-purple: #9333EA;
+  --color-purple-hover: #7c29c9;
+  --color-purple-disabled: #b28be7;
+  --color-dark-bg: #1f1f2f;
+  --color-dark-text: #f1f1f1;
+  --color-light-bg: #ffffff;
+  --color-light-text: #000000;
 }
 
 html, body {
@@ -18,192 +15,108 @@ html, body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  font-family: sans-serif;
+  background-color: var(--color-light-bg);
+  color: var(--color-light-text);
 }
 
-/* Layout */
+/* ✅ Layout */
 .formbold-main-wrapper {
   display: flex;
   justify-content: center;
   align-items: stretch;
   width: 100vw;
   min-height: 100vh;
-  box-sizing: border-box;
   padding: 30px 40px;
+  box-sizing: border-box;
   overflow-y: auto;
 }
 
 .split-layout {
   display: flex;
-  flex-direction: row;
   gap: 30px;
   width: 100%;
-  flex: 1;
   padding-right: 40px;
   box-sizing: border-box;
   overflow-y: auto;
   margin: 0 auto;
 }
 
-/* Sidebar */
-.formbold-sidebar {
-  width: 300px;
-  min-width: 300px;
-  flex-shrink: 0;
-  background-color: #f3f2fd;
-  padding: 20px;
-  border-radius: 8px;
-  font-size: 16px;
-  line-height: 1.7;
-  color: #333;
-  overflow-y: auto;
-}
-
-.formbold-sidebar strong {
-  font-weight: 600;
-  font-size: 16.5px;
-  color: #07074D;
-}
-
-/* Form wrapper */
-.formbold-form-wrapper {
-  width: 100%;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Form elements */
-.formbold-form-input {
+/* ✅ Form Elements */
+.formbold-form-input,
+select,
+input,
+textarea {
   width: 100%;
   padding: 12px 15px;
   border-radius: 5px;
-  border: 1px solid #DDE3EC;
-  background: #FFFFFF;
-  font-weight: 500;
-  font-size: 16px;
-  color: #536387;
   outline: none;
   resize: none;
   margin-bottom: 15px;
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: var(--color-light-bg);
+  color: var(--color-light-text);
 }
 
-.formbold-form-input:focus {
-  border-color: #6a64f1;
-  box-shadow: 0 0 0 3px rgba(106, 100, 241, 0.1);
+.dark .formbold-form-input,
+.dark select,
+.dark input,
+.dark textarea {
+  background-color: var(--color-dark-bg);
+  color: var(--color-dark-text);
 }
 
-.formbold-form-label {
-  color: #07074D;
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 24px;
-  display: block;
-  margin-bottom: 18px;
+.formbold-form-input:focus,
+select:focus,
+input:focus,
+textarea:focus {
+  border-color: var(--color-purple);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
 }
 
-/* Buttons */
+/* ✅ Buttons */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #f9f9f9;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 button:hover {
-  border-color: #646cff;
+  border-color: var(--color-purple);
 }
 
-button:focus,
-button:focus-visible {
+button:focus {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
 .formbold-btn {
-  background-color: #6A64F1;
-  color: white;
+  background-color: var(--color-purple);
   border: none;
   border-radius: 5px;
   padding: 10px 25px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: white;
   transition: all 0.3s ease;
 }
 
 .formbold-btn:hover {
-  background-color: #5953d4;
+  background-color: var(--color-purple-hover);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .formbold-btn:disabled {
-  background-color: #a5a2e3;
+  background-color: var(--color-purple-disabled);
   cursor: not-allowed;
   box-shadow: none;
 }
 
-/* Navigation buttons */
-.nav-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 30px;
-}
-
-.prev-button, .next-button {
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.prev-button {
-  background-color: transparent;
-  color: #6A64F1;
-  border: 1px solid #6A64F1;
-}
-
-.next-button {
-  background-color: #6A64F1;
-  color: white;
-  border: none;
-}
-
-.prev-button:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px);
-}
-
-.next-button:hover {
-  background-color: #5953d4;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(106, 100, 241, 0.3);
-}
-
-.next-button:disabled {
-  background-color: #a5a2e3;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Step progress */
+/* ✅ Step Navigation */
 .step-progress-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 0 30px 0;
-  padding: 10px 0;
+  margin: 40px 0;
   overflow-x: auto;
 }
 
@@ -213,208 +126,104 @@ button:focus-visible {
   align-items: center;
   position: relative;
   flex: 1;
-  min-width: 70px;
+  min-width: 60px;
 }
 
 .step-circle {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background-color: #ccc;
-  color: #fff;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 17px;
-  transition: all 0.3s ease;
   z-index: 2;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.step-item.active .step-circle {
-  background-color: #6A64F1;
-  transform: scale(1.1);
-  box-shadow: 0 0 0 4px rgba(106, 100, 241, 0.2);
-}
-
-.step-item.completed .step-circle {
-  background-color: #6A64F1;
 }
 
 .step-line {
   position: absolute;
-  top: 18px;
+  top: 16px;
   left: 50%;
-  right: -50%;
-  height: 3px;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  height: 4px;
   background-color: #ccc;
   z-index: 1;
 }
 
+.step-item.active .step-circle,
+.step-item.completed .step-circle {
+  background-color: var(--color-purple);
+}
+
 .step-item.completed .step-line {
-  background-color: #6A64F1;
+  background-color: var(--color-purple);
 }
 
 .step-label {
-  margin-top: 10px;
-  font-size: 13px;
-  text-align: center;
-  white-space: nowrap;
+  margin-top: 8px;
+  font-size: 12px;
   color: #888;
-  transition: all 0.3s ease;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .step-item.active .step-label {
-  color: #333;
-  font-weight: 600;
+  color: var(--color-light-text);
 }
 
 .step-item.completed .step-label {
-  color: #6A64F1;
+  color: var(--color-purple);
 }
 
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+/* ✅ Sidebar Text Color */
+.formbold-sidebar strong {
+  color: var(--color-light-text);
+}
+.dark .formbold-sidebar strong {
+  color: var(--color-dark-text);
+}
+
+/* ✅ Navigation Buttons */
+.nav-buttons {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(2px);
+  justify-content: space-between;
+  margin-top: 30px;
 }
 
-.modal-content {
-  width: 80%;
-  max-width: 800px;
-  max-height: 90vh;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.prev-button {
+  background-color: transparent;
+  color: var(--color-purple);
+  border: 1px solid var(--color-purple);
 }
 
-.modal-content h2 {
-  margin: 0;
-  padding: 20px;
-  background-color: #6A64F1;
+.next-button {
+  background-color: var(--color-purple);
   color: white;
-  font-size: 20px;
-  font-weight: 600;
+  border: none;
 }
 
-.modal-body {
-  padding: 20px;
-  overflow-y: auto;
-  max-height: 60vh;
+.next-button:hover {
+  background-color: var(--color-purple-hover);
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: 15px 20px;
-  background-color: #f9f9f9;
-  border-top: 1px solid #eee;
-  gap: 10px;
+.next-button:disabled {
+  background-color: var(--color-purple-disabled);
 }
 
-/* Form sections */
-.form-section {
-  margin-bottom: 30px;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+/* ✅ Utility */
+.confirm-button {
+  background-color: var(--color-purple);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
 }
 
-.form-section h4 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-/* Item list */
-.item-list {
-  margin-bottom: 15px;
-  padding: 0 5px;
-}
-
-.item-row {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-}
-
-.item-content {
-  width: calc(100% - 40px);
-  margin-right: 10px;
-}
-
-.item-list > .item-row:nth-child(odd) {
-  background-color: #f5f5f5;
-}
-
-.item-list > .item-row:nth-child(even) {
-  background-color: #fafafa;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .formbold-main-wrapper {
-    padding: 10px;
-    overflow-y: auto;
-  }
-  
-  .split-layout {
-    flex-direction: column;
-    align-items: stretch;
-    height: auto;
-    gap: 20px;
-  }
-
-  .formbold-sidebar,
-  .formbold-form-wrapper {
-    width: 100%;
-    max-width: 100%;
-    min-width: auto;
-    height: auto;
-  }
-}
-
+/* ✅ Responsive */
 @media (max-width: 768px) {
-  .formbold-main-wrapper {
-    padding: 10px;
-  }
-
-  .formbold-form-input {
-    font-size: 14px;
-    padding: 10px;
-  }
-
-  .formbold-form-label {
-    font-size: 16px;
-  }
-
-  .formbold-btn,
-  .prev-button,
-  .next-button {
-    font-size: 14px;
-    padding: 8px 16px;
-  }
-
   .step-label {
     font-size: 10px;
   }
@@ -422,134 +231,9 @@ button:focus-visible {
   .step-circle {
     width: 30px;
     height: 30px;
-    font-size: 14px;
-  }
-
-  .formbold-sidebar {
-    padding: 15px;
-  }
-
-  .modal-content {
-    width: 95%;
-    max-height: 95vh;
-  }
-
-  .modal-content h2 {
-    font-size: 18px;
-    padding: 15px;
-  }
-
-  .modal-body {
-    padding: 15px;
-  }
-
-  .modal-actions {
-    padding: 10px 15px;
-  }
-
-  .submit-button,
-  .cancel-button {
-    padding: 8px 14px;
-    font-size: 14px;
   }
 }
 
-/* X 버튼 위치 조정 */
-.item-row {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 20px;
-  padding: 15px;
-  padding-right: 50px; /* 오른쪽 패딩 추가 */
-  background-color: #f9f9f9;
-  border-radius: 8px;
-}
-
-.item-content {
-  width: 100%;
-}
-
-.remove-button {
-  position: absolute;
-  top: 15px;
-  right: -10px; /* 상자 밖으로 이동 */
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: #e1e1f9;
-  color: #6A64F1;
-  font-size: 16px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.remove-button:hover {
-  background-color: #6A64F1;
-  color: white;
-  transform: scale(1.1);
-}
-
-/* DB 크기 입력 필드 스타일 */
-.formbold-input-with-unit {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.formbold-input-with-unit input {
-  width: calc(100% - 40px);
-}
-
-.formbold-input-with-unit .unit {
-  position: absolute;
-  right: 15px;
-  color: #666;
-  font-size: 14px;
-  pointer-events: none;
-}
-
-/* 추가 여백 및 디자인 개선 */
-.form-section {
-  margin-bottom: 30px;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.form-section h4 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-/* 입력 필드 디자인 개선 */
-.formbold-form-input {
-  width: 100%;
-  padding: 12px 15px;
-  border-radius: 5px;
-  border: 1px solid #DDE3EC;
-  background: #FFFFFF;
-  font-weight: 500;
-  font-size: 16px;
-  color: #536387;
-  outline: none;
-  resize: none;
-  margin-bottom: 15px;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.formbold-form-input:focus {
-  border-color: #6a64f1;
-  box-shadow: 0 0 0 3px rgba(106, 100, 241, 0.1);
+.badge {
+  @apply bg-gray-100 dark:bg-gray-700 text-xs px-2 py-0.5 rounded;
 }

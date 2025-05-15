@@ -1,17 +1,24 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import Header from '@/components/Header';
+import Sidebar from '@/components/Sidebar';
+import DashboardDetail from '@/pages/DashboardDetail';
+import { useNavigate } from 'react-router-dom';
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [dashboards, setDashboards] = useState([
-    { id: 1, title: '1번째 이미지', desc: '서버 대시보드 설명이 들어갑니다.', date: '2022.09.19', starred: true, status: '접수중' },
-    { id: 2, title: '2번째 이미지', desc: '서버 대시보드 설명이 들어갑니다.', date: '2022.09.19', starred: true, status: '승인완료' },
-    { id: 3, title: '3번째 이미지', desc: '서버 대시보드 설명이 들어갑니다.', date: '2022.09.19', starred: true, status: '구축중' },
-    { id: 4, title: '4번째 이미지', desc: '서버 대시보드 설명이 들어갑니다.', date: '2022.09.19', starred: true, status: '구축완료' },
-    { id: 6, title: '6번째 이미지', desc: '서버 대시보드 설명이 들어갑니다.', date: '2022.09.19', starred: true, status: '접수완료' },
+    { id: 1, title: 'EKS 클러스터 구축', desc: '프로덕션용 EKS 클러스터 구축 요청입니다.', date: '2024.01.15', starred: true, status: '접수중' },
+    { id: 2, title: '개발 환경 구성', desc: '개발팀을 위한 테스트 클러스터 환경 구성', date: '2024.01.14', starred: false, status: '승인완료' },
+    { id: 3, title: '모니터링 시스템', desc: 'Prometheus/Grafana 기반 모니터링 구축', date: '2024.01.13', starred: true, status: '구축중' },
+    { id: 4, title: 'CI/CD 파이프라인', desc: 'GitOps 기반 배포 파이프라인 구성', date: '2024.01.12', starred: true, status: '구축완료' },
+    { id: 5, title: '백업 시스템', desc: '클러스터 및 데이터 백업 시스템 구축', date: '2024.01.11', starred: false, status: '접수완료' },
+    { id: 6, title: '로깅 시스템', desc: 'EFK 스택 기반 중앙 로깅 시스템', date: '2024.01.10', starred: true, status: '승인처리중' },
+    { id: 7, title: '스테이징 환경', desc: '스테이징용 경량 클러스터 구성', date: '2024.01.09', starred: false, status: '구축완료' },
+    { id: 8, title: '서비스 메시', desc: 'Istio 기반 서비스 메시 구축', date: '2024.01.08', starred: true, status: '접수중' },
   ]);
 
-  const navigate = useNavigate();
   const [sortType, setSortType] = useState('date');
+  const [selectedDashboard, setSelectedDashboard] = useState(null);
 
   const toggleStar = (id) => {
     setDashboards(prev =>
@@ -54,49 +61,23 @@ export default function HomePage() {
   const normalDashboards = sortDashboards(dashboards.filter(d => !d.starred));
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a] text-white text-[15px]">
-      <div className="w-full bg-[#1a1a2e] text-white shadow-md px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <img src="src/assets/logo.png" alt="Paasta" className="h-8 w-auto" />
-          <span className="text-xl font-bold">Paasta</span>
-        </Link>
-        <div className="flex items-center space-x-6">
-          <nav className="flex space-x-6 text-base font-medium">
-            <Link to="/news" className="text-gray-300 hover:text-white">목록</Link>
-            <Link to="/survey" className="text-gray-300 hover:text-white">모니터링</Link>
-            <Link to="/list" className="text-gray-300 hover:text-white">비용산정</Link>
-            <Link to="/mypage" className="text-gray-300 hover:text-white">마이페이지</Link>
-          </nav>
-          <Link
-            to="/login"
-            className="px-5 py-2 text-base bg-blue-500 text-white rounded hover:bg-blue-600 transition font-semibold"
-          >
-            로그인
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-screen transition-colors duration-500 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark text-[15px]">
+      <Header />
 
       <div className="flex">
-        <aside className="w-64 bg-[#151520] p-6 text-gray-300 text-base">
-          <div className="text-sm mb-4 uppercase tracking-wide text-gray-500 font-semibold">메뉴</div>
-          <nav className="space-y-4 text-base">
-            <Link to="/" className="block hover:text-white font-medium">🏠 홈</Link>
-            <Link to="/settings" className="block hover:text-white font-medium">⚙️ 설정</Link>
-            <Link to="/support" className="block hover:text-white font-medium">📩 피드백</Link>
-          </nav>
-        </aside>
+        <Sidebar />
 
         <main className="flex-1 p-10">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">대시보드</h2>
+          <div className="flex items-center justify-between mb-6 min-w-0">
+            <h2 className="text-2xl font-bold truncate">대시보드</h2>
             <select
               value={sortType}
               onChange={(e) => setSortType(e.target.value)}
-              className="bg-[#2a2a3e] text-white text-sm rounded px-3 py-2 border-none outline-none shadow"
+              className="bg-input-light dark:bg-input-dark text-foreground-light dark:text-white text-sm rounded px-3 py-2 border-none outline-none shadow w-auto flex-shrink-0"
             >
-              <option value="date">📅 최신순</option>
-              <option value="title">🔤 제목순</option>
-              <option value="status">📌 상태순</option>
+              <option value="date"> 최신순</option>
+              <option value="title"> 제목순</option>
+              <option value="status"> 상태순</option>
             </select>
           </div>
 
@@ -107,17 +88,26 @@ export default function HomePage() {
                 {starredDashboards.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-[#1a1a2e] hover:bg-[#252538] transition rounded-xl p-5 text-white text-base cursor-pointer"
+                    onClick={() => setSelectedDashboard(item)}
+                    className="bg-panel-light dark:bg-panel-dark hover:bg-panel-light/90 dark:hover:bg-panel-dark/90 transition rounded-xl p-5 cursor-pointer"
                   >
                     <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-md mb-4" />
                     <div className="flex items-center justify-between mb-1">
                       <h2 className="text-base font-semibold">{item.title}</h2>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>{item.status}</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+                        {item.status}
+                      </span>
                     </div>
-                    <p className="text-sm text-gray-400 mb-2">{item.desc}</p>
-                    <div className="flex justify-between items-center text-xs text-gray-500">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.desc}</p>
+                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                       <span>{item.date}</span>
-                      <button onClick={() => toggleStar(item.id)} className="hover:scale-110 transition-transform outline-none focus:outline-none">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleStar(item.id);
+                        }}
+                        className="hover:scale-110 transition-transform"
+                      >
                         {item.starred ? '⭐' : '☆'}
                       </button>
                     </div>
@@ -132,31 +122,48 @@ export default function HomePage() {
             {normalDashboards.map((item) => (
               <div
                 key={item.id}
-                className="bg-[#1a1a2e] hover:bg-[#252538] transition rounded-xl p-5 text-white text-base cursor-pointer"
+                onClick={() => setSelectedDashboard(item)}
+                className="bg-panel-light dark:bg-panel-dark hover:bg-panel-light/90 dark:hover:bg-panel-dark/90 transition rounded-xl p-5 cursor-pointer"
               >
                 <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-md mb-4" />
                 <div className="flex items-center justify-between mb-1">
                   <h2 className="text-base font-semibold">{item.title}</h2>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>{item.status}</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+                    {item.status}
+                  </span>
                 </div>
-                <p className="text-sm text-gray-400 mb-2">{item.desc}</p>
-                <div className="flex justify-between items-center text-xs text-gray-500">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.desc}</p>
+                <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                   <span>{item.date}</span>
-                  <button onClick={() => toggleStar(item.id)} className="hover:scale-110 transition-transform outline-none focus:outline-none">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleStar(item.id);
+                    }}
+                    className="hover:scale-110 transition-transform"
+                  >
                     {item.starred ? '⭐' : '☆'}
                   </button>
                 </div>
               </div>
             ))}
+
             <div
               onClick={() => navigate('/survey')}
-              className="min-h-[160px] bg-[#1a1a2e] rounded-xl flex items-center justify-center text-4xl text-gray-500 cursor-pointer hover:bg-[#2a2a3e]"
+              className="min-h-[160px] bg-panel-light dark:bg-panel-dark rounded-xl flex items-center justify-center text-4xl text-gray-500 hover:bg-panel-light/90 dark:hover:bg-panel-dark/80 transition"
             >
               +
             </div>
           </div>
         </main>
       </div>
+
+      {selectedDashboard && (
+        <DashboardDetail
+          item={selectedDashboard}
+          onClose={() => setSelectedDashboard(null)}
+        />
+      )}
     </div>
   );
 }
