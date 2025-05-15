@@ -1,63 +1,45 @@
-// src/context/SurveyContext.jsx
-import { createContext, useContext, useState, useEffect } from 'react';
+// src/context/SurveyContext.tsx
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { SurveyContextType, FormDataType } from '@/types/survey';
 
-const SurveyContext = createContext();
+const SurveyContext = createContext<SurveyContextType | undefined>(undefined);
 
-export function SurveyProvider({ children }) {
+export function SurveyProvider({ children }: { children: ReactNode }) {
   const defaultK8s = {
-    type: '',
-    version: '',
-    runtime: '',
-    runtimeVersion: '',
-    cni: '',
-    node: '',
-    rs: '',
-    namespace: ''
+    type: '', version: '', runtime: '', runtimeVersion: '', cni: '', node: '', rs: '', namespace: ''
   };
-  
+
   const defaultVM = {
-    provider: '',
-    type: '',
-    count: ''
+    provider: '', type: '', count: ''
   };
-  
+
   const defaultOS = {
-    name: '',
-    version: ''
+    name: '', version: ''
   };
-  
+
   const defaultCICD = {
-    tool: '',
-    version: ''
+    tool: '', version: ''
   };
-  
-  const initialFormData = {
+
+  const initialFormData: FormDataType = {
     env: '',
     k8s: defaultK8s,
     vm: defaultVM,
-    resources: {
-      cpu: '',
-      ram: '',
-      disk: ''
-    },
+    resources: { cpu: '', ram: '', disk: '' },
     os: defaultOS,
-    // 다중 항목을 배열로 관리
     frontendItems: [{ id: Date.now(), framework: '', version: '' }],
-    backendItems: [{ id: Date.now() + 1, language: '', framework: '', version: '' }],
+    backendItems: [{id: Date.now() + 1, language: '', languageVersion: '', framework: '', frameworkVersion: ''
+  }],
+
     webServerItems: [{ id: Date.now() + 2, server: '', version: '' }],
     dbItems: [{ id: Date.now() + 3, type: '', name: '', version: '', size: '' }],
     cicd: defaultCICD
   };
 
-  const [formData, setFormData] = useState(initialFormData);
-  const [currentStep, setCurrentStep] = useState(0);
-  
-  // 환경에 따라 스텝 구성을 달리함
-  const [steps, setSteps] = useState([
-    { id: 0, title: '환경 선택' }
-  ]);
-  
-  // 환경 선택에 따라 스텝 구성 변경
+  const [formData, setFormData] = useState<FormDataType>(initialFormData);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [steps, setSteps] = useState<{ id: number; title: string }[]>([{ id: 0, title: '환경 선택' }]);
+
   useEffect(() => {
     if (formData.env === 'iaas') {
       setSteps([
@@ -84,28 +66,20 @@ export function SurveyProvider({ children }) {
         { id: 8, title: 'CI/CD' }
       ]);
     } else {
-      // 환경 선택 전 또는 기타 환경
       setSteps([{ id: 0, title: '환경 선택' }]);
     }
   }, [formData.env]);
 
-  const updateFormData = (key, value) => {
-    // 기존 값과 새 값이 다를 경우에만 상태 변경
+  const updateFormData = (key: keyof FormDataType, value: any) => {
     setFormData(prev => {
-      if (prev[key] === value) return prev; // 값이 변경되지 않았다면 상태를 업데이트하지 않음
+      if (prev[key] === value) return prev;
       return { ...prev, [key]: value };
     });
   };
-  
-  const goToNextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
-  };
 
-  const goToPrevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 0));
-  };
+  const goToNextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+  const goToPrevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
 
-  // TOTAL_STEPS 계산 추가
   const TOTAL_STEPS = steps.length;
 
   return (
@@ -117,11 +91,15 @@ export function SurveyProvider({ children }) {
       goToNextStep,
       goToPrevStep,
       steps,
-      TOTAL_STEPS  // TOTAL_STEPS를 추가
+      TOTAL_STEPS
     }}>
       {children}
     </SurveyContext.Provider>
   );
 }
 
-export const useSurvey = () => useContext(SurveyContext);
+export const useSurvey = (): SurveyContextType => {
+  const context = useContext(SurveyContext);
+  if (!context) throw new Error('useSurvey must be used within a SurveyProvider');
+  return context;
+};

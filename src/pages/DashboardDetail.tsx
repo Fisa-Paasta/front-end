@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
-import { useSubmitted } from '@/context/SubmittedContext';
+import { useSubmitted } from '../context/SubmittedContext';
+import { AdminCardData } from '../types/admin';
 
-export default function DashboardDetail({ item, onClose }) {
+interface DashboardDetailProps {
+  item: AdminCardData;
+  onClose: () => void;
+}
+
+export default function DashboardDetail({ item, onClose }: DashboardDetailProps) {
   const [showHistory, setShowHistory] = useState(false);
   const { submittedCards } = useSubmitted();
 
@@ -68,7 +74,7 @@ export default function DashboardDetail({ item, onClose }) {
 }
 
 // 상태별 시각화 설정
-const statusDetailMap = (status, setShowHistory) => {
+const statusDetailMap = (status: string, setShowHistory: (show: boolean) => void) => {
   const base = {
     '접수중': {
       icon: '⏳',
@@ -133,5 +139,5 @@ const statusDetailMap = (status, setShowHistory) => {
       ),
     }
   };
-  return base[status];
+  return base[status as keyof typeof base];
 };

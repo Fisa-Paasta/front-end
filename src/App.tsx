@@ -31,8 +31,17 @@ function App() {
         element={isAuthenticated ? <ListPage /> : <Navigate to="/init" replace />}
       />
       <Route path="/settings" element={<SettingsPage />} />
-      <Route path="/dashboard/:id" element={<DashboardDetail />} />
-      <Route path="*" element={<Navigate to="/init" replace />} />
+      <Route path="/dashboard/:id" element={<DashboardDetail item={{
+        id: 0,
+        title: '',
+        desc: '',
+        userId: '',
+        date: '',
+        status: '접수중',
+        starred: false,
+        historyList: []
+      }} onClose={() => {}} />} />
+      <Route path="*" element={<Navigate to="/home" replace />} />
     </Routes>
   );
 }

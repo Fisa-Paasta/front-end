@@ -11,6 +11,7 @@ import Step8_DB from './FormStep/Step8_DB';
 import Step9_CICD from './FormStep/Step9_CICD';
 import ConfirmModal from './ConfirmModal';
 import { useSubmitted } from '@/context/SubmittedContext';
+import { SurveyContextType } from '@/types/survey';
 
 const steps = [
   Step1_Env,
@@ -31,7 +32,7 @@ export default function FormStep() {
     goToPrevStep,
     formData,
     TOTAL_STEPS
-  } = useSurvey();
+  }: SurveyContextType = useSurvey();
 
   const { addSubmittedCard } = useSubmitted();
   const [showModal, setShowModal] = useState(false);
@@ -47,21 +48,19 @@ export default function FormStep() {
     }
   };
 
-const handleConfirmSubmit = ({ title, description }) => {
-  const newCard = {
-    id: Date.now().toString(),
-    title,
-    desc: description.trim() || '—',  // ⛳ 사용자가 입력 안 하면 '—'로 대체
-    date: new Date().toISOString().split('T')[0],
-    starred: false,
-    status: '접수중',
-    historyList: []
+  const handleConfirmSubmit = ({ title, description }: { title: string; description: string }) => {
+    const newCard = {
+      id: Date.now().toString(),
+      title,
+      desc: description?.trim() || '—',
+      date: new Date().toISOString().split('T')[0],
+      starred: false,
+      status: '접수중',
+      historyList: []
+    };
+    addSubmittedCard(newCard);
+    setShowModal(false);
   };
-  addSubmittedCard(newCard);
-  setShowModal(false);
-};
-
-
 
   const isCurrentStepValid = () => {
     switch (currentStep) {
@@ -84,29 +83,29 @@ const handleConfirmSubmit = ({ title, description }) => {
       case 4:
         return (
           formData.frontendItems &&
-          formData.frontendItems.some(item => !!item.framework && !!item.version)
+          formData.frontendItems.some((item: { framework: string; version: string }) => !!item.framework && !!item.version)
         );
       case 5:
-        return (
-          formData.backendItems &&
-          formData.backendItems.some(
-            item =>
-              !!item.language &&
-              !!item.languageVersion &&
-              !!item.framework &&
-              !!item.frameworkVersion
-          )
-        );
+  return (
+    formData.backendItems &&
+    formData.backendItems.some(item =>
+      !!item.language &&
+      !!item.languageVersion &&
+      !!item.framework &&
+      !!item.frameworkVersion
+    )
+  );
+
       case 6:
         return (
           formData.webServerItems &&
-          formData.webServerItems.some(item => !!item.server && !!item.version)
+          formData.webServerItems.some((item: { server: string; version: string }) => !!item.server && !!item.version)
         );
       case 7:
         return (
           formData.dbItems &&
-          formData.dbItems.some(
-            item => !!item.type && !!item.name && !!item.version && item.size !== ''
+          formData.dbItems.some((item: { type: string; name: string; version: string; size: string }) =>
+            !!item.type && !!item.name && !!item.version && item.size !== ''
           )
         );
       case 8:
