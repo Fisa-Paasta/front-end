@@ -235,5 +235,12 @@ button:focus {
 }
 
 .badge {
-  @apply bg-gray-100 dark:bg-gray-700 text-xs px-2 py-0.5 rounded;
+  background-color: #f3f4f6;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.dark .badge {
+  background-color: #374151;
 }

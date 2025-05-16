@@ -1,31 +1,28 @@
 import { useSubmitted } from '@/context/SubmittedContext';
-import { useState } from 'react';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import DashboardDetail from '@/pages/DashboardDetail';
 import { useNavigate } from 'react-router-dom';
+import { AdminCardData, StatusType } from '@/types/admin';
+import { transformSubmittedCards } from '@/utils/transformSubmitted';
+import { useState } from 'react';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const context = useSubmitted();
-  const { submittedCards } = context;
-  const [sortType, setSortType] = useState('date');
-  const [selectedDashboard, setSelectedDashboard] = useState(null);
+  const { submittedCards, toggleStarred } = useSubmitted();
+  const [sortType, setSortType] = useState<'date' | 'title' | 'status'>('date');
+  const [selectedDashboard, setSelectedDashboard] = useState<AdminCardData | null>(null);
 
-  console.log('📦 submittedCards:', submittedCards);
-  const submitted = useSubmitted();
-  console.log('useSubmitted 내부 값:', submitted);
-
-  const statusPriority = {
-    '접수중': 1,
-    '접수완료': 2,
-    '승인처리중': 3,
-    '승인완료': 4,
-    '구축중': 5,
-    '구축완료': 6,
+  const statusPriority: Record<StatusType, number> = {
+    접수중: 1,
+    접수완료: 2,
+    승인처리중: 3,
+    승인완료: 4,
+    구축중: 5,
+    구축완료: 6,
   };
 
-  const sortDashboards = (list) => {
+  const sortDashboards = (list: AdminCardData[]): AdminCardData[] => {
     return list.slice().sort((a, b) => {
       if (sortType === 'title') return a.title.localeCompare(b.title);
       if (sortType === 'status') return statusPriority[a.status] - statusPriority[b.status];
@@ -33,20 +30,22 @@ export default function HomePage() {
     });
   };
 
-  const getStatusColor = (status) => {
-    const map = {
-      '접수중': 'bg-yellow-500 text-black',
-      '접수완료': 'bg-green-600 text-white',
-      '승인처리중': 'bg-blue-500 text-white',
-      '승인완료': 'bg-blue-700 text-white',
-      '구축중': 'bg-purple-500 text-white',
-      '구축완료': 'bg-gray-500 text-white'
+  const getStatusColor = (status: StatusType): string => {
+    const map: Record<StatusType, string> = {
+      접수중: 'bg-yellow-500 text-black',
+      접수완료: 'bg-green-600 text-white',
+      승인처리중: 'bg-blue-500 text-white',
+      승인완료: 'bg-blue-700 text-white',
+      구축중: 'bg-purple-500 text-white',
+      구축완료: 'bg-gray-500 text-white',
     };
     return map[status] || 'bg-white text-black';
   };
 
-  const starredDashboards = sortDashboards(submittedCards.filter(d => d.starred));
-  const normalDashboards = sortDashboards(submittedCards.filter(d => !d.starred));
+  const enrichedCards = transformSubmittedCards(submittedCards);
+  const sorted = sortDashboards(enrichedCards);
+  const starredDashboards = sorted.filter((d) => d.starred);
+  const normalDashboards = sorted.filter((d) => !d.starred);
 
   return (
     <div className="min-h-screen transition-colors duration-500 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark text-[15px]">
@@ -58,12 +57,12 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold truncate">대시보드</h2>
             <select
               value={sortType}
-              onChange={(e) => setSortType(e.target.value)}
+              onChange={(e) => setSortType(e.target.value as 'date' | 'title' | 'status')}
               className="bg-input-light dark:bg-input-dark text-foreground-light dark:text-white text-sm rounded px-3 py-2 border-none outline-none shadow w-auto flex-shrink-0"
             >
-              <option value="date"> 최신순</option>
-              <option value="title"> 제목순</option>
-              <option value="status"> 상태순</option>
+              <option value="date">최신순</option>
+              <option value="title">제목순</option>
+              <option value="status">상태순</option>
             </select>
           </div>
 
@@ -87,7 +86,15 @@ export default function HomePage() {
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.desc}</p>
                     <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                       <span>{item.date}</span>
-                      <span>{item.starred ? '⭐' : '☆'}</span>
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleStarred(item.id.toString());
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {item.starred ? '⭐' : '☆'}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -113,7 +120,15 @@ export default function HomePage() {
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.desc}</p>
                 <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
                   <span>{item.date}</span>
-                  <span>{item.starred ? '⭐' : '☆'}</span>
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleStarred(item.id.toString());
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {item.starred ? '⭐' : '☆'}
+                  </span>
                 </div>
               </div>
             ))}

@@ -1,36 +1,46 @@
-// src/context/SurveyContext.tsx
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { SurveyContextType, FormDataType } from '@/types/survey';
+import {
+  SurveyContextType,
+  FormDataType,
+  K8sConfig,
+  VMConfig,
+  OSConfig,
+  CICDConfig
+} from '@/types/survey';
 
 const SurveyContext = createContext<SurveyContextType | undefined>(undefined);
 
 export function SurveyProvider({ children }: { children: ReactNode }) {
-  const defaultK8s = {
-    type: '', version: '', runtime: '', runtimeVersion: '', cni: '', node: '', rs: '', namespace: ''
+  // ✅ 타입 명시된 기본값들
+  const defaultK8s: K8sConfig = {
+    type: '', version: '', runtime: '', runtimeVersion: '',
+    cni: '', node: '', rs: '', namespace: ''
   };
 
-  const defaultVM = {
+  const defaultVM: VMConfig = {
     provider: '', type: '', count: ''
   };
 
-  const defaultOS = {
+  const defaultOS: OSConfig = {
     name: '', version: ''
   };
 
-  const defaultCICD = {
+  const defaultCICD: CICDConfig = {
     tool: '', version: ''
   };
 
   const initialFormData: FormDataType = {
-    env: '',
+    env: '', // 타입 상 EnvType | '' 이기 때문에 '' 유지 가능
     k8s: defaultK8s,
     vm: defaultVM,
     resources: { cpu: '', ram: '', disk: '' },
     os: defaultOS,
     frontendItems: [{ id: Date.now(), framework: '', version: '' }],
-    backendItems: [{id: Date.now() + 1, language: '', languageVersion: '', framework: '', frameworkVersion: ''
-  }],
-
+    backendItems: [{
+      id: Date.now() + 1,
+      language: '', languageVersion: '',
+      framework: '', frameworkVersion: ''
+    }],
     webServerItems: [{ id: Date.now() + 2, server: '', version: '' }],
     dbItems: [{ id: Date.now() + 3, type: '', name: '', version: '', size: '' }],
     cicd: defaultCICD
@@ -70,7 +80,8 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
     }
   }, [formData.env]);
 
-  const updateFormData = (key: keyof FormDataType, value: any) => {
+  // ✅ 타입 안전한 updateFormData
+  const updateFormData = <K extends keyof FormDataType>(key: K, value: FormDataType[K]) => {
     setFormData(prev => {
       if (prev[key] === value) return prev;
       return { ...prev, [key]: value };
@@ -79,7 +90,6 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
 
   const goToNextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
   const goToPrevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
-
   const TOTAL_STEPS = steps.length;
 
   return (

@@ -1,14 +1,14 @@
 // src/components/admin/AdminCardDetail.tsx
-import React from 'react';
-import { AdminCardData } from '../../types/admin';
+import React, { useEffect, useState } from 'react';
+import { AdminCardData, StatusType } from '../../types/admin';
 
 interface AdminCardDetailProps {
   item: AdminCardData;
   onClose: () => void;
-  onStatusChange: (id: number, newStatus: string) => void;
+  onStatusChange: (id: number, newStatus: StatusType) => void;
 }
 
-const STATUS_OPTIONS = [
+const STATUS_OPTIONS: StatusType[] = [
   '접수중',
   '접수완료',
   '승인처리중',
@@ -17,21 +17,34 @@ const STATUS_OPTIONS = [
   '구축완료'
 ];
 
-const STATUS_COLORS: Record<string, string> = {
-  '접수중': 'bg-yellow-500 text-black',
-  '접수완료': 'bg-green-600 text-white',
-  '승인처리중': 'bg-blue-500 text-white',
-  '승인완료': 'bg-blue-700 text-white',
-  '구축중': 'bg-purple-500 text-white',
-  '구축완료': 'bg-gray-500 text-white'
+const STATUS_COLORS: Record<StatusType, string> = {
+  접수중: 'bg-yellow-500 text-black',
+  접수완료: 'bg-green-600 text-white',
+  승인처리중: 'bg-blue-500 text-white',
+  승인완료: 'bg-blue-700 text-white',
+  구축중: 'bg-purple-500 text-white',
+  구축완료: 'bg-gray-500 text-white'
 };
 
-export default function AdminCardDetail({ item, onClose, onStatusChange }: AdminCardDetailProps) {
-  if (!item) return null;
+export default function AdminCardDetail({
+  item,
+  onClose,
+  onStatusChange
+}: AdminCardDetailProps) {
+  const [status, setStatus] = useState<StatusType>(item.status);
+
+  // ✅ 외부 상태 변경 시 로컬 상태 동기화
+  useEffect(() => {
+    setStatus(item.status);
+  }, [item.status]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onStatusChange(item.id, e.target.value);
+    const newStatus = e.target.value as StatusType;
+    setStatus(newStatus); // 즉시 UI 반영
+    onStatusChange(item.id, newStatus); // 부모에게 알림
   };
+
+  if (!item) return null;
 
   return (
     <div
@@ -54,21 +67,28 @@ export default function AdminCardDetail({ item, onClose, onStatusChange }: Admin
         <p><strong>설명:</strong> {item.desc}</p>
         <p><strong>날짜:</strong> {item.date}</p>
 
-        <div className="mt-4">
-          <label htmlFor="status" className="block font-semibold mb-1">상태 변경</label>
-          <select
-            id="status"
-            className="formbold-form-input"
-            value={item.status}
-            onChange={handleChange}
-          >
-            {STATUS_OPTIONS.map(status => (
-              <option key={status} value={status}>{status}</option>
-            ))}
-          </select>
-        </div>
+        <div className="w-full">
+  <label htmlFor="status" className="block font-semibold mb-1 text-left">
+    상태 변경
+  </label>
+  <select
+    id="status"
+    className="w-full px-4 py-2 rounded-md bg-[#2c323d] text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-primary shadow-sm appearance-none"
+    value={status}
+    onChange={handleChange}
+  >
+    {STATUS_OPTIONS.map((s) => (
+      <option key={s} value={s}>
+        {s}
+      </option>
+    ))}
+  </select>
+</div>
 
-        <div className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[item.status]}`}>현재 상태: {item.status}</div>
+
+        <div className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]}`}>
+          현재 상태: {status}
+        </div>
 
         {item.historyList && item.historyList.length > 0 && (
           <div className="mt-6">
@@ -76,7 +96,12 @@ export default function AdminCardDetail({ item, onClose, onStatusChange }: Admin
             <ul className="text-sm space-y-1">
               {item.historyList.map((entry, idx) => (
                 <li key={idx} className="text-gray-500 dark:text-gray-400">
-                  {entry.timestamp} - {entry.approver}
+                  {entry.timestamp} - {entry.approver || '시스템'}
+                  {entry.comment && (
+                    <span className="text-xs text-gray-400 ml-2">
+                      ({entry.comment})
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

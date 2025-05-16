@@ -10,7 +10,17 @@
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"]
-    }
+    },
+    "strict": true,                          // ✅ 엄격한 타입 검사 전체 활성화
+    "noImplicitAny": true,                   // 암시적 any 금지
+    "strictNullChecks": true,                // null/undefined 체크 필수
+    "strictFunctionTypes": true,             // 함수 타입 호환성 엄격화
+    "noImplicitThis": true,                  // this의 암시적 any 금지
+    "alwaysStrict": true,                    // 모든 파일에서 'use strict'
+    "forceConsistentCasingInFileNames": true,// 대소문자 불일치 경로 오류
+    "noUnusedLocals": true,                  // 사용되지 않는 변수 금지
+    "noUnusedParameters": true,              // 사용되지 않는 매개변수 금지
+    "noImplicitReturns": true,               // return 누락 금지
+    "noFallthroughCasesInSwitch": true       // switch fallthrough 금지
   }
 }
-

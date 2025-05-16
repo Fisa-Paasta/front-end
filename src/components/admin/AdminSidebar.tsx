@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface AdminSidebarProps {
   onFilter: (status: string, label: string) => void;
   active: string;

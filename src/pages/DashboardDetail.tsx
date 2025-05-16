@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
-import { useSubmitted } from '../context/SubmittedContext';
 import { AdminCardData } from '../types/admin';
 
 interface DashboardDetailProps {
@@ -10,7 +9,7 @@ interface DashboardDetailProps {
 
 export default function DashboardDetail({ item, onClose }: DashboardDetailProps) {
   const [showHistory, setShowHistory] = useState(false);
-  const { submittedCards } = useSubmitted();
+
 
   if (!item) return null;
 
@@ -51,7 +50,6 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
           <div><span className="text-foreground-light dark:text-white font-medium">📌 제목:</span> {item.title}</div>
           <div><span className="text-foreground-light dark:text-white font-medium">📝 설명:</span> {item.desc}</div>
           <div><span className="text-foreground-light dark:text-white font-medium">📅 날짜:</span> {item.date}</div>
-          <div><span className="text-foreground-light dark:text-white font-medium">⭐ 즐겨찾기:</span> {item.starred ? '⭐️' : '—'}</div>
         </div>
 
         {statusData.action && (

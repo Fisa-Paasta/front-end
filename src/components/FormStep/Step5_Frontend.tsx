@@ -1,29 +1,29 @@
-// 리팩토링: Step5_Frontend.jsx
 import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
+import { FrontendItem } from '@/types/survey';
 
 export default function Step5_Frontend() {
   const { formData, updateFormData } = useSurvey();
 
-  const frontendOptions = {
-    "react": ["19.1.0", "18.3.1", "17.0.2"],
-    "vue": ["3.5.13 (Latest)", "3.5.0"],
-    "angular": ["19.2.9 (Latest)", "19.2.0"],
-    "nextjs": ["15.3.0", "14.2.0"]
+  const frontendOptions: Record<string, string[]> = {
+    react: ["19.1.0", "18.3.1", "17.0.2"],
+    vue: ["3.5.13 (Latest)", "3.5.0"],
+    angular: ["19.2.9 (Latest)", "19.2.0"],
+    nextjs: ["15.3.0", "14.2.0"]
   };
 
-  const frameworkNames = {
-    "react": "React",
-    "vue": "Vue.js",
-    "angular": "Angular",
-    "nextjs": "Next.js",
+  const frameworkNames: Record<string, string> = {
+    react: "React",
+    vue: "Vue.js",
+    angular: "Angular",
+    nextjs: "Next.js"
   };
 
-  const [frontendItems, setFrontendItems] = useState(() => {
-    return formData.frontendItems?.length > 0
+  const [frontendItems, setFrontendItems] = useState<FrontendItem[]>(() =>
+    formData.frontendItems?.length
       ? formData.frontendItems
-      : [{ id: Date.now(), framework: '', version: '' }];
-  });
+      : [{ id: Date.now(), framework: '', version: '' }]
+  );
 
   useEffect(() => {
     updateFormData('frontendItems', frontendItems);
@@ -33,25 +33,27 @@ export default function Step5_Frontend() {
     setFrontendItems([...frontendItems, { id: Date.now(), framework: '', version: '' }]);
   };
 
-  const removeFrontendItem = (id) => {
+  const removeFrontendItem = (id: number) => {
     if (frontendItems.length <= 1) return;
-    setFrontendItems(frontendItems.filter(item => item.id !== id));
+    setFrontendItems(frontendItems.filter((item) => item.id !== id));
   };
 
-  const handleChange = (id, field, value) => {
-    setFrontendItems(frontendItems.map(item => {
-      if (item.id === id) {
-        const updated = { ...item, [field]: value };
-        if (field === 'framework') updated.version = '';
-        return updated;
-      }
-      return item;
-    }));
+  const handleChange = (id: number, field: keyof FrontendItem, value: string) => {
+    setFrontendItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated: FrontendItem = { ...item, [field]: value };
+          if (field === 'framework') updated.version = '';
+          return updated;
+        }
+        return item;
+      })
+    );
   };
 
   return (
     <div className="space-y-4">
-      {frontendItems.map(item => (
+      {frontendItems.map((item) => (
         <div key={item.id} className="flex gap-4 items-center bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm">
           <div className="flex-1 space-y-2">
             <select
@@ -60,8 +62,8 @@ export default function Step5_Frontend() {
               onChange={(e) => handleChange(item.id, 'framework', e.target.value)}
             >
               <option value="">프레임워크 선택</option>
-              {Object.keys(frontendOptions).map(framework => (
-                <option key={framework} value={framework}>{frameworkNames[framework]}</option>
+              {Object.keys(frontendOptions).map((fw) => (
+                <option key={fw} value={fw}>{frameworkNames[fw]}</option>
               ))}
             </select>
 
@@ -72,8 +74,8 @@ export default function Step5_Frontend() {
                 onChange={(e) => handleChange(item.id, 'version', e.target.value)}
               >
                 <option value="">버전 선택</option>
-                {frontendOptions[item.framework].map(version => (
-                  <option key={version} value={version}>{version}</option>
+                {frontendOptions[item.framework]?.map((v) => (
+                  <option key={v} value={v}>{v}</option>
                 ))}
               </select>
             )}

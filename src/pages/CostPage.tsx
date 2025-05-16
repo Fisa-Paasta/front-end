@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import OnPremCostForm from '../components/Cost/OnPremCostForm';
 import EKSCostForm from '../components/Cost/EKSCostForm';
-import CostSummaryBox from '../components/Cost/CostSummaryBox';
 
 export default function CostPage() {
   const [envType, setEnvType] = useState('onprem'); // 'onprem' or 'eks'

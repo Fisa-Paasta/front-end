@@ -1,14 +1,16 @@
 import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
+import { VMConfig } from '@/types/survey';
 
 export default function Step2_VM() {
   const { formData, updateFormData } = useSurvey();
 
-  const vmOptions = {
+  const vmOptions: Record<VMConfig['provider'], string[]> = {
     aws_ec2: ['t2.micro', 't3.small', 'm5.large'],
     azure_vm: ['B1s', 'B2s', 'D2s v3'],
     gcp_compute: ['e2-micro', 'e2-small', 'n1-standard-1'],
-    vmware: ['Standard', 'Advanced', 'Enterprise']
+    vmware: ['Standard', 'Advanced', 'Enterprise'],
+    '': []
   };
 
   const vmProviders = [
@@ -18,13 +20,15 @@ export default function Step2_VM() {
     { value: 'vmware', label: 'VMware' }
   ];
 
-  const [localVM, setLocalVM] = useState(() => formData.vm || { provider: '', type: '', count: '1' });
+  const [localVM, setLocalVM] = useState<VMConfig>(
+    formData.vm || { provider: '', type: '', count: '1' }
+  );
 
   useEffect(() => {
     updateFormData('vm', localVM);
   }, [localVM]);
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: keyof VMConfig, value: string) => {
     const updated = { ...localVM, [field]: value };
     if (field === 'provider') updated.type = '';
     setLocalVM(updated);
@@ -68,7 +72,6 @@ export default function Step2_VM() {
           <input
             type="number"
             className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            placeholder="예: 3"
             value={localVM.count}
             onChange={(e) => handleChange('count', e.target.value)}
             min="1"

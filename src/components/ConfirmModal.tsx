@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface ConfirmModalProps {
@@ -9,7 +9,6 @@ interface ConfirmModalProps {
 }
 
 export default function ConfirmModal({
-  title = '제목 없음',
   onClose,
   onSubmit,
   historyList = []

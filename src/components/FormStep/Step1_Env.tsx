@@ -3,7 +3,7 @@ import { useSurvey } from '@/context/SurveyContext';
 export default function Step1_Env() {
   const { formData, updateFormData, setCurrentStep } = useSurvey();
 
-  const handleEnvChange = (value) => {
+  const handleEnvChange = (value: string) => {
     updateFormData('env', value);
     setCurrentStep(0);
   };

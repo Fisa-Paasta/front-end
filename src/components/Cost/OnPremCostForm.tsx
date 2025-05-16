@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import CostSummaryBox from './CostSummaryBox';
 
 export default function OnPremCostForm() {

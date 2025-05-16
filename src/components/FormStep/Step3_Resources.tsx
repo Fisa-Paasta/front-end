@@ -1,12 +1,14 @@
 import { useSurvey } from '@/context/SurveyContext';
+import { ResourceConfig } from '@/types/survey';
 
 export default function Step3_Resources() {
   const { formData, updateFormData } = useSurvey();
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: keyof ResourceConfig, value: string) => {
+    const parsedValue = parseInt(value, 10) || 0;
     updateFormData('resources', {
       ...formData.resources,
-      [field]: value
+      [field]: parsedValue
     });
   };
 
@@ -20,7 +22,7 @@ export default function Step3_Resources() {
             name="cpu"
             className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
             placeholder="CPU 코어 수"
-            value={formData.resources?.cpu || ''}
+            value={formData.resources?.cpu ?? ''}
             onChange={(e) => handleChange('cpu', e.target.value)}
           />
         </div>
@@ -32,7 +34,7 @@ export default function Step3_Resources() {
             name="ram"
             className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
             placeholder="RAM 용량"
-            value={formData.resources?.ram || ''}
+            value={formData.resources?.ram ?? ''}
             onChange={(e) => handleChange('ram', e.target.value)}
           />
         </div>
@@ -44,7 +46,7 @@ export default function Step3_Resources() {
             name="disk"
             className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
             placeholder="디스크 용량"
-            value={formData.resources?.disk || ''}
+            value={formData.resources?.disk ?? ''}
             onChange={(e) => handleChange('disk', e.target.value)}
           />
         </div>

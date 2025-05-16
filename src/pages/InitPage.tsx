@@ -1,9 +1,9 @@
-// ✅ [수정된 InitPage.tsx] 로그인 → Spring Boot API 호출
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Lock, User, Building2, Sparkles } from 'lucide-react';
 
-const slogans: JSX.Element[] = [
+const slogans: React.ReactElement[] =  [
   <>빠르게 시작하는 <strong className="text-white">PaaS 환경</strong></>,
   <>사내 <strong className="text-white">인프라 자동화</strong>를 한눈에</>,
   <>DevSecOps <strong className="text-white">Ready</strong>. Enterprise <strong className="text-white">Secure</strong>.</>,
