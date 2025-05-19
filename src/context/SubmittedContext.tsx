@@ -46,10 +46,9 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const addSubmittedCard = (card: Omit<SubmittedCard, 'id'>) => {
     const newCard: SubmittedCard = {
       ...card,
-      id: crypto.randomUUID(), // ✅ 고유 ID 자동 생성
+      id: crypto.randomUUID(),
     };
-    const updated = [...submittedCards, newCard];
-    syncToLocalStorage(updated);
+    syncToLocalStorage([...submittedCards, newCard]);
     console.log('[✅ SubmittedProvider] 카드 추가됨:', newCard);
   };
 
@@ -57,7 +56,11 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const updated = submittedCards.map(card =>
       card.id === id ? { ...card, starred: !card.starred } : card
     );
-    syncToLocalStorage(updated);
+
+    // ✅ 변경된 값이 실제로 존재할 경우에만 업데이트
+    if (JSON.stringify(updated) !== JSON.stringify(submittedCards)) {
+      syncToLocalStorage(updated);
+    }
   };
 
   const updateCardStatus = (id: string, newStatus: StatusType, note?: string) => {

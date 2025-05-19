@@ -15,13 +15,13 @@ export type StatusType = keyof typeof STATUS_ENUM;
 
 // 📦 카드 데이터 구조
 export interface AdminCardData {
-  id: string; // 🔁 number → string
+  id: string; // ✅ UUID 기반 string
   title: string;
   desc: string;
   date: string;
   status: StatusType;
   starred: boolean;
-  userId: string;
+  userId: string; // 🔧 로그인 사용자 ID (현재는 'unknown' placeholder)
   historyList: {
     status: StatusType;
     timestamp: string;
