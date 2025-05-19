@@ -39,7 +39,7 @@ function App() {
         element={isAuthenticated ? <ListPage /> : <Navigate to="/init" replace />}
       />
       <Route path="/settings" element={<SettingsPage />} />
-      <Route path="*" element={<Navigate to={isAuthenticated ? "/home" : "/init"} replace />} />
+      <Route path="*" element={<Navigate to={isAuthenticated ? "/home" : "/home"} replace />} />
     </Routes>
   );
 }
