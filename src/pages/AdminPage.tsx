@@ -20,7 +20,6 @@ const STATUS_BADGE_COLORS: Record<StatusType, string> = {
   구축완료: 'bg-gray-500 text-white',
 };
 
-
 export default function AdminPage() {
   const { submittedCards, updateCardStatus } = useSubmitted();
   const cards = transformSubmittedCards(submittedCards);
@@ -30,7 +29,7 @@ export default function AdminPage() {
   const [filterUserId, setFilterUserId] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [bulkStatus, setBulkStatus] = useState<StatusType>('승인완료');
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeSidebar, setActiveSidebar] = useState<string>('전체 요청');
 
   const handleSidebarFilter = (status: string, label: string) => {
@@ -38,19 +37,18 @@ export default function AdminPage() {
     setActiveSidebar(label);
   };
 
-  const handleStatusChange = (id: number, newStatus: StatusType) => {
-    updateCardStatus(id.toString(), newStatus);
-
+  const handleStatusChange = (id: string, newStatus: StatusType) => {
+    updateCardStatus(id, newStatus);
     const updatedSelected = cards.find(card => card.id === id);
     if (updatedSelected) setSelectedItem(updatedSelected);
   };
 
   const handleBulkStatusChange = () => {
-    selectedIds.forEach(id => updateCardStatus(id.toString(), bulkStatus));
+    selectedIds.forEach(id => updateCardStatus(id, bulkStatus));
     setSelectedIds(new Set());
   };
 
-  const toggleCardSelection = (id: number) => {
+  const toggleCardSelection = (id: string) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);

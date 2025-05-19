@@ -5,7 +5,7 @@ import { AdminCardData, StatusType } from '../../types/admin';
 interface AdminCardDetailProps {
   item: AdminCardData;
   onClose: () => void;
-  onStatusChange: (id: number, newStatus: StatusType) => void;
+  onStatusChange: (id: string, newStatus: StatusType) => void; // 🔁 number → string
 }
 
 const STATUS_OPTIONS: StatusType[] = [
@@ -33,24 +33,20 @@ export default function AdminCardDetail({
 }: AdminCardDetailProps) {
   const [status, setStatus] = useState<StatusType>(item.status);
 
-  // ✅ 외부 상태 변경 시 로컬 상태 동기화
   useEffect(() => {
     setStatus(item.status);
   }, [item.status]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as StatusType;
-    setStatus(newStatus); // 즉시 UI 반영
-    onStatusChange(item.id, newStatus); // 부모에게 알림
+    setStatus(newStatus);
+    onStatusChange(item.id, newStatus); // 🔁 id: string
   };
 
   if (!item) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center" onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
         className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-lg shadow-2xl text-foreground-light dark:text-foreground-dark"
@@ -68,23 +64,20 @@ export default function AdminCardDetail({
         <p><strong>날짜:</strong> {item.date}</p>
 
         <div className="w-full">
-  <label htmlFor="status" className="block font-semibold mb-1 text-left">
-    상태 변경
-  </label>
-  <select
-    id="status"
-    className="w-full px-4 py-2 rounded-md bg-[#2c323d] text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-primary shadow-sm appearance-none"
-    value={status}
-    onChange={handleChange}
-  >
-    {STATUS_OPTIONS.map((s) => (
-      <option key={s} value={s}>
-        {s}
-      </option>
-    ))}
-  </select>
-</div>
-
+          <label htmlFor="status" className="block font-semibold mb-1 text-left">
+            상태 변경
+          </label>
+          <select
+            id="status"
+            className="w-full px-4 py-2 rounded-md bg-[#2c323d] text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-primary shadow-sm appearance-none"
+            value={status}
+            onChange={handleChange}
+          >
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
 
         <div className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]}`}>
           현재 상태: {status}
@@ -98,9 +91,7 @@ export default function AdminCardDetail({
                 <li key={idx} className="text-gray-500 dark:text-gray-400">
                   {entry.timestamp} - {entry.approver || '시스템'}
                   {entry.comment && (
-                    <span className="text-xs text-gray-400 ml-2">
-                      ({entry.comment})
-                    </span>
+                    <span className="text-xs text-gray-400 ml-2">({entry.comment})</span>
                   )}
                 </li>
               ))}

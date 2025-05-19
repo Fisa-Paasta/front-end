@@ -50,14 +50,14 @@ export default function FormStep() {
 
   const handleConfirmSubmit = ({ title, description }: { title: string; description: string }) => {
     const newCard = {
-      id: Date.now().toString(),
-      title,
-      desc: description?.trim() || '—',
-      date: new Date().toISOString().split('T')[0],
-      starred: false,
-      status: '접수중',
-      historyList: []
-    };
+  title,
+  desc: description?.trim() || '—',
+  date: new Date().toISOString().split('T')[0],
+  starred: false,
+  status: '접수중' as const, // ✅ 여기!
+  historyList: []
+};
+
     addSubmittedCard(newCard);
     setShowModal(false);
   };

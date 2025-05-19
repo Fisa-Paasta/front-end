@@ -3,8 +3,8 @@ import { StatusType } from '@/types/admin';
 interface AdminFilterBarProps {
   filterUserId: string;
   setFilterUserId: (value: string) => void;
-  filterStatus: string;
-  setFilterStatus: (value: string) => void;
+  filterStatus: StatusType | '';
+  setFilterStatus: (value: StatusType | '') => void;
   filterDate: string;
   setFilterDate: (value: string) => void;
   bulkStatus: StatusType;
@@ -37,12 +37,14 @@ export default function AdminFilterBar({
 
       <select
         value={filterStatus}
-        onChange={(e) => setFilterStatus(e.target.value)}
+        onChange={(e) => setFilterStatus(e.target.value as StatusType | '')}
         className="px-3 py-2 border rounded text-sm min-w-[160px]"
       >
         <option value="">전체 상태</option>
         {statusOptions.map((status) => (
-          <option key={status} value={status}>{status}</option>
+          <option key={status} value={status}>
+            {status}
+          </option>
         ))}
       </select>
 
@@ -59,7 +61,9 @@ export default function AdminFilterBar({
         className="px-3 py-2 border rounded text-sm min-w-[180px]"
       >
         {statusOptions.map((status) => (
-          <option key={status} value={status}>{status}로 변경</option>
+          <option key={status} value={status}>
+            {status}로 변경
+          </option>
         ))}
       </select>
 
