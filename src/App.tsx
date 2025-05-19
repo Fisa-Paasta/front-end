@@ -32,7 +32,7 @@ function App() {
       />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/dashboard/:id" element={<DashboardDetail item={{
-        id: 0,
+        id: '',
         title: '',
         desc: '',
         userId: '',
