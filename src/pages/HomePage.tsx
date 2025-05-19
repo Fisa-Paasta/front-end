@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { AdminCardData, StatusType } from '@/types/admin';
 import { transformSubmittedCards } from '@/utils/transformSubmitted';
 import { useState } from 'react';
+import { useMemo } from 'react';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export default function HomePage() {
     return map[status] || 'bg-white text-black';
   };
 
-  const enrichedCards = transformSubmittedCards(submittedCards);
+  const enrichedCards = useMemo(() => transformSubmittedCards(submittedCards), [submittedCards]);
   const sorted = sortDashboards(enrichedCards);
   const starredDashboards = sorted.filter((d) => d.starred);
   const normalDashboards = sorted.filter((d) => !d.starred);
@@ -73,7 +74,11 @@ export default function HomePage() {
                 {starredDashboards.map((item) => (
                   <div
                     key={item.id}
-                    onClick={() => setSelectedDashboard(item)}
+                    onClick={() => {
+                      if (selectedDashboard?.id !== item.id) {
+                        setSelectedDashboard(item);
+                      }
+                    }}
                     className="bg-panel-light dark:bg-panel-dark hover:bg-panel-light/90 dark:hover:bg-panel-dark/90 transition rounded-xl p-5 cursor-pointer"
                   >
                     <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-md mb-4" />
@@ -89,7 +94,7 @@ export default function HomePage() {
                       <span
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleStarred(item.id.toString());
+                          toggleStarred(String(item.id))
                         }}
                         className="cursor-pointer"
                       >
