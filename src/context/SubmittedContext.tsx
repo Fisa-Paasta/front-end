@@ -17,7 +17,7 @@ export interface SubmittedCard {
 
 interface SubmittedContextType {
   submittedCards: SubmittedCard[];
-  addSubmittedCard: (card: SubmittedCard) => void;
+  addSubmittedCard: (card: Omit<SubmittedCard, 'id'>) => void;
   toggleStarred: (id: string) => void;
   updateCardStatus: (id: string, newStatus: StatusType, note?: string) => void;
 }
@@ -35,14 +35,22 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   });
 
   const syncToLocalStorage = (updated: SubmittedCard[]) => {
-    localStorage.setItem('submittedCards', JSON.stringify(updated));
-    setSubmittedCards(updated);
+    const prev = JSON.stringify(submittedCards);
+    const next = JSON.stringify(updated);
+    if (prev !== next) {
+      localStorage.setItem('submittedCards', next);
+      setSubmittedCards(updated);
+    }
   };
 
-  const addSubmittedCard = (card: SubmittedCard) => {
-    const updated = [...submittedCards, card];
+  const addSubmittedCard = (card: Omit<SubmittedCard, 'id'>) => {
+    const newCard: SubmittedCard = {
+      ...card,
+      id: crypto.randomUUID(), // ✅ 고유 ID 자동 생성
+    };
+    const updated = [...submittedCards, newCard];
     syncToLocalStorage(updated);
-    console.log('[✅ SubmittedProvider] 카드 추가됨:', card);
+    console.log('[✅ SubmittedProvider] 카드 추가됨:', newCard);
   };
 
   const toggleStarred = (id: string) => {
@@ -57,7 +65,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (card.id !== id) return card;
 
       const newHistory = {
-        by: 'admin01', // 추후 로그인 사용자 기반으로 변경 가능
+        by: 'admin01',
         timestamp: new Date().toISOString(),
         note: note ?? `상태를 '${newStatus}'로 변경함`,
       };
