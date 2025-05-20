@@ -16,46 +16,50 @@ export default function OnPremCostForm() {
   const formula = `CPU ${cpu} × $${CPU_UNIT_COST}/hr + RAM ${ram}GB × $${RAM_UNIT_COST}/hr + DISK ${disk}GB × $${DISK_UNIT_COST}/hr`;
 
   return (
-    <div className="flex flex-col lg:flex-row w-full gap-6">
-      <div className="w-full lg:w-1/3 flex">
-        <div className="flex flex-col flex-grow justify-between w-full h-full bg-panel-light dark:bg-panel-dark p-4 rounded-xl shadow transition-colors duration-500">
-          <CostSummaryBox hourly={hourly} monthly={monthly} formula={formula} />
+    <div className="w-full">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* 왼쪽: 비용 요약 */}
+        <div className="w-full lg:w-1/3 flex">
+          <div className="flex flex-col flex-grow justify-between w-full h-full bg-panel-light dark:bg-panel-dark p-4 rounded-xl shadow transition-colors duration-500">
+            <CostSummaryBox hourly={hourly} monthly={monthly} formula={formula} />
+          </div>
         </div>
-      </div>
+        
+        {/* 오른쪽: 입력 필드 */}
+        <div className="w-full lg:w-2/3 flex flex-col justify-between h-full">
+          <div className="flex flex-col w-full h-full justify-between">
+            <div className="bg-panel-light dark:bg-panel-dark p-4 rounded-t-lg shadow transition-colors duration-500">
+              <label className="block text-sm font-medium mb-1">CPU (vCore)</label>
+              <input
+                type="number"
+                min={1}
+                value={cpu}
+                onChange={(e) => setCpu(Number(e.target.value))}
+                className="w-full p-2 rounded bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark text-foreground-light dark:text-foreground-dark"
+              />
+            </div>
 
-      <div className="w-full lg:w-2/3 flex flex-col justify-between h-full">
-        <div className="flex flex-col w-full h-full justify-between">
-          <div className="bg-panel-light dark:bg-panel-dark p-4 rounded-t-lg shadow transition-colors duration-500">
-            <label className="block text-sm font-medium mb-1">CPU (vCore)</label>
-            <input
-              type="number"
-              min={1}
-              value={cpu}
-              onChange={(e) => setCpu(Number(e.target.value))}
-              className="w-full p-2 rounded bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark text-foreground-light dark:text-foreground-dark"
-            />
-          </div>
+            <div className="bg-panel-light dark:bg-panel-dark p-4 shadow border-t border-border-light dark:border-border-dark transition-colors duration-500">
+              <label className="block text-sm font-medium mb-1">RAM (GB)</label>
+              <input
+                type="number"
+                min={1}
+                value={ram}
+                onChange={(e) => setRam(Number(e.target.value))}
+                className="w-full p-2 rounded bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark text-foreground-light dark:text-foreground-dark"
+              />
+            </div>
 
-          <div className="bg-panel-light dark:bg-panel-dark p-4 shadow border-t border-border-light dark:border-border-dark transition-colors duration-500">
-            <label className="block text-sm font-medium mb-1">RAM (GB)</label>
-            <input
-              type="number"
-              min={1}
-              value={ram}
-              onChange={(e) => setRam(Number(e.target.value))}
-              className="w-full p-2 rounded bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark text-foreground-light dark:text-foreground-dark"
-            />
-          </div>
-
-          <div className="bg-panel-light dark:bg-panel-dark p-4 rounded-b-lg shadow border-t border-border-light dark:border-border-dark transition-colors duration-500">
-            <label className="block text-sm font-medium mb-1">디스크 크기 (GB)</label>
-            <input
-              type="number"
-              min={0}
-              value={disk}
-              onChange={(e) => setDisk(Number(e.target.value))}
-              className="w-full p-2 rounded bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark text-foreground-light dark:text-foreground-dark"
-            />
+            <div className="bg-panel-light dark:bg-panel-dark p-4 rounded-b-lg shadow border-t border-border-light dark:border-border-dark transition-colors duration-500">
+              <label className="block text-sm font-medium mb-1">디스크 크기 (GB)</label>
+              <input
+                type="number"
+                min={0}
+                value={disk}
+                onChange={(e) => setDisk(Number(e.target.value))}
+                className="w-full p-2 rounded bg-input-light dark:bg-input-dark border border-border-light dark:border-border-dark text-foreground-light dark:text-foreground-dark"
+              />
+            </div>
           </div>
         </div>
       </div>

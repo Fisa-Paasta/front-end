@@ -1,5 +1,5 @@
 export interface CostSummaryProps {
-  hourly?: number;
-  monthly?: number;
-  formula?: string;
+  hourly: number;
+  monthly: number;
+  formula: string;
 }
