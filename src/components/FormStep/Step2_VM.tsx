@@ -5,76 +5,56 @@ import { VMConfig } from '@/types/survey';
 export default function Step2_VM() {
   const { formData, updateFormData } = useSurvey();
 
-  const vmOptions: Record<VMConfig['provider'], string[]> = {
-    aws_ec2: ['t2.micro', 't3.small', 'm5.large'],
-    azure_vm: ['B1s', 'B2s', 'D2s v3'],
-    gcp_compute: ['e2-micro', 'e2-small', 'n1-standard-1'],
-    vmware: ['Standard', 'Advanced', 'Enterprise'],
-    '': []
-  };
-
-  const vmProviders = [
-    { value: 'aws_ec2', label: 'AWS EC2' },
-    { value: 'azure_vm', label: 'Azure VM' },
-    { value: 'gcp_compute', label: 'Google Cloud Compute' },
-    { value: 'vmware', label: 'VMware' }
-  ];
-
-  const [localVM, setLocalVM] = useState<VMConfig>(
-    formData.vm || { provider: '', type: '', count: '1' }
-  );
+  const [localVM, setLocalVM] = useState<VMConfig>({
+    hostname: formData.vm?.hostname || '',
+    username: formData.vm?.username || '',
+    password: formData.vm?.password || ''
+  });
 
   useEffect(() => {
     updateFormData('vm', localVM);
   }, [localVM]);
 
   const handleChange = (field: keyof VMConfig, value: string) => {
-    const updated = { ...localVM, [field]: value };
-    if (field === 'provider') updated.type = '';
-    setLocalVM(updated);
+    setLocalVM((prev) => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   return (
     <div className="space-y-4">
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
         <div>
-          <label className="block mb-1 text-sm font-medium">VM 제공자</label>
-          <select
+          <label className="block mb-1 text-sm font-medium">호스트네임</label>
+          <input
+            type="text"
+            value={localVM.hostname}
+            onChange={(e) => handleChange('hostname', e.target.value)}
             className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            value={localVM.provider}
-            onChange={(e) => handleChange('provider', e.target.value)}
-          >
-            <option value="">제공자 선택</option>
-            {vmProviders.map(({ value, label }) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
+            placeholder="예: my-vm-host"
+          />
         </div>
 
-        {localVM.provider && (
-          <div>
-            <label className="block mb-1 text-sm font-medium">VM 타입</label>
-            <select
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-              value={localVM.type}
-              onChange={(e) => handleChange('type', e.target.value)}
-            >
-              <option value="">타입 선택</option>
-              {vmOptions[localVM.provider]?.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </div>
-        )}
+        <div>
+          <label className="block mb-1 text-sm font-medium">사용자 이름</label>
+          <input
+            type="text"
+            value={localVM.username}
+            onChange={(e) => handleChange('username', e.target.value)}
+            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+            placeholder="예: ubuntu"
+          />
+        </div>
 
         <div>
-          <label className="block mb-1 text-sm font-medium">VM 인스턴스 수</label>
+          <label className="block mb-1 text-sm font-medium">비밀번호</label>
           <input
-            type="number"
+            type="password"
+            value={localVM.password}
+            onChange={(e) => handleChange('password', e.target.value)}
             className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            value={localVM.count}
-            onChange={(e) => handleChange('count', e.target.value)}
-            min="1"
+            placeholder="비밀번호 입력"
           />
         </div>
       </div>

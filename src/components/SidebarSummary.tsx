@@ -46,17 +46,19 @@ export default function SidebarSummary() {
           <SummaryItem label="1. 환경" value={formatEnv(formData.env)} />
         )}
 
-        {currentStep === 1 && (
+        {currentStep === 1 && formData.env === 'paas' && (
           <SummaryItem label="2. Kubernetes">
             <div>Type: {formatName(formData.k8s?.type)}</div>
-            <div>Version: {formData.k8s?.version || '-'}</div>
-            {formData.k8s?.runtime && (
-              <div>Runtime: {formatName(formData.k8s.runtime)} {formData.k8s.runtimeVersion}</div>
-            )}
-            {formData.k8s?.cni && <div>CNI: {formData.k8s.cni}</div>}
-            <div>Node: {formData.k8s?.node || '0'}</div>
-            <div>ReplicaSets: {formData.k8s?.rs || '0'}</div>
-            <div>Namespace: {formData.k8s?.namespace || '-'}</div>
+            <div>Worker Node 수: {formData.k8s?.node || '0'}</div>
+            <div>Namespace Prefix: {formData.k8s?.namespace || '-'}</div>
+          </SummaryItem>
+        )}
+
+        {currentStep === 1 && formData.env === 'iaas' && (
+          <SummaryItem label="2. VM 정보">
+            <div>호스트네임: {formData.vm?.hostname || '-'}</div>
+            <div>사용자 이름: {formData.vm?.username || '-'}</div>
+            <div>비밀번호: {formData.vm?.password ? '입력됨' : '-'}</div>
           </SummaryItem>
         )}
 
@@ -100,7 +102,7 @@ export default function SidebarSummary() {
         )}
 
         {currentStep === 6 && (
-          <SummaryItem label="7. 웹 서버/WAS">
+          <SummaryItem label="7. 웹 서버">
             {formData.webServerItems?.length
               ? formData.webServerItems.map((item, i) => (
                   <div key={item.id}>

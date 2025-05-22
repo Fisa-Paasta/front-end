@@ -1,9 +1,10 @@
 import { useSurvey } from '@/context/SurveyContext';
+import { EnvType } from '@/types/survey';
 
 export default function Step1_Env() {
   const { formData, updateFormData, setCurrentStep } = useSurvey();
 
-  const handleEnvChange = (value: string) => {
+  const handleEnvChange = (value: EnvType) => {
     updateFormData('env', value);
     setCurrentStep(0);
   };
@@ -16,7 +17,7 @@ export default function Step1_Env() {
           name="env"
           className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
           value={formData.env || ''}
-          onChange={(e) => handleEnvChange(e.target.value)}
+          onChange={(e) => handleEnvChange(e.target.value as EnvType)}
         >
           <option value="">선택</option>
           <option value="iaas">IaaS</option>

@@ -11,26 +11,31 @@ import {
 const SurveyContext = createContext<SurveyContextType | undefined>(undefined);
 
 export function SurveyProvider({ children }: { children: ReactNode }) {
-  // ✅ 타입 명시된 기본값들
   const defaultK8s: K8sConfig = {
-    type: '', version: '', runtime: '', runtimeVersion: '',
-    cni: '', node: '', rs: '', namespace: ''
+    type: '',
+    version: '',
+    node: '',
+    namespace: ''
   };
 
   const defaultVM: VMConfig = {
-    provider: '', type: '', count: ''
+    hostname: '',
+    username: '',
+    password: ''
   };
 
   const defaultOS: OSConfig = {
-    name: '', version: ''
+    name: '',
+    version: ''
   };
 
   const defaultCICD: CICDConfig = {
-    tool: '', version: ''
+    tool: '',
+    version: ''
   };
 
   const initialFormData: FormDataType = {
-    env: '', // 타입 상 EnvType | '' 이기 때문에 '' 유지 가능
+    env: '',
     k8s: defaultK8s,
     vm: defaultVM,
     resources: { cpu: '', ram: '', disk: '' },
@@ -59,19 +64,19 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
         { id: 3, title: 'OS' },
         { id: 4, title: '프론트엔드' },
         { id: 5, title: '백엔드' },
-        { id: 6, title: '웹 서버/WAS' },
+        { id: 6, title: '웹 서버' },
         { id: 7, title: 'DB' },
         { id: 8, title: 'CI/CD' }
       ]);
     } else if (formData.env === 'paas') {
       setSteps([
         { id: 0, title: '환경 선택' },
-        { id: 1, title: 'k8s' },
+        { id: 1, title: 'K8s' },
         { id: 2, title: '자원 선택' },
         { id: 3, title: 'OS' },
         { id: 4, title: '프론트엔드' },
         { id: 5, title: '백엔드' },
-        { id: 6, title: '웹 서버/WAS' },
+        { id: 6, title: '웹 서버' },
         { id: 7, title: 'DB' },
         { id: 8, title: 'CI/CD' }
       ]);
@@ -80,7 +85,6 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
     }
   }, [formData.env]);
 
-  // ✅ 타입 안전한 updateFormData
   const updateFormData = <K extends keyof FormDataType>(key: K, value: FormDataType[K]) => {
     setFormData(prev => {
       if (prev[key] === value) return prev;
