@@ -48,11 +48,11 @@ export default function SidebarSummary() {
       <h2 className="text-lg font-semibold">🧾 현재 입력 항목</h2>
 
       <div className="text-sm space-y-4">
-        {currentStep >= 0 && (
+        {currentStep === 0 && (
           <SummaryItem label="1. 환경" value={formatEnv(formData.env)} />
         )}
 
-        {currentStep >= 1 && formData.env === 'paas' && (
+        {currentStep === 1 && formData.env === 'paas' && (
           <SummaryItem label="2. Kubernetes">
             <div>Type: {formatName(formData.k8s.type)}</div>
             <div>Node: {formData.k8s.node || '0'}</div>
@@ -60,7 +60,7 @@ export default function SidebarSummary() {
           </SummaryItem>
         )}
 
-        {currentStep >= 1 && formData.env === 'iaas' && (
+        {currentStep === 1 && formData.env === 'iaas' && (
           <SummaryItem label="2. VM 구성">
             <div>Hostname: {formData.vm.hostname || '-'}</div>
             <div>Username: {formData.vm.username || '-'}</div>
@@ -68,7 +68,7 @@ export default function SidebarSummary() {
           </SummaryItem>
         )}
 
-        {currentStep >= 2 && (
+        {currentStep === 2 && (
           <SummaryItem label="3. 자원">
             <div>CPU: {formData.resources.cpu || '0'} cores</div>
             <div>RAM: {formData.resources.ram || '0'} GB</div>
@@ -76,13 +76,13 @@ export default function SidebarSummary() {
           </SummaryItem>
         )}
 
-        {currentStep >= 3 && (
+        {currentStep === 3 && (
           <SummaryItem label="4. OS"
             value={`${formatName(formData.os.name)} ${formData.os.version}`}
           />
         )}
 
-        {currentStep >= 4 && (
+        {currentStep === 4 && (
           <SummaryItem label="5. 프론트엔드">
             {formData.frontendItems.length ? (
               formData.frontendItems.map((item, i) => (
@@ -99,7 +99,7 @@ export default function SidebarSummary() {
           </SummaryItem>
         )}
 
-        {currentStep >= 5 && (
+        {currentStep === 5 && (
           <SummaryItem label="6. 백엔드">
             {formData.backendItems.length ? (
               formData.backendItems.map((item, i) => (
@@ -114,23 +114,23 @@ export default function SidebarSummary() {
               <div>API 도메인: {formData.apiDomain}</div>
             )}
             {formData.env === 'paas' &&
-              Array.isArray(formData.apiPaths) &&
-              formData.apiPaths.some(path => path.trim() !== '') && (
-                <div>
-                  API 경로:
-                  <ul className="list-disc ml-5">
-                    {formData.apiPaths
-                      .filter(path => path.trim() !== '')
-                      .map((path, i) => (
-                        <li key={i}>{path}</li>
-                      ))}
-                  </ul>
-                </div>
-              )}
+             Array.isArray(formData.apiPaths) &&
+             formData.apiPaths.some((path) => path.trim() !== '') && (
+              <div>
+                API 경로:
+                <ul className="list-disc ml-5">
+                  {formData.apiPaths
+                    .filter((path) => path.trim() !== '')
+                    .map((path, i) => (
+                      <li key={i}>{path}</li>
+                    ))}
+                </ul>
+              </div>
+            )}
           </SummaryItem>
         )}
 
-        {currentStep >= 6 && (
+        {currentStep === 6 && (
           <SummaryItem label="7. 웹 서버/WAS">
             {formData.webServerItems.length ? (
               formData.webServerItems.map((item, i) => (
@@ -144,7 +144,7 @@ export default function SidebarSummary() {
           </SummaryItem>
         )}
 
-        {currentStep >= 7 && (
+        {currentStep === 7 && (
           <SummaryItem label="8. DB">
             {formData.dbItems.length ? (
               formData.dbItems.map((item, i) => (
@@ -158,7 +158,7 @@ export default function SidebarSummary() {
           </SummaryItem>
         )}
 
-        {currentStep >= 8 && (
+        {currentStep === 8 && (
           <SummaryItem label="9. CI/CD"
             value={`${formatName(formData.cicd.tool)} ${formData.cicd.version}`}
           />
