@@ -85,7 +85,10 @@ export interface FormDataType {
   resources: ResourcesConfig;
   os: OSConfig;
   frontendItems: FrontendItem[];
+  frontendDomain: string;
   backendItems: BackendItem[];
+  apiDomain: string;
+  apiPaths: string[];
   webServerItems: WebServerItem[];
   dbItems: DBItem[];
   cicd: CICDConfig;

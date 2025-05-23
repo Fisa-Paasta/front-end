@@ -2,99 +2,121 @@ import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
 import { FrontendItem } from '@/types/survey';
 
+const frontendOptions: Record<string, string[]> = {
+  react: ['19.1.0', '18.3.1', '17.0.2'],
+  vue: ['3.5.13 (Latest)', '3.5.0'],
+  angular: ['19.2.9 (Latest)', '19.2.0'],
+  nextjs: ['15.3.0', '14.2.0'],
+};
+
+const frameworkNames: Record<string, string> = {
+  react: 'React',
+  vue: 'Vue.js',
+  angular: 'Angular',
+  nextjs: 'Next.js',
+};
+
 export default function Step5_Frontend() {
   const { formData, updateFormData } = useSurvey();
-
-  const frontendOptions: Record<string, string[]> = {
-    react: ["19.1.0", "18.3.1", "17.0.2"],
-    vue: ["3.5.13 (Latest)", "3.5.0"],
-    angular: ["19.2.9 (Latest)", "19.2.0"],
-    nextjs: ["15.3.0", "14.2.0"]
-  };
-
-  const frameworkNames: Record<string, string> = {
-    react: "React",
-    vue: "Vue.js",
-    angular: "Angular",
-    nextjs: "Next.js"
-  };
-
-  const [frontendItems, setFrontendItems] = useState<FrontendItem[]>(() =>
-    formData.frontendItems?.length
-      ? formData.frontendItems
-      : [{ id: Date.now(), framework: '', version: '' }]
-  );
+  const [items, setItems] = useState<FrontendItem[]>(formData.frontendItems || []);
+  const [frontendDomain, setFrontendDomain] = useState<string>(formData.frontendDomain || '');
+  const [domainError, setDomainError] = useState(false);
 
   useEffect(() => {
-    updateFormData('frontendItems', frontendItems);
-  }, [frontendItems]);
+    updateFormData('frontendItems', items);
+    updateFormData('frontendDomain', frontendDomain);
+  }, [items, frontendDomain]);
 
-  const addFrontendItem = () => {
-    setFrontendItems([...frontendItems, { id: Date.now(), framework: '', version: '' }]);
+  const handleChange = (index: number, field: 'framework' | 'version', value: string) => {
+    const updated = [...items];
+    updated[index][field] = value;
+    setItems(updated);
   };
 
-  const removeFrontendItem = (id: number) => {
-    if (frontendItems.length <= 1) return;
-    setFrontendItems(frontendItems.filter((item) => item.id !== id));
+  const handleAdd = () => {
+    setItems([...items, { id: items.length + 1, framework: '', version: '' }]);
   };
 
-  const handleChange = (id: number, field: keyof FrontendItem, value: string) => {
-    setFrontendItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const updated: FrontendItem = { ...item, [field]: value };
-          if (field === 'framework') updated.version = '';
-          return updated;
-        }
-        return item;
-      })
-    );
+  const handleRemove = (index: number) => {
+    const updated = [...items];
+    updated.splice(index, 1);
+    setItems(updated);
+  };
+
+  const handleDomainChange = (value: string) => {
+    setFrontendDomain(value);
+    setDomainError(value !== '' && !/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value));
   };
 
   return (
     <div className="space-y-4">
-      {frontendItems.map((item) => (
-        <div key={item.id} className="flex gap-4 items-center bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-          <div className="flex-1 space-y-2">
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
+
+        {/* 프론트엔드 목록 */}
+        {items.map((item: FrontendItem, i: number) => (
+          <div key={i} className="grid grid-cols-2 gap-4 items-center">
             <select
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
               value={item.framework}
-              onChange={(e) => handleChange(item.id, 'framework', e.target.value)}
+              onChange={(e) => handleChange(i, 'framework', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
             >
               <option value="">프레임워크 선택</option>
-              {Object.keys(frontendOptions).map((fw) => (
-                <option key={fw} value={fw}>{frameworkNames[fw]}</option>
+              {Object.entries(frameworkNames).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
               ))}
             </select>
 
-            {item.framework && (
+            <div className="relative flex items-center">
               <select
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
                 value={item.version}
-                onChange={(e) => handleChange(item.id, 'version', e.target.value)}
+                onChange={(e) => handleChange(i, 'version', e.target.value)}
+                disabled={!item.framework}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
               >
                 <option value="">버전 선택</option>
-                {frontendOptions[item.framework]?.map((v) => (
-                  <option key={v} value={v}>{v}</option>
+                {(frontendOptions[item.framework] || []).map((ver) => (
+                  <option key={ver} value={ver}>{ver}</option>
                 ))}
               </select>
+
+              {items.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemove(i)}
+                  className="absolute right-2 text-red-600 font-bold text-xl"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-md"
+        >
+          + 프론트엔드 추가
+        </button>
+
+        {/* 프론트 도메인 (PaaS 전용) */}
+        {formData.env === 'paas' && (
+          <div>
+            <label className="block mt-6 mb-1 text-sm font-medium">프론트 도메인 (필수 항목 X)</label>
+            <input
+              type="text"
+              value={frontendDomain}
+              onChange={(e) => handleDomainChange(e.target.value)}
+              placeholder="예: www.example.com"
+              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${domainError ? 'border-red-500' : ''}`}
+            />
+            {domainError && (
+              <p className="text-red-500 text-xs mt-1">도메인 형식이 올바르지 않습니다.</p>
             )}
           </div>
-
-          <button
-            type="button"
-            onClick={() => removeFrontendItem(item.id)}
-            className="text-red-500 text-xl hover:text-red-700"
-            title="항목 제거"
-          >×</button>
-        </div>
-      ))}
-
-      <button
-        type="button"
-        onClick={addFrontendItem}
-        className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-md transition"
-      >+ 프론트엔드 추가</button>
+        )}
+      </div>
     </div>
   );
 }

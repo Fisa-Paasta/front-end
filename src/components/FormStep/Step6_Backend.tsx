@@ -1,189 +1,214 @@
 import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
-import { BackendItem, BackendLanguage, BackendFramework } from '@/types/survey';
+import { BackendItem } from '@/types/survey';
+
+const languageOptions: Record<string, string[]> = {
+  java: ['JDK 11 (LTS)', 'JDK 17 (LTS)', 'JDK 21 (LTS)'],
+  nodejs: ['v20 (Maintenance)', 'v22 (LTS)', 'v23 (Maintenance)'],
+  python: ['3.10', '3.11', '3.12'],
+  go: ['1.23.9', '1.24.3'],
+  ruby: ['3.2.8', '3.3.8', '3.4.3'],
+};
+
+const frameworkOptions: Record<string, string[]> = {
+  spring_boot: ['2.7', '3.0', '3.1'],
+  express: ['4.x', '5.x'],
+  nestjs: ['9', '10'],
+  django: ['3.2', '4.0'],
+  flask: ['1.1', '2.0'],
+  fiber: ['2.50', '2.60'],
+  rails: ['6.1', '7.0'],
+  gin: ['1.8', '1.9'],
+  echo: ['4.9', '5.0'],
+};
+
+const frameworkNames: Record<string, string> = {
+  spring_boot: 'Spring Boot',
+  express: 'Express',
+  nestjs: 'NestJS',
+  django: 'Django',
+  flask: 'Flask',
+  fiber: 'Fiber',
+  rails: 'Ruby on Rails',
+  gin: 'Gin',
+  echo: 'Echo',
+};
 
 export default function Step6_Backend() {
   const { formData, updateFormData } = useSurvey();
-
-  const backendLanguages: BackendLanguage[] = ['java', 'nodejs', 'python', 'go', 'ruby'];
-
-  const languageVersions: Record<Exclude<BackendLanguage, ''>, string[]> = {
-    java: ['JDK 11 (LTS)', 'JDK 17 (LTS)', 'JDK 21 (LTS)'],
-    nodejs: ['v20 (Maintenance)', 'v22 (LTS)', 'v23 (Maintenance)'],
-    python: ['3.10', '3.11', '3.12'],
-    go: ['1.23.9', '1.24.3'],
-    ruby: ['3.2.8', '3.3.8', '3.4.3']
-  };
-
-  const backendFrameworks: Record<Exclude<BackendLanguage, ''>, BackendFramework[]> = {
-    java: ['spring_boot'],
-    nodejs: ['express', 'nestjs'],
-    python: ['django', 'flask'],
-    go: ['gin', 'echo', 'fiber'],
-    ruby: ['rails']
-  };
-
-  const frameworkVersions: Record<Exclude<BackendFramework, ''>, string[]> = {
-    spring_boot: ['3.1.2', '3.3.3', '3.4.4'],
-    express: ['4.18.2', '4.21.2', '5.1.0'],
-    nestjs: ['11.0.13', '11.0.21', '11.1.0'],
-    django: ['5.0.1', '4.2.10', '3.2.23'],
-    flask: ['2.1.0', '2.3.0', '3.1.0'],
-    fiber: ['2.52.6', '2.52.5', '2.52.4'],
-    rails: ['4.2', '5.2', '6.1'],
-    gin: ['1.9.1', '1.9.2', '1.9.3'],
-    echo: ['4.10.1', '4.11.0', '4.12.0']
-  };
-
-  const frameworkNames: Record<Exclude<BackendFramework, ''>, string> = {
-    spring_boot: 'Spring Boot',
-    express: 'Express',
-    nestjs: 'NestJS',
-    django: 'Django',
-    flask: 'Flask',
-    fiber: 'Fiber',
-    rails: 'Ruby on Rails',
-    gin: 'Gin',
-    echo: 'Echo'
-  };
-
-  const formatLangLabel = (lang: BackendLanguage) =>
-    lang ? lang.charAt(0).toUpperCase() + lang.slice(1) : '';
-
-  const [backendItems, setBackendItems] = useState<BackendItem[]>(() =>
-    formData.backendItems?.length
-      ? formData.backendItems
-      : [
-          {
-            id: Date.now(),
-            language: '',
-            languageVersion: '',
-            framework: '',
-            frameworkVersion: ''
-          }
-        ]
-  );
+  const [items, setItems] = useState<BackendItem[]>(formData.backendItems || []);
+  const [apiDomain, setApiDomain] = useState<string>(formData.apiDomain || '');
+  const [apiPaths, setApiPaths] = useState<string[]>(formData.apiPaths || ['']);
+  const [domainError, setDomainError] = useState(false);
 
   useEffect(() => {
-    updateFormData('backendItems', backendItems);
-  }, [backendItems]);
+    updateFormData('backendItems', items);
+    updateFormData('apiDomain', apiDomain);
+    updateFormData('apiPaths', apiPaths);
+  }, [items, apiDomain, apiPaths]);
 
-  const addBackendItem = () => {
-    setBackendItems((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        language: '',
-        languageVersion: '',
-        framework: '',
-        frameworkVersion: ''
-      }
+  const handleItemChange = (
+    index: number,
+    field: keyof BackendItem,
+    value: string
+  ) => {
+    const updated = [...items];
+    (updated[index] as any)[field] = value;
+    setItems(updated);
+  };
+
+  const handleAdd = () => {
+    setItems([
+      ...items,
+      { id: items.length + 1, language: '', languageVersion: '', framework: '', frameworkVersion: '' },
     ]);
   };
 
-  const removeBackendItem = (id: number) => {
-    if (backendItems.length <= 1) return;
-    setBackendItems((prev) => prev.filter((item) => item.id !== id));
+  const handleRemove = (index: number) => {
+    const updated = [...items];
+    updated.splice(index, 1);
+    setItems(updated);
   };
 
-  const handleChange = (id: number, field: keyof BackendItem, value: string) => {
-    setBackendItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const updated: BackendItem = { ...item, [field]: value };
-          if (field === 'language') {
-            updated.languageVersion = '';
-            updated.framework = '';
-            updated.frameworkVersion = '';
-          } else if (field === 'framework') {
-            updated.frameworkVersion = '';
-          }
-          return updated;
-        }
-        return item;
-      })
-    );
+  const handleDomainChange = (value: string) => {
+    setApiDomain(value);
+    setDomainError(value !== '' && !/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value));
+  };
+
+  const handlePathChange = (index: number, value: string) => {
+    const updated = [...apiPaths];
+    updated[index] = value;
+    setApiPaths(updated);
+  };
+
+  const handleAddPath = () => {
+    setApiPaths([...apiPaths, '']);
+  };
+
+  const handleRemovePath = (index: number) => {
+    const updated = [...apiPaths];
+    updated.splice(index, 1);
+    setApiPaths(updated);
   };
 
   return (
     <div className="space-y-4">
-      {backendItems.map((item) => (
-        <div
-          key={item.id}
-          className="flex gap-4 items-center bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm"
-        >
-          <div className="flex-1 space-y-2">
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
+        {items.map((item: BackendItem, i: number) => (
+          <div key={i} className="space-y-3">
             <select
               value={item.language}
-              onChange={(e) => handleChange(item.id, 'language', e.target.value)}
+              onChange={(e) => handleItemChange(i, 'language', e.target.value)}
               className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
             >
               <option value="">언어 선택</option>
-              {backendLanguages.map((lang) => (
-                <option key={lang} value={lang}>
-                  {formatLangLabel(lang)}
-                </option>
+              {Object.keys(languageOptions).map((lang) => (
+                <option key={lang} value={lang}>{lang.toUpperCase()}</option>
               ))}
             </select>
 
             {item.language && (
-              <>
-                <select
-                  value={item.languageVersion}
-                  onChange={(e) => handleChange(item.id, 'languageVersion', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-                >
-                  <option value="">언어 버전 선택</option>
-                  {languageVersions[item.language as Exclude<BackendLanguage, ''>]?.map((ver) => (
-                    <option key={ver} value={ver}>{ver}</option>
-                  ))}
-                </select>
+              <select
+                value={item.languageVersion}
+                onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+              >
+                <option value="">언어 버전 선택</option>
+                {(languageOptions[item.language] || []).map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            )}
 
-                <select
-                  value={item.framework}
-                  onChange={(e) => handleChange(item.id, 'framework', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-                >
-                  <option value="">프레임워크 선택</option>
-                  {backendFrameworks[item.language as Exclude<BackendLanguage, ''>]?.map((fw) => (
-                    <option key={fw} value={fw}>{frameworkNames[fw]}</option>
-                  ))}
-                </select>
+            <select
+              value={item.framework}
+              onChange={(e) => handleItemChange(i, 'framework', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+            >
+              <option value="">프레임워크 선택</option>
+              {Object.entries(frameworkNames).map(([key, label]) => (
+                <option key={key} value={key}>{label}</option>
+              ))}
+            </select>
 
-                {item.framework && (
-                  <select
-                    value={item.frameworkVersion}
-                    onChange={(e) => handleChange(item.id, 'frameworkVersion', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-                  >
-                    <option value="">프레임워크 버전 선택</option>
-                    {frameworkVersions[item.framework as Exclude<BackendFramework, ''>]?.map((ver) => (
-                      <option key={ver} value={ver}>{ver}</option>
-                    ))}
-                  </select>
-                )}
-              </>
+            {item.framework && (
+              <select
+                value={item.frameworkVersion}
+                onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+              >
+                <option value="">프레임워크 버전 선택</option>
+                {(frameworkOptions[item.framework] || []).map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            )}
+
+            {items.length > 1 && (
+              <button onClick={() => handleRemove(i)} className="text-red-500 text-xl">✕</button>
             )}
           </div>
+        ))}
 
-          <button
-            type="button"
-            onClick={() => removeBackendItem(item.id)}
-            className="text-red-500 text-xl hover:text-red-700"
-            title="항목 제거"
-          >
-            ×
-          </button>
-        </div>
-      ))}
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-md"
+        >
+          + 백엔드 추가
+        </button>
 
-      <button
-        type="button"
-        onClick={addBackendItem}
-        className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-md transition"
-      >
-        + 백엔드 추가
-      </button>
+        {formData.env === 'paas' && (
+          <>
+            {/* API 도메인 */}
+            <div className="mt-6">
+              <label className="block mb-1 text-sm font-medium">API 도메인</label>
+              <input
+                type="text"
+                value={apiDomain}
+                onChange={(e) => handleDomainChange(e.target.value)}
+                placeholder="예: api.example.com"
+                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${domainError ? 'border-red-500' : ''}`}
+              />
+              {domainError && (
+                <p className="text-red-500 text-xs mt-1">도메인 형식이 올바르지 않습니다.</p>
+              )}
+            </div>
+
+            {/* API Prefix Paths */}
+            <div className="mt-6 space-y-2">
+              <label className="block mb-1 text-sm font-medium">API Prefix Path</label>
+              {apiPaths.map((path: string, i: number) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={path}
+                    onChange={(e) => handlePathChange(i, e.target.value)}
+                    placeholder="/api"
+                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                  />
+                  {apiPaths.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePath(i)}
+                      className="text-red-500 text-xl"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleAddPath}
+                className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md"
+              >
+                + 경로 추가
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

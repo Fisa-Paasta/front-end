@@ -41,11 +41,14 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
     resources: { cpu: '', ram: '', disk: '' },
     os: defaultOS,
     frontendItems: [{ id: Date.now(), framework: '', version: '' }],
+    frontendDomain: '',
     backendItems: [{
       id: Date.now() + 1,
       language: '', languageVersion: '',
       framework: '', frameworkVersion: ''
     }],
+    apiDomain: '',
+    apiPaths: [''],
     webServerItems: [{ id: Date.now() + 2, server: '', version: '' }],
     dbItems: [{ id: Date.now() + 3, type: '', name: '', version: '', size: '' }],
     cicd: defaultCICD
