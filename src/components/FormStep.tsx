@@ -1,4 +1,5 @@
 import { useSurvey } from '@/context/SurveyContext';
+import { useState } from 'react';
 import Step1_Env from './FormStep/Step1_Env';
 import Step2_K8s from './FormStep/Step2_K8s';
 import Step2_VM from './FormStep/Step2_VM';
@@ -9,87 +10,105 @@ import Step6_Backend from './FormStep/Step6_Backend';
 import Step7_WebServer from './FormStep/Step7_WebServer';
 import Step8_DB from './FormStep/Step8_DB';
 import Step9_CICD from './FormStep/Step9_CICD';
+import ConfirmModal from './ConfirmModal';
+import InformationModal from './InformationModal';
+import { useSubmitted } from '@/context/SubmittedContext';
+import { SurveyContextType } from '@/types/survey';
 
 export default function FormStep() {
-  const { currentStep, formData, goToNextStep, goToPrevStep } = useSurvey();
+  const {
+    currentStep,
+    goToNextStep,
+    goToPrevStep,
+    formData,
+    TOTAL_STEPS
+  }: SurveyContextType = useSurvey();
 
-  const isCurrentStepValid = () => {
+  const { addSubmittedCard } = useSubmitted();
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+
+  const stepsByEnv = {
+    iaas: [Step1_Env, Step2_VM, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB, Step9_CICD],
+    paas: [Step1_Env, Step2_K8s, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB, Step9_CICD]
+  };
+
+  const StepComponent = formData.env === 'iaas'
+    ? stepsByEnv.iaas[currentStep]
+    : stepsByEnv.paas[currentStep] || Step1_Env;
+
+  const handleNext = () => {
+    if (!isCurrentStepValid()) return;
+    if (currentStep === TOTAL_STEPS - 1) {
+      setShowInfoModal(true); // 최종 단계면 정보 모달 먼저 띄움
+    } else {
+      goToNextStep();
+    }
+  };
+
+  const handleConfirmSubmit = ({ title, description }: { title: string; description: string }) => {
+    const newCard = {
+      title,
+      desc: description?.trim() || '—',
+      date: new Date().toISOString().split('T')[0],
+      starred: false,
+      status: '접수중' as const,
+      historyList: []
+    };
+
+    addSubmittedCard(newCard);
+    setShowConfirmModal(false);
+  };
+
+  const isCurrentStepValid = (): boolean => {
     switch (currentStep) {
       case 0:
         return !!formData.env;
 
       case 1:
         if (formData.env === 'iaas') {
-          return !!formData.vm?.hostname && !!formData.vm?.username && !!formData.vm?.password;
+          return !!formData.vm.hostname && !!formData.vm.username && !!formData.vm.password;
         } else {
-          if (!formData.k8s?.type || !formData.k8s?.node) return false;
-          const nodeNum = parseInt(formData.k8s.node, 10);
-          const ns = formData.k8s.namespace || '';
-          const nsValid = ns === '' || /^[a-zA-Z][-a-zA-Z0-9]*$/.test(ns);
-          return !isNaN(nodeNum) && nodeNum > 0 && nsValid;
+          const typeValid = !!formData.k8s?.type;
+          const nodeValid = !isNaN(parseInt(formData.k8s?.node, 10)) && parseInt(formData.k8s?.node, 10) > 0;
+          const namespaceValid = !formData.k8s?.namespace || /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.k8s.namespace);
+          return typeValid && nodeValid && namespaceValid;
         }
 
       case 2:
-        if (!formData.resources) return false;
         const cpu = parseInt(formData.resources.cpu, 10);
         const ram = parseInt(formData.resources.ram, 10);
         const disk = parseInt(formData.resources.disk, 10);
-        return [cpu, ram, disk].every((v) => !isNaN(v) && v > 0);
+        return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
 
       case 3:
         return !!formData.os?.name && !!formData.os?.version;
 
       case 4:
-        if (!formData.frontendItems || formData.frontendItems.length === 0) return false;
-        const frontendValid = formData.frontendItems.some((item: { framework: string; version: string }) => {
-          return !!item.framework && !!item.version;
-        });
-        return frontendValid;
+        return formData.frontendItems?.some(item =>
+          !!item.framework && !!item.version
+        );
 
       case 5:
-        if (!formData.backendItems || formData.backendItems.length === 0) return false;
-        const backendValid = formData.backendItems.some((item: {
-          language: string;
-          languageVersion: string;
-          framework: string;
-          frameworkVersion: string;
-        }) => {
-          return (
-            !!item.language &&
-            !!item.languageVersion &&
-            !!item.framework &&
-            !!item.frameworkVersion
-          );
-        });
-
+        const backendValid = formData.backendItems?.some(item =>
+          !!item.language && !!item.languageVersion && !!item.framework && !!item.frameworkVersion
+        );
         if (formData.env === 'paas') {
-          if (!formData.apiDomain || !/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(formData.apiDomain)) return false;
-          if (!formData.apiPaths || formData.apiPaths.length === 0) return false;
-          const pathsValid = formData.apiPaths.every((path: string) =>
-            /^\/[a-zA-Z0-9/_-]*$/.test(path.trim())
-          );
-          return backendValid && pathsValid;
+          const domainValid = !!formData.apiDomain && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(formData.apiDomain);
+          const pathsValid = formData.apiPaths?.length > 0 &&
+            formData.apiPaths.every((path) => /^\/[a-zA-Z0-9/_-]+$/.test(path.trim()));
+          return backendValid && domainValid && pathsValid;
         }
-
         return backendValid;
 
       case 6:
-        if (!formData.webServerItems || formData.webServerItems.length === 0) return false;
-        return formData.webServerItems.some((item: { server: string; version: string }) => {
-          return !!item.server && !!item.version;
-        });
+        return true; // 웹서버는 선택 안 해도 통과
 
       case 7:
-        if (!formData.dbItems || formData.dbItems.length === 0) return false;
-        return formData.dbItems.some((item: {
-          type: string;
-          name: string;
-          version: string;
-          size: string;
-        }) => {
-          if (!item.type || !item.name || !item.version) return false;
+        return formData.dbItems?.some(item => {
           const size = parseInt(item.size, 10);
-          return !isNaN(size) && size > 0;
+          return !!item.type && !!item.name && !!item.version && !isNaN(size) && size > 0;
         });
 
       case 8:
@@ -100,55 +119,54 @@ export default function FormStep() {
     }
   };
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 0:
-        return <Step1_Env />;
-      case 1:
-        return formData.env === 'iaas' ? <Step2_VM /> : <Step2_K8s />;
-      case 2:
-        return <Step3_Resources />;
-      case 3:
-        return <Step4_OS />;
-      case 4:
-        return <Step5_Frontend />;
-      case 5:
-        return <Step6_Backend />;
-      case 6:
-        return <Step7_WebServer />;
-      case 7:
-        return <Step8_DB />;
-      case 8:
-        return <Step9_CICD />;
-      default:
-        return null;
-    }
-  };
-
   return (
-    <div>
-      {renderStep()}
+    <>
+      <StepComponent />
 
-      <div className="flex justify-between mt-6">
+      <div className="flex justify-between items-center mt-8 px-4">
         <button
           onClick={goToPrevStep}
           disabled={currentStep === 0}
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md"
+          className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${currentStep === 0
+              ? 'opacity-0 cursor-default'
+              : 'bg-white dark:bg-panel-dark text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-opacity-80 shadow-sm border border-border-light dark:border-border-dark'
+            }`}
         >
           ← 이전
         </button>
 
-        {currentStep < 8 && (
-          <button
-            onClick={goToNextStep}
-            disabled={!isCurrentStepValid()}
-            className={`px-4 py-2 rounded-md ${isCurrentStepValid() ? 'bg-purple-600 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
-          >
-            다음 →
-          </button>
-        )}
+        <button
+          onClick={handleNext}
+          disabled={!isCurrentStepValid()}
+          className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${!isCurrentStepValid()
+              ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+              : 'bg-primary hover:bg-primary-hover text-white shadow-sm'
+            }`}
+        >
+          {currentStep === TOTAL_STEPS - 1 ? '확인 ✓' : '다음 →'}
+        </button>
       </div>
-    </div>
+
+      {showInfoModal && (
+        <InformationModal
+          onClose={() => setShowInfoModal(false)}
+          onSubmit={() => {
+            setShowInfoModal(false);
+            setShowConfirmModal(true);
+          }}
+        />
+      )}
+
+      {showConfirmModal && (
+        <ConfirmModal
+          onBack={() => {
+            setShowConfirmModal(false);
+            setShowInfoModal(true); // "이전" 버튼 누르면 정보 모달로 되돌아감
+          }}
+          onClose={() => setShowConfirmModal(false)} // X 버튼 등 닫기용
+          onSubmit={handleConfirmSubmit}
+        />
+      )}
+    </>
   );
 }

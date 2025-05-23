@@ -244,3 +244,9 @@ button:focus {
 .dark .badge {
   background-color: #374151;
 }
+
+.section-block {
+  border-left: 4px solid #a855f7; /* 연보라색 */
+  padding-left: 16px;
+  margin-bottom: 20px;
+}

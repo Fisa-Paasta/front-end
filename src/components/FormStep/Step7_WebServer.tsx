@@ -71,7 +71,7 @@ export default function Step7_WebServer() {
               onChange={(e) => handleChange(item.id, 'server', e.target.value)}
               className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
             >
-              <option value="">서버 선택</option>
+              <option value="">서버 선택 (필수 항목 X)</option>
               {(Object.keys(webServerOptions) as ValidWebServerType[]).map((server) => (
                 <option key={server} value={server}>
                   {serverDisplayNames[server]}
