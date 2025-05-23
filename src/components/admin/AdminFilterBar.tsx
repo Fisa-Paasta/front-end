@@ -3,7 +3,7 @@ import { StatusType } from '@/types/admin';
 interface AdminFilterBarProps {
   filterUserId: string;
   setFilterUserId: (value: string) => void;
-  filterStatus: StatusType | '';
+  filterStatus: StatusType | string;
   setFilterStatus: (value: StatusType | '') => void;
   filterDate: string;
   setFilterDate: (value: string) => void;
