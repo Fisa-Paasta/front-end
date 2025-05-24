@@ -23,6 +23,9 @@ export interface VMConfig {
   hostname: string;
   username: string;
   password: string;
+  environment: 'on-premise' | 'aws';
+  ec2Type: string;
+  ebsType: string;
 }
 
 // ───── 2. Step2 - K8s (PaaS에서만 사용) ─────

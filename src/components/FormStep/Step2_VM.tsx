@@ -8,7 +8,10 @@ export default function Step2_VM() {
   const [localVM, setLocalVM] = useState<VMConfig>({
     hostname: formData.vm?.hostname || '',
     username: formData.vm?.username || '',
-    password: formData.vm?.password || ''
+    password: formData.vm?.password || '',
+    environment: formData.vm?.environment || 'on-premise', // 기본값 명시
+    ec2Type: formData.vm?.ec2Type || '',
+    ebsType: formData.vm?.ebsType || ''
   });
 
   useEffect(() => {

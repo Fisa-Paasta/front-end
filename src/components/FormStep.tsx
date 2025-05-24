@@ -4,6 +4,7 @@ import Step1_Env from './FormStep/Step1_Env';
 import Step2_K8s from './FormStep/Step2_K8s';
 import Step2_VM from './FormStep/Step2_VM';
 import Step3_Resources from './FormStep/Step3_Resources';
+import Step3_VMResources from './FormStep/Step3_VMResources';
 import Step4_OS from './FormStep/Step4_OS';
 import Step5_Frontend from './FormStep/Step5_Frontend';
 import Step6_Backend from './FormStep/Step6_Backend';
@@ -30,7 +31,7 @@ export default function FormStep() {
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   const stepsByEnv = {
-    iaas: [Step1_Env, Step2_VM, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB, Step9_CICD],
+    iaas: [Step1_Env, Step2_VM, Step3_VMResources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB, Step9_CICD],
     paas: [Step1_Env, Step2_K8s, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB, Step9_CICD]
   };
 
@@ -77,10 +78,30 @@ export default function FormStep() {
         }
 
       case 2:
-        const cpu = parseInt(formData.resources.cpu, 10);
-        const ram = parseInt(formData.resources.ram, 10);
-        const disk = parseInt(formData.resources.disk, 10);
-        return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
+        if (formData.env === 'iaas') {
+          if (formData.vm.environment === 'on-premise') {
+            const cpu = parseInt(formData.resources.cpu, 10);
+            const ram = parseInt(formData.resources.ram, 10);
+            const disk = parseInt(formData.resources.disk, 10);
+            return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
+          } else {
+            return !!formData.vm.ec2Type && !!formData.vm.ebsType;
+          }
+        }
+
+        if (formData.env === 'paas') {
+          if (formData.k8s?.type === 'amazon_eks') {
+            return !!formData.vm.ec2Type && !!formData.vm.ebsType;
+          } else {
+            const cpu = parseInt(formData.resources.cpu, 10);
+            const ram = parseInt(formData.resources.ram, 10);
+            const disk = parseInt(formData.resources.disk, 10);
+            return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
+          }
+        }
+
+        return false;
+
 
       case 3:
         return !!formData.os?.name && !!formData.os?.version;
@@ -102,8 +123,12 @@ export default function FormStep() {
         }
         return backendValid;
 
-      case 6:
-        return true; // 웹서버는 선택 안 해도 통과
+      case 6:// seb server는 필수 항목 아니라 제외
+        // if (!formData.webServerItems || formData.webServerItems.length === 0) return false;
+        // return formData.webServerItems.some((item: { server: string; version: string }) => {
+        //   return !!item.server && !!item.version;
+        // });
+        return true;
 
       case 7:
         return formData.dbItems?.some(item => {
@@ -128,8 +153,8 @@ export default function FormStep() {
           onClick={goToPrevStep}
           disabled={currentStep === 0}
           className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${currentStep === 0
-              ? 'opacity-0 cursor-default'
-              : 'bg-white dark:bg-panel-dark text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-opacity-80 shadow-sm border border-border-light dark:border-border-dark'
+            ? 'opacity-0 cursor-default'
+            : 'bg-white dark:bg-panel-dark text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-opacity-80 shadow-sm border border-border-light dark:border-border-dark'
             }`}
         >
           ← 이전
@@ -139,8 +164,8 @@ export default function FormStep() {
           onClick={handleNext}
           disabled={!isCurrentStepValid()}
           className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${!isCurrentStepValid()
-              ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
-              : 'bg-primary hover:bg-primary-hover text-white shadow-sm'
+            ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+            : 'bg-primary hover:bg-primary-hover text-white shadow-sm'
             }`}
         >
           {currentStep === TOTAL_STEPS - 1 ? '확인 ✓' : '다음 →'}
