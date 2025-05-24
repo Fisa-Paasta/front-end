@@ -2,23 +2,23 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
     "target": "ES2022",
-    "lib": ["ES2023"],
+    "lib": ["ES2022"], // ✅ 'ES2023' → 'ES2022'로 변경 (SonarQube 호환)
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    /* Bundler mode - SonarQube 호환 설정 */
+    "moduleResolution": "node", // ✅ 'bundler' → 'node'로 변경
+    // "allowImportingTsExtensions": true, // ❌ SonarQube 미지원으로 제거
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
+    // "noUncheckedSideEffectImports": true, // ❌ SonarQube 미지원으로 제거
 
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["vite.config.ts"]
 }
