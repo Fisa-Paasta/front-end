@@ -9,7 +9,8 @@ export default function Step3_VMResources() {
   const [localVM, setLocalVM] = useState({
     environment: initialVM.environment || 'on-premise',
     ec2Type: initialVM.ec2Type || '',
-    ebsType: initialVM.ebsType || ''
+    ebsType: initialVM.ebsType || '',
+    ebsSize: initialVM.ebsSize || ''
   });
 
   const [localResources, setLocalResources] = useState({
@@ -32,7 +33,7 @@ export default function Step3_VMResources() {
     });
   }, [localResources]);
 
-  const handleVmChange = (field: 'environment' | 'ec2Type' | 'ebsType', value: string) => {
+  const handleVmChange = (field: 'environment' | 'ec2Type' | 'ebsType' | 'ebsSize', value: string) => {
     setLocalVM(prev => ({ ...prev, [field]: value }));
   };
 
@@ -102,10 +103,10 @@ export default function Step3_VMResources() {
                 className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
               >
                 <option value="">선택하세요</option>
-                <option value="t3.medium">t2.small (1vCPU X 2GiB)</option>
+                <option value="t2.small">t2.small (1vCPU X 2GiB)</option>
                 <option value="t3.medium">t3.medium (2vCPU X 4GiB)</option>
                 <option value="t3.large">t3.large (2vCPU X 8GiB)</option>
-                <option value="m5.large">t4g.xlarge (4vCPU X 16GiB)</option>
+                <option value="t4g.xlarge">t4g.xlarge (4vCPU X 16GiB)</option>
                 <option value="m5.large">m5.large (2vCPU X 8GiB)</option>
               </select>
             </div>
@@ -125,6 +126,18 @@ export default function Step3_VMResources() {
                 <option value="st1">st1 (HDD)</option>
                 <option value="sc1">sc1 (HDD)</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block mb-1 text-sm font-medium">EBS 볼륨 크기 (GB)</label>
+              <input
+                type="number"
+                min="1"
+                value={localVM.ebsSize || ''}
+                onChange={(e) => handleVmChange('ebsSize', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                placeholder="예: 50"
+              />
             </div>
           </>
         )}

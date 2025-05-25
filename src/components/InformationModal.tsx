@@ -75,7 +75,6 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
             ) : (
               <>
                 <div className="ml-2">Type: {formatName(formData.k8s?.type)}</div>
-                <div className="ml-2">Node: {formData.k8s?.node || '-'}</div>
                 <div className="ml-2">Namespace: {formData.k8s?.namespace || '-'}</div>
               </>
             )}
@@ -83,10 +82,39 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
 
           <div className="section-block">
             <strong>3. 자원:</strong>
-            <div className="ml-2">CPU: {formData.resources.cpu || '0'} cores</div>
-            <div className="ml-2">RAM: {formData.resources.ram || '0'} GB</div>
-            <div className="ml-2">Disk: {formData.resources.disk || '0'} GB</div>
+            {formData.env === 'iaas' && formData.vm.environment === 'aws' && (
+              <>
+                <div className="ml-2">EC2: {formData.vm.ec2Type || '-'}</div>
+                <div className="ml-2">EBS: {formData.vm.ebsType || '-'}</div>
+                <div className="ml-2">EBS 볼륨 크기: {formData.vm.ebsSize || '0'} GB</div>
+              </>
+            )}
+            {formData.env === 'iaas' && formData.vm.environment === 'on-premise' && (
+              <>
+                <div className="ml-2">CPU: {formData.resources.cpu || '0'} cores</div>
+                <div className="ml-2">RAM: {formData.resources.ram || '0'} GB</div>
+                <div className="ml-2">Disk: {formData.resources.disk || '0'} GB</div>
+              </>
+            )}
+            {formData.env === 'paas' && formData.k8s?.type === 'amazon_eks' && (
+              <>
+                <div className="ml-2">Worker Node 수: {formData.k8s?.node || '0'}</div>
+                <div className="ml-2">EC2: {formData.vm.ec2Type || '-'}</div>
+                <div className="ml-2">EBS: {formData.vm.ebsType || '-'}</div>
+                <div className="ml-2">EBS 볼륨 크기: {formData.vm.ebsSize || '0'} GB</div>
+              </>
+            )}
+            {formData.env === 'paas' && formData.k8s?.type === 'kubernetes' && (
+              <>
+                <div className="ml-2">Worker Node 수: {formData.k8s?.node || '0'}</div>
+                <div className="ml-2">CPU: {formData.resources.cpu || '0'} cores</div>
+                <div className="ml-2">RAM: {formData.resources.ram || '0'} GB</div>
+                <div className="ml-2">Disk: {formData.resources.disk || '0'} GB</div>
+              </>
+            )}
           </div>
+
+
 
           <div className="section-block">
             <strong>4. 운영체제:</strong>

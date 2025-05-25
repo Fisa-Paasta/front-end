@@ -19,6 +19,7 @@ export interface VMConfig {
   environment: 'on-premise' | 'aws';
   ec2Type: string;
   ebsType: string;
+  ebsSize?: string;
 }
 
 // ───── 2. Step2 - K8s (PaaS에서만 사용) ─────

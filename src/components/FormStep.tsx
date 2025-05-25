@@ -90,7 +90,12 @@ export default function FormStep() {
             const disk = parseInt(formData.resources.disk, 10);
             return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
           } else {
-            return !!formData.vm.ec2Type && !!formData.vm.ebsType;
+            const ebsSize = parseInt(formData.vm.ebsSize || '', 10);
+            return (
+              !!formData.vm.ec2Type &&
+              !!formData.vm.ebsType &&
+              !isNaN(ebsSize) && ebsSize > 0
+            );
           }
         }
 
@@ -99,10 +104,12 @@ export default function FormStep() {
 
           // Amazon EKS일 경우
           if (formData.k8s?.type === 'amazon_eks') {
+            const ebsSize = parseInt(formData.vm.ebsSize || '', 10);
             return (
               !isNaN(node) && node > 0 &&
               !!formData.vm.ec2Type &&
-              !!formData.vm.ebsType
+              !!formData.vm.ebsType &&
+              !isNaN(ebsSize) && ebsSize > 0
             );
           }
 

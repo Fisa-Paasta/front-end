@@ -1,4 +1,5 @@
 import { useSurvey } from '@/context/SurveyContext';
+import { ec2Pricing } from '@/types/ec2';
 
 export default function SidebarSummary() {
   const { formData, currentStep } = useSurvey();
@@ -42,10 +43,72 @@ export default function SidebarSummary() {
       elasticsearch: 'Elasticsearch',
       cassandra: 'Cassandra',
       relational: 'Relational DB',
-      nosql: 'NoSQL DB'
+      nosql: 'NoSQL DB',
+      amazon_eks: 'Amazon EKS',
+      kubernetes: 'On-Premise'
     };
     return mappings[key] || key;
   };
+
+  const EBS_PRICING: Record<string, number> = {
+    gp2: 0.10,
+    gp3: 0.08,
+    io1: 0.125,
+    io2: 0.125,
+    st1: 0.045,
+    sc1: 0.025,
+  };
+
+  const getEKSFormula = () => {
+    const nodeType = formData.vm?.ec2Type || '-';
+    const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
+    const volumeSize = parseInt(formData.vm?.ebsSize || '50', 10);
+    const volumeType = formData.vm?.ebsType || 'gp3';
+    const ec2Unit = ec2Pricing[nodeType as keyof typeof ec2Pricing] || 0;
+    const ebsUnit = EBS_PRICING[volumeType] ?? 0.08;
+
+    return `EKS 클러스터 ($0.1/hr) + EC2 노드 (${nodeCount} × $${ec2Unit}/hr) + EBS 볼륨 (1 × ${volumeSize}GB × $${ebsUnit}/GB/월 ÷ 30일 ÷ 24시간) + 데이터 전송 (100GB × $0.09/GB/월 ÷ 30일 ÷ 24시간)`;
+  };// EBS 개수 1개로 가정
+
+  const getOnPremFormula = () => {
+    const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
+    const cpu = parseInt(formData.resources.cpu || '0', 10);
+    const ram = parseInt(formData.resources.ram || '0', 10);
+    const disk = parseInt(formData.resources.disk || '0', 10);
+
+    return `노드 (${nodeCount}) x CPU ${cpu} × $0.02/hr + RAM ${ram}GB × $0.01/hr + DISK ${disk}GB × $0.001/hr`;
+  };
+
+  const getEKSRate = () => {
+    const nodeType = formData.vm?.ec2Type || '-';
+    const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
+    const volumeSize = parseInt(formData.vm?.ebsSize || '50', 10);
+    const volumeType = formData.vm?.ebsType || 'gp3';
+
+    const ec2Unit = ec2Pricing[nodeType as keyof typeof ec2Pricing] || 0;
+    const ebsUnit = EBS_PRICING[volumeType] ?? 0.08;
+
+    const eksCluster = 0.1;
+    const dataTransfer = 100 * 0.09 / 30 / 24;
+    const ec2Cost = nodeCount * ec2Unit;
+    const ebsCost = 1 * volumeSize * ebsUnit / 30 / 24;// EBS 개수 1개로 가정
+
+    const hourly = eksCluster + ec2Cost + ebsCost + dataTransfer;
+    const monthly = hourly * 24 * 30;
+    return { hourly, monthly };
+  };
+
+  const getOnPremRate = () => {
+    const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
+    const cpu = parseInt(formData.resources.cpu || '0', 10);
+    const ram = parseInt(formData.resources.ram || '0', 10);
+    const disk = parseInt(formData.resources.disk || '0', 10);
+    const hourly = nodeCount * (cpu * 0.02 + ram * 0.01 + disk * 0.001);
+    const monthly = hourly * 24 * 30;
+    return { hourly, monthly };
+  };
+
+  const { hourly, monthly } = isEKS ? getEKSRate() : getOnPremRate();
 
   return (
     <div className="sticky top-24 bg-panel-light dark:bg-panel-dark text-foreground-light dark:text-foreground-dark rounded-2xl p-6 border border-border-light dark:border-border-dark shadow-sm space-y-6 h-fit">
@@ -77,6 +140,7 @@ export default function SidebarSummary() {
                 <div>Worker Node 수: {formData.k8s.node || '0'}</div>
                 <div>EC2: {formData.vm?.ec2Type || '-'}</div>
                 <div>EBS: {formData.vm?.ebsType || '-'}</div>
+                <div>EBS 볼륨 크기: {formData.vm?.ebsSize || '0'} GB</div>
               </>
             )}
             {formData.env === 'paas' && isK8sOnPrem && (
@@ -91,6 +155,7 @@ export default function SidebarSummary() {
               <>
                 <div>EC2: {formData.vm?.ec2Type || '-'}</div>
                 <div>EBS: {formData.vm?.ebsType || '-'}</div>
+                <div>EBS 볼륨 크기: {formData.vm?.ebsSize || '0'} GB</div>
               </>
             )}
             {formData.env === 'iaas' && formData.vm.environment === 'on-premise' && (
@@ -183,6 +248,19 @@ export default function SidebarSummary() {
         )}
 
       </div>
+      {formData.env === 'paas' && (
+        <div className="text-sm bg-gray-50 dark:bg-gray-800 mt-4 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
+          <h3 className="text-sm font-semibold mb-2">💰 비용 요약</h3>
+          <p>⏱️ <strong>시간당:</strong> <span className="font-mono">${hourly.toFixed(4)} /hr</span></p>
+          <p>📆 <strong>월간:</strong> <span className="font-mono">${monthly.toFixed(2)} /mo</span></p>
+          <div className="text-xs text-gray-400 mt-3 border-t border-gray-700 pt-2">
+            <p className="mb-1">📘 <strong>계산식</strong></p>
+            <pre className="whitespace-pre-wrap font-mono leading-snug">{isEKS ? getEKSFormula() : getOnPremFormula()}</pre>
+          </div>
+          <p className="text-[11px] text-gray-500 mt-4">※ 본 계산에는 전력, 인건비, 기존 장비 감가상각 등의 간접비용은 포함되어 있지 않습니다.</p>
+        </div>
+      )}
+
     </div>
   );
 }
