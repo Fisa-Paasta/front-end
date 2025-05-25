@@ -20,7 +20,6 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
   const defaultVM: VMConfig = {
     hostname: '',
     username: '',
-    password: '',
     environment: 'on-premise',
     ec2Type: '',
     ebsType: ''

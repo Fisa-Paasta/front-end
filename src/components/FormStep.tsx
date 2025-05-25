@@ -68,7 +68,9 @@ export default function FormStep() {
 
       case 1:
         if (formData.env === 'iaas') {
-          return !!formData.vm.hostname && !!formData.vm.username && !!formData.vm.password;
+          const hostnameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.hostname || '');
+          const usernameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.username || '');
+          return hostnameValid && usernameValid;
         }
 
         if (formData.env === 'paas') {
@@ -143,12 +145,14 @@ export default function FormStep() {
         return backendValid;
       }
 
-      case 6:// seb server는 필수 항목 아니라 제외
-        // if (!formData.webServerItems || formData.webServerItems.length === 0) return false;
-        // return formData.webServerItems.some((item: { server: string; version: string }) => {
-        //   return !!item.server && !!item.version;
-        // });
-        return true;
+      case 6:
+        // 웹서버 항목 중 하나라도 server가 선택된 경우, version도 필수
+        return formData.webServerItems?.every(item => {
+          const isEmpty = !item.server && !item.version;
+          if (isEmpty) return true;
+          return !!item.server && !!item.version;
+        });
+
 
       case 7:
         return formData.dbItems?.every(item => {

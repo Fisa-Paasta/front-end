@@ -16,7 +16,6 @@ export interface OSConfig {
 export interface VMConfig {
   hostname: string;
   username: string;
-  password: string;
   environment: 'on-premise' | 'aws';
   ec2Type: string;
   ebsType: string;

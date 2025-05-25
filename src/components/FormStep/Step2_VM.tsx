@@ -5,13 +5,17 @@ import { VMConfig } from '@/types/survey';
 export default function Step2_VM() {
   const { formData, updateFormData } = useSurvey();
 
+  const [errors, setErrors] = useState({
+    hostname: false,
+    username: false,
+  });
+
   const [localVM, setLocalVM] = useState<VMConfig>({
     hostname: formData.vm?.hostname || '',
     username: formData.vm?.username || '',
-    password: formData.vm?.password || '',
-    environment: formData.vm?.environment || 'on-premise', // 기본값 명시
+    environment: formData.vm?.environment || 'on-premise',
     ec2Type: formData.vm?.ec2Type || '',
-    ebsType: formData.vm?.ebsType || ''
+    ebsType: formData.vm?.ebsType || '',
   });
 
   useEffect(() => {
@@ -19,9 +23,14 @@ export default function Step2_VM() {
   }, [localVM]);
 
   const handleChange = (field: keyof VMConfig, value: string) => {
+    if (field === 'hostname' || field === 'username') {
+      const isValid = value === '' || /^[a-zA-Z][-a-zA-Z0-9]*$/.test(value);
+      setErrors((prev) => ({ ...prev, [field]: !isValid }));
+    }
+
     setLocalVM((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -34,9 +43,14 @@ export default function Step2_VM() {
             type="text"
             value={localVM.hostname}
             onChange={(e) => handleChange('hostname', e.target.value)}
-            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+            className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${errors.hostname ? 'border-red-500' : ''}`}
             placeholder="예: my-vm-host"
           />
+          {errors.hostname && (
+            <p className="text-red-500 text-xs mt-1">
+              영문자로 시작하고, 영문자/숫자/하이픈만 사용할 수 있습니다.
+            </p>
+          )}
         </div>
 
         <div>
@@ -45,20 +59,14 @@ export default function Step2_VM() {
             type="text"
             value={localVM.username}
             onChange={(e) => handleChange('username', e.target.value)}
-            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+            className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${errors.username ? 'border-red-500' : ''}`}
             placeholder="예: ubuntu"
           />
-        </div>
-
-        <div>
-          <label className="block mb-1 text-sm font-medium">비밀번호</label>
-          <input
-            type="password"
-            value={localVM.password}
-            onChange={(e) => handleChange('password', e.target.value)}
-            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            placeholder="비밀번호 입력"
-          />
+          {errors.username && (
+            <p className="text-red-500 text-xs mt-1">
+              영문자로 시작하고, 영문자/숫자/하이픈만 사용할 수 있습니다.
+            </p>
+          )}
         </div>
       </div>
     </div>
