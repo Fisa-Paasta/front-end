@@ -95,14 +95,28 @@ export default function FormStep() {
         }
 
         if (formData.env === 'paas') {
+          const node = parseInt(formData.k8s?.node ?? '', 10);
+
+          // Amazon EKS일 경우
           if (formData.k8s?.type === 'amazon_eks') {
-            return !!formData.vm.ec2Type && !!formData.vm.ebsType;
-          } else {
-            const cpu = parseInt(formData.resources.cpu, 10);
-            const ram = parseInt(formData.resources.ram, 10);
-            const disk = parseInt(formData.resources.disk, 10);
-            return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
+            return (
+              !isNaN(node) && node > 0 &&
+              !!formData.vm.ec2Type &&
+              !!formData.vm.ebsType
+            );
           }
+
+          // On-prem Kubernetes일 경우
+          const cpu = parseInt(formData.resources.cpu, 10);
+          const ram = parseInt(formData.resources.ram, 10);
+          const disk = parseInt(formData.resources.disk, 10);
+
+          return (
+            !isNaN(node) && node > 0 &&
+            !isNaN(cpu) && cpu > 0 &&
+            !isNaN(ram) && ram > 0 &&
+            !isNaN(disk) && disk > 0
+          );
         }
 
         return false;

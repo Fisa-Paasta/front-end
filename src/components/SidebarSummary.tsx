@@ -2,6 +2,8 @@ import { useSurvey } from '@/context/SurveyContext';
 
 export default function SidebarSummary() {
   const { formData, currentStep } = useSurvey();
+  const isEKS = formData.k8s?.type === 'amazon_eks';
+  const isK8sOnPrem = formData.k8s?.type === 'kubernetes';
 
   const formatEnv = (env: string | undefined) => {
     if (!env) return '-';
@@ -38,7 +40,9 @@ export default function SidebarSummary() {
       mongodb: 'MongoDB',
       redis: 'Redis',
       elasticsearch: 'Elasticsearch',
-      cassandra: 'Cassandra'
+      cassandra: 'Cassandra',
+      relational: 'Relational DB',
+      nosql: 'NoSQL DB'
     };
     return mappings[key] || key;
   };
@@ -55,7 +59,6 @@ export default function SidebarSummary() {
         {currentStep === 1 && formData.env === 'paas' && (
           <SummaryItem label="2. Kubernetes">
             <div>Type: {formatName(formData.k8s.type)}</div>
-            <div>Node: {formData.k8s.node || '0'}</div>
             <div>Namespace: {formData.k8s.namespace || '-'}</div>
           </SummaryItem>
         )}
@@ -64,34 +67,58 @@ export default function SidebarSummary() {
           <SummaryItem label="2. VM 구성">
             <div>Hostname: {formData.vm.hostname || '-'}</div>
             <div>Username: {formData.vm.username || '-'}</div>
-            <div>••• 비밀번호는 표시되지 않음</div>
           </SummaryItem>
         )}
 
         {currentStep === 2 && (
           <SummaryItem label="3. 자원">
-            <div>CPU: {formData.resources.cpu || '0'} cores</div>
-            <div>RAM: {formData.resources.ram || '0'} GB</div>
-            <div>Disk: {formData.resources.disk || '0'} GB</div>
+            {formData.env === 'paas' && isEKS && (
+              <>
+                <div>Worker Node 수: {formData.k8s.node || '0'}</div>
+                <div>EC2: {formData.vm?.ec2Type || '-'}</div>
+                <div>EBS: {formData.vm?.ebsType || '-'}</div>
+              </>
+            )}
+            {formData.env === 'paas' && isK8sOnPrem && (
+              <>
+                <div>Worker Node 수: {formData.k8s.node || '0'}</div>
+                <div>CPU: {formData.resources.cpu || '0'} cores</div>
+                <div>RAM: {formData.resources.ram || '0'} GB</div>
+                <div>Disk: {formData.resources.disk || '0'} GB</div>
+              </>
+            )}
+            {formData.env === 'iaas' && formData.vm.environment === 'aws' && (
+              <>
+                <div>EC2: {formData.vm?.ec2Type || '-'}</div>
+                <div>EBS: {formData.vm?.ebsType || '-'}</div>
+              </>
+            )}
+            {formData.env === 'iaas' && formData.vm.environment === 'on-premise' && (
+              <>
+                <div>CPU: {formData.resources.cpu || '0'} cores</div>
+                <div>RAM: {formData.resources.ram || '0'} GB</div>
+                <div>Disk: {formData.resources.disk || '0'} GB</div>
+              </>
+            )}
           </SummaryItem>
         )}
 
         {currentStep === 3 && (
           <SummaryItem label="4. OS"
-            value={`${formatName(formData.os.name)} ${formData.os.version}`}
+            value={`${formatName(formData.os.name)} ${formData.os.version || '-'}`}
           />
         )}
 
         {currentStep === 4 && (
           <SummaryItem label="5. 프론트엔드">
-            {formData.frontendItems.length ? (
-              formData.frontendItems.map((item, i) => (
+            {formData.frontendItems.length > 0 && formData.frontendItems.some(item => item.framework || item.version) ? (
+              formData.frontendItems.map((item) => (
                 <div key={item.id}>
-                  {i + 1}. {formatName(item.framework)} {item.version}
+                  {formatName(item.framework)} {item.version}
                 </div>
               ))
             ) : (
-              <div>-</div>
+              <div>선택 안 함</div>
             )}
             {formData.env === 'paas' && formData.frontendDomain && (
               <div>도메인: {formData.frontendDomain}</div>
@@ -101,29 +128,26 @@ export default function SidebarSummary() {
 
         {currentStep === 5 && (
           <SummaryItem label="6. 백엔드">
-            {formData.backendItems.length ? (
-              formData.backendItems.map((item, i) => (
+            {formData.backendItems.length > 0 && formData.backendItems.some(item => item.language || item.framework) ? (
+              formData.backendItems.map((item) => (
                 <div key={item.id}>
-                  {i + 1}. {formatName(item.language)} {item.languageVersion} / {formatName(item.framework)} {item.frameworkVersion}
+                  {formatName(item.language)} {item.languageVersion}
+                  {item.framework ? ` / ${formatName(item.framework)} ${item.frameworkVersion}` : ''}
                 </div>
               ))
             ) : (
-              <div>-</div>
+              <div>선택 안 함</div>
             )}
             {formData.env === 'paas' && formData.apiDomain && (
               <div>API 도메인: {formData.apiDomain}</div>
             )}
-            {formData.env === 'paas' &&
-             Array.isArray(formData.apiPaths) &&
-             formData.apiPaths.some((path) => path.trim() !== '') && (
+            {formData.env === 'paas' && Array.isArray(formData.apiPaths) && formData.apiPaths.some((path) => path.trim() !== '') && (
               <div>
                 API 경로:
                 <ul className="list-disc ml-5">
-                  {formData.apiPaths
-                    .filter((path) => path.trim() !== '')
-                    .map((path, i) => (
-                      <li key={i}>{path}</li>
-                    ))}
+                  {formData.apiPaths.filter((path) => path.trim() !== '').map((path, i) => (
+                    <li key={i}>{path}</li>
+                  ))}
                 </ul>
               </div>
             )}
@@ -132,37 +156,32 @@ export default function SidebarSummary() {
 
         {currentStep === 6 && (
           <SummaryItem label="7. 웹 서버/WAS">
-            {formData.webServerItems.length ? (
-              formData.webServerItems.map((item, i) => (
+            {formData.webServerItems.length > 0 && formData.webServerItems.some(item => item.server || item.version) ? (
+              formData.webServerItems.map((item) => (
                 <div key={item.id}>
-                  {i + 1}. {formatName(item.server)} {item.version}
+                  {formatName(item.server)} {item.version}
                 </div>
               ))
             ) : (
-              <div>-</div>
+              <div>선택 안 함</div>
             )}
           </SummaryItem>
         )}
 
         {currentStep === 7 && (
           <SummaryItem label="8. DB">
-            {formData.dbItems.length ? (
-              formData.dbItems.map((item, i) => (
+            {formData.dbItems.length > 0 && formData.dbItems.some(item => item.name || item.version) ? (
+              formData.dbItems.map((item) => (
                 <div key={item.id}>
-                  {i + 1}. {formatName(item.type)} / {formatName(item.name)} {item.version} ({item.size} GB)
+                  {formatName(item.type)} / {formatName(item.name)} {item.version} ({item.size} GB)
                 </div>
               ))
             ) : (
-              <div>-</div>
+              <div>선택 안 함</div>
             )}
           </SummaryItem>
         )}
 
-        {currentStep === 8 && (
-          <SummaryItem label="9. CI/CD"
-            value={`${formatName(formData.cicd.tool)} ${formData.cicd.version}`}
-          />
-        )}
       </div>
     </div>
   );

@@ -43,7 +43,9 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
       mongodb: 'MongoDB',
       redis: 'Redis',
       elasticsearch: 'Elasticsearch',
-      cassandra: 'Cassandra'
+      cassandra: 'Cassandra',
+      relational: 'Relational DB',
+      nosql: 'NoSQL DB'
     };
     return mappings[key] || key;
   };
@@ -69,7 +71,6 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
               <>
                 <div className="ml-2">Hostname: {formData.vm.hostname || '-'}</div>
                 <div className="ml-2">Username: {formData.vm.username || '-'}</div>
-                <div className="ml-2">••• 비밀번호는 표시되지 않음</div>
               </>
             ) : (
               <>
@@ -82,23 +83,27 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
 
           <div className="section-block">
             <strong>3. 자원:</strong>
-            <div className="ml-2">CPU: {formData.resources.cpu} cores</div>
-            <div className="ml-2">RAM: {formData.resources.ram} GB</div>
-            <div className="ml-2">Disk: {formData.resources.disk} GB</div>
+            <div className="ml-2">CPU: {formData.resources.cpu || '0'} cores</div>
+            <div className="ml-2">RAM: {formData.resources.ram || '0'} GB</div>
+            <div className="ml-2">Disk: {formData.resources.disk || '0'} GB</div>
           </div>
 
           <div className="section-block">
             <strong>4. 운영체제:</strong>
-            <div className="ml-2">{formatName(formData.os.name)} {formData.os.version}</div>
+            <div className="ml-2">{formatName(formData.os.name)} {formData.os.version || '-'}</div>
           </div>
 
           <div className="section-block">
             <strong>5. 프론트엔드:</strong>
-            {formData.frontendItems.map((item, i) => (
-              <div key={i} className="ml-2">
-                {i + 1}. {formatName(item.framework)} {item.version}
-              </div>
-            ))}
+            {formData.frontendItems.length > 0 && formData.frontendItems.some(item => item.framework || item.version) ? (
+              formData.frontendItems.map((item, i) => (
+                <div key={i} className="ml-2">
+                  {formatName(item.framework)} {item.version}
+                </div>
+              ))
+            ) : (
+              <div className="ml-2">선택 안 함</div>
+            )}
             {formData.frontendDomain && (
               <div className="ml-2">도메인: {formData.frontendDomain}</div>
             )}
@@ -106,11 +111,16 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
 
           <div className="section-block">
             <strong>6. 백엔드:</strong>
-            {formData.backendItems.map((item, i) => (
-              <div key={i} className="ml-2">
-                {i + 1}. {formatName(item.language)} {item.languageVersion} / {formatName(item.framework)} {item.frameworkVersion}
-              </div>
-            ))}
+            {formData.backendItems.length > 0 && formData.backendItems.some(item => item.language || item.framework) ? (
+              formData.backendItems.map((item, i) => (
+                <div key={i} className="ml-2">
+                  {formatName(item.language)} {item.languageVersion}
+                  {item.framework ? ` / ${formatName(item.framework)} ${item.frameworkVersion}` : ''}
+                </div>
+              ))
+            ) : (
+              <div className="ml-2">선택 안 함</div>
+            )}
             {formData.apiDomain && (
               <div className="ml-2">API 도메인: {formData.apiDomain}</div>
             )}
@@ -128,24 +138,28 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
 
           <div className="section-block">
             <strong>7. 웹 서버:</strong>
-            {formData.webServerItems.length === 0 ? (
-              <div className="ml-2">선택 안 함</div>
-            ) : (
+            {formData.webServerItems.length > 0 && formData.webServerItems.some(item => item.server || item.version) ? (
               formData.webServerItems.map((item, i) => (
                 <div key={i} className="ml-2">
-                  {i + 1}. {formatName(item.server)} {item.version}
+                  {formatName(item.server)} {item.version}
                 </div>
               ))
+            ) : (
+              <div className="ml-2">선택 안 함</div>
             )}
           </div>
 
           <div className="section-block">
             <strong>8. DB:</strong>
-            {formData.dbItems.map((item, i) => (
-              <div key={i} className="ml-2">
-                {i + 1}. {formatName(item.type)} / {formatName(item.name)} {item.version} ({item.size} GB)
-              </div>
-            ))}
+            {formData.dbItems.length > 0 && formData.dbItems.some(item => item.name || item.version) ? (
+              formData.dbItems.map((item, i) => (
+                <div key={i} className="ml-2">
+                  {formatName(item.type)} / {formatName(item.name)} {item.version} ({item.size} GB)
+                </div>
+              ))
+            ) : (
+              <div className="ml-2">선택 안 함</div>
+            )}
           </div>
         </div>
 
