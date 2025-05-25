@@ -70,12 +70,16 @@ export default function FormStep() {
       case 1:
         if (formData.env === 'iaas') {
           return !!formData.vm.hostname && !!formData.vm.username && !!formData.vm.password;
-        } else {
-          const typeValid = !!formData.k8s?.type;
-          const nodeValid = !isNaN(parseInt(formData.k8s?.node, 10)) && parseInt(formData.k8s?.node, 10) > 0;
-          const namespaceValid = !formData.k8s?.namespace || /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.k8s.namespace);
-          return typeValid && nodeValid && namespaceValid;
         }
+
+        if (formData.env === 'paas') {
+          const typeValid = !!formData.k8s?.type;
+          const namespace = formData.k8s?.namespace;
+          const namespaceValid = !!namespace && /^[a-zA-Z][-a-zA-Z0-9]*$/.test(namespace);
+          return typeValid && namespaceValid;
+        }
+
+        return false;
 
       case 2:
         if (formData.env === 'iaas') {
@@ -107,21 +111,38 @@ export default function FormStep() {
         return !!formData.os?.name && !!formData.os?.version;
 
       case 4:
-        return formData.frontendItems?.some(item =>
-          !!item.framework && !!item.version
-        );
+        return formData.frontendItems?.every(item => {
+          const fw = item.framework?.trim();
+          const version = item.version?.trim();
 
-      case 5:
-        const backendValid = formData.backendItems?.some(item =>
-          !!item.language && !!item.languageVersion && !!item.framework && !!item.frameworkVersion
-        );
+          // 프레임워크 선택 시, 버전도 반드시 선택
+          if (!fw) return true;
+          return !!version;
+        });
+
+
+      case 5: {
+        const backendValid = formData.backendItems?.every(item => {
+          const langOk = !item.language || (item.language && item.languageVersion);
+          const fwOk = !item.framework || (item.framework && item.frameworkVersion);
+          return langOk && fwOk;
+        });
+
         if (formData.env === 'paas') {
-          const domainValid = !!formData.apiDomain && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(formData.apiDomain);
-          const pathsValid = formData.apiPaths?.length > 0 &&
-            formData.apiPaths.every((path) => /^\/[a-zA-Z0-9/_-]+$/.test(path.trim()));
+          const hasFramework = formData.backendItems?.some(item => !!item.framework);
+          const domainValid = !hasFramework || (
+            !!formData.apiDomain &&
+            /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(formData.apiDomain)
+          );
+          const pathsValid = !hasFramework || (
+            formData.apiPaths?.length > 0 &&
+            formData.apiPaths.every(path => /^\/[a-zA-Z0-9/_-]+$/.test(path.trim()))
+          );
           return backendValid && domainValid && pathsValid;
         }
+
         return backendValid;
+      }
 
       case 6:// seb server는 필수 항목 아니라 제외
         // if (!formData.webServerItems || formData.webServerItems.length === 0) return false;
@@ -131,10 +152,13 @@ export default function FormStep() {
         return true;
 
       case 7:
-        return formData.dbItems?.some(item => {
-          const size = parseInt(item.size, 10);
-          return !!item.type && !!item.name && !!item.version && !isNaN(size) && size > 0;
+        return formData.dbItems?.every(item => {
+          const isEmpty = !item.type && !item.name && !item.version && !item.size;
+          if (isEmpty) return true;
+          return !!item.type && !!item.name && !!item.version && !!item.size;
         });
+
+
 
       case 8:
         return !!formData.cicd?.tool && !!formData.cicd?.version;

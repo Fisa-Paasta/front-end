@@ -1,6 +1,6 @@
 import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
-import { BackendItem } from '@/types/survey';
+import { BackendItem, BackendLanguage, BackendFramework } from '@/types/survey';
 
 const languageOptions: Record<string, string[]> = {
   java: ['JDK 11 (LTS)', 'JDK 17 (LTS)', 'JDK 21 (LTS)'],
@@ -34,6 +34,14 @@ const frameworkNames: Record<string, string> = {
   echo: 'Echo',
 };
 
+const languageToFrameworks: Record<string, string[]> = {
+  java: ['spring_boot'],
+  nodejs: ['express', 'nestjs'],
+  python: ['django', 'flask'],
+  go: ['fiber', 'gin', 'echo'],
+  ruby: ['rails'],
+};
+
 export default function Step6_Backend() {
   const { formData, updateFormData } = useSurvey();
   const [items, setItems] = useState<BackendItem[]>(formData.backendItems || []);
@@ -53,7 +61,21 @@ export default function Step6_Backend() {
     value: string
   ) => {
     const updated = [...items];
-    (updated[index] as any)[field] = value;
+    const item = { ...updated[index] };
+
+    if (field === 'language') {
+      item.language = value as BackendLanguage;
+      item.languageVersion = '';
+      item.framework = '';
+      item.frameworkVersion = '';
+    } else if (field === 'framework') {
+      item.framework = value as BackendFramework;
+      item.frameworkVersion = '';
+    } else {
+      (item as any)[field] = value;
+    }
+
+    updated[index] = item;
     setItems(updated);
   };
 
@@ -96,6 +118,7 @@ export default function Step6_Backend() {
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
         {items.map((item: BackendItem, i: number) => (
           <div key={i} className="space-y-3">
+            {/* 언어 선택 */}
             <select
               value={item.language}
               onChange={(e) => handleItemChange(i, 'language', e.target.value)}
@@ -107,6 +130,7 @@ export default function Step6_Backend() {
               ))}
             </select>
 
+            {/* 언어 버전 선택 */}
             {item.language && (
               <select
                 value={item.languageVersion}
@@ -120,17 +144,23 @@ export default function Step6_Backend() {
               </select>
             )}
 
-            <select
-              value={item.framework}
-              onChange={(e) => handleItemChange(i, 'framework', e.target.value)}
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            >
-              <option value="">프레임워크 선택</option>
-              {Object.entries(frameworkNames).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
+            {/* 프레임워크 선택 */}
+            {item.language && (
+              <select
+                value={item.framework}
+                onChange={(e) => handleItemChange(i, 'framework', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+              >
+                <option value="">프레임워크 선택</option>
+                {(languageToFrameworks[item.language] || []).map((fw) => (
+                  <option key={fw} value={fw}>
+                    {frameworkNames[fw]}
+                  </option>
+                ))}
+              </select>
+            )}
 
+            {/* 프레임워크 버전 선택 */}
             {item.framework && (
               <select
                 value={item.frameworkVersion}
