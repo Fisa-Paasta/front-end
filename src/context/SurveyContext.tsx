@@ -4,8 +4,7 @@ import {
   FormDataType,
   K8sConfig,
   VMConfig,
-  OSConfig,
-  CICDConfig
+  OSConfig
 } from '@/types/survey';
 
 const SurveyContext = createContext<SurveyContextType | undefined>(undefined);
@@ -32,11 +31,6 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
     version: ''
   };
 
-  const defaultCICD: CICDConfig = {
-    tool: '',
-    version: ''
-  };
-
   const initialFormData: FormDataType = {
     env: '',
     k8s: defaultK8s,
@@ -54,7 +48,6 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
     apiPaths: [''],
     webServerItems: [{ id: Date.now() + 2, server: '', version: '' }],
     dbItems: [{ id: Date.now() + 3, type: '', name: '', version: '', size: '' }],
-    cicd: defaultCICD
   };
 
   const [formData, setFormData] = useState<FormDataType>(initialFormData);
@@ -71,8 +64,7 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
         { id: 4, title: '프론트엔드' },
         { id: 5, title: '백엔드' },
         { id: 6, title: '웹 서버' },
-        { id: 7, title: 'DB' },
-        { id: 8, title: 'CI/CD' }
+        { id: 7, title: 'DB' }
       ]);
     } else if (formData.env === 'paas') {
       setSteps([
@@ -83,8 +75,7 @@ export function SurveyProvider({ children }: { children: ReactNode }) {
         { id: 4, title: '프론트엔드' },
         { id: 5, title: '백엔드' },
         { id: 6, title: '웹 서버' },
-        { id: 7, title: 'DB' },
-        { id: 8, title: 'CI/CD' }
+        { id: 7, title: 'DB' }
       ]);
     } else {
       setSteps([{ id: 0, title: '환경 선택' }]);

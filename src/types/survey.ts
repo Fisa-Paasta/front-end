@@ -12,12 +12,6 @@ export interface OSConfig {
   version: string;
 }
 
-export type CICDTool = 'jenkins' | 'argocd' | '';
-export interface CICDConfig {
-  tool: CICDTool;
-  version: string;
-}
-
 // ───── 2. Step2 - VM (IaaS에서만 사용) ─────
 export interface VMConfig {
   hostname: string;
@@ -94,7 +88,6 @@ export interface FormDataType {
   apiPaths: string[];
   webServerItems: WebServerItem[];
   dbItems: DBItem[];
-  cicd: CICDConfig;
 }
 
 // ───── 8. Survey Context ─────

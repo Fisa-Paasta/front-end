@@ -10,7 +10,6 @@ import Step5_Frontend from './FormStep/Step5_Frontend';
 import Step6_Backend from './FormStep/Step6_Backend';
 import Step7_WebServer from './FormStep/Step7_WebServer';
 import Step8_DB from './FormStep/Step8_DB';
-import Step9_CICD from './FormStep/Step9_CICD';
 import ConfirmModal from './ConfirmModal';
 import InformationModal from './InformationModal';
 import { useSubmitted } from '@/context/SubmittedContext';
@@ -31,8 +30,8 @@ export default function FormStep() {
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   const stepsByEnv = {
-    iaas: [Step1_Env, Step2_VM, Step3_VMResources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB, Step9_CICD],
-    paas: [Step1_Env, Step2_K8s, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB, Step9_CICD]
+    iaas: [Step1_Env, Step2_VM, Step3_VMResources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB],
+    paas: [Step1_Env, Step2_K8s, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB]
   };
 
   const StepComponent = formData.env === 'iaas'
@@ -158,10 +157,6 @@ export default function FormStep() {
           return !!item.type && !!item.name && !!item.version && !!item.size;
         });
 
-
-
-      case 8:
-        return !!formData.cicd?.tool && !!formData.cicd?.version;
 
       default:
         return true;

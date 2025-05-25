@@ -147,11 +147,6 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
               </div>
             ))}
           </div>
-
-          <div className="section-block">
-            <strong>9. CI/CD:</strong>
-            <div className="ml-2">{formatName(formData.cicd.tool)} {formData.cicd.version}</div>
-          </div>
         </div>
 
         <div className="mt-6 flex justify-end space-x-2">
