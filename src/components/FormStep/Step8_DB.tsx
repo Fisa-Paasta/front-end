@@ -51,7 +51,7 @@ export default function Step8_DB() {
     updateFormData('dbItems', dbItems);
   }, [dbItems]);
 
-  const validateField = (id: number, field: keyof DBItem, value: string): boolean => {
+  const validateField = (_id: number, field: keyof DBItem, value: string): boolean => {
     switch (field) {
       case 'type':
       case 'name':

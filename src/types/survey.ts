@@ -7,8 +7,17 @@ export interface ResourcesConfig {
   disk: string;
 }
 
+export type OSName =
+  | 'ubuntu'
+  | 'rhel'
+  | 'suse'
+  | 'debian'
+  | 'amazon_linux'
+  | '';
+
+
 export interface OSConfig {
-  name: string;
+  name: OSName;
   version: string;
 }
 

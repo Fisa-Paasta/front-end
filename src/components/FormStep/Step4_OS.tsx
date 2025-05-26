@@ -6,53 +6,69 @@ export default function Step4_OS() {
   const { formData, updateFormData } = useSurvey();
 
   const osOptions: Record<Exclude<OSName, ''>, string[]> = {
-    ubuntu: ["20.04.6 (LTS / Focal Fossa)", "22.04.5 (LTS / Jammy Jellyfish)", "24.04.2 (LTS / Noble Numbat)"],
-    rhel: ["RHEL 8", "RHEL 9"],
-    suse: ["SUSE Linux 15.6", "SUSE Linux 12.5"],
+    ubuntu: ['20.04.6 (LTS / Focal Fossa)', '22.04.5 (LTS / Jammy Jellyfish)', '24.04.2 (LTS / Noble Numbat)'],
+    rhel: ['RHEL 8', 'RHEL 9'],
+    suse: ['SUSE Linux 15.6', 'SUSE Linux 12.5'],
     debian: ['Debian 11 "Bullseye"', 'Debian 10 "Buster"', 'Debian 9 "Stretch"'],
-    amazon_linux: ["Amazon Linux 2", "Amazon Linux 2023"]
+    amazon_linux: ['Amazon Linux 2', 'Amazon Linux 2023'],
   };
 
-  const [localOS, setLocalOS] = useState<OSConfig>(
-    formData.os || { name: '', version: '' }
-  );
+  const osImages: { name: Exclude<OSName, ''>; label: string; src: string }[] = [
+    { name: 'ubuntu', label: 'Ubuntu', src: '/img/os/ubuntu.png' },
+    { name: 'rhel', label: 'RHEL', src: '/img/os/rhel.png' },
+    { name: 'suse', label: 'SUSE', src: '/img/os/suse.png' },
+    { name: 'debian', label: 'Debian', src: '/img/os/debian.png' },
+    { name: 'amazon_linux', label: 'Amazon Linux', src: '/img/os/amazon.png' },
+  ];
+
+  const [localOS, setLocalOS] = useState<OSConfig>(formData.os || { name: '', version: '' });
 
   useEffect(() => {
     updateFormData('os', localOS);
   }, [localOS]);
 
   const handleChange = (field: keyof OSConfig, value: string) => {
-    const updated: OSConfig = { ...localOS, [field]: value };
+    const updated = { ...localOS, [field]: value };
     if (field === 'name') updated.version = '';
     setLocalOS(updated);
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-2">
-        <select
-          className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-          value={localOS.name}
-          onChange={(e) => handleChange('name', e.target.value)}
-        >
-          <option value="">OS 선택</option>
-          {(Object.keys(osOptions) as Exclude<OSName, ''>[]).map((name) => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
-
-        <select
-          className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-          value={localOS.version}
-          onChange={(e) => handleChange('version', e.target.value)}
-          disabled={!localOS.name}
-        >
-          <option value="">버전 선택</option>
-          {(osOptions[localOS.name as Exclude<OSName, ''>] || []).map((v) => (
-            <option key={v} value={v}>{v}</option>
-          ))}
-        </select>
+    <div className="space-y-6">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+        {osImages.map((os) => (
+          <div
+            key={os.name}
+            className={`p-3 rounded-lg border cursor-pointer transition text-center shadow-sm
+              ${localOS.name === os.name
+                ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
+                : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
+            `}
+            onClick={() => handleChange('name', os.name)}
+          >
+            <img src={os.src} alt={os.label} className="w-full h-20 object-contain mb-2" />
+            <p className="text-sm font-medium">{os.label}</p>
+          </div>
+        ))}
       </div>
+
+      {localOS.name && (
+        <div>
+          <label className="block mb-1 text-sm font-semibold">버전 선택</label>
+          <select
+            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+            value={localOS.version}
+            onChange={(e) => handleChange('version', e.target.value)}
+          >
+            <option value="">버전 선택</option>
+            {(osOptions[localOS.name as Exclude<OSName, ''>] || []).map((v) => (
+              <option key={v} value={v}>
+                {v}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }
