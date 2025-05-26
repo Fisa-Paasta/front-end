@@ -1,27 +1,39 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FileText, Pencil } from 'lucide-react';
+import { AdminCardData } from '@/types/admin';
 
 interface ConfirmModalProps {
   title?: string;
   onClose: () => void;
-  onBack: () => void;
-  onSubmit: (data: { title: string; description: string }) => void;
+  onSubmit?: (data: { title: string; description: string }) => void;
   historyList?: any[];
+  readOnly?: boolean;
+  viewType?: 'history' | 'application';
+  item?: AdminCardData | null;
+  onBack?: () => void; 
 }
 
 export default function ConfirmModal({
-  //onClose,
-  onBack,
+  title = '신청 정보 입력',
+  onClose,
   onSubmit,
-  historyList = []
+  historyList = [],
+  readOnly = false,
+  viewType = 'history',
+  item,
 }: ConfirmModalProps) {
   const [inputTitle, setInputTitle] = useState('');
   const [description, setDescription] = useState('');
   const navigate = useNavigate();
 
   const handleConfirm = () => {
-    onSubmit({ title: inputTitle, description });
-    navigate('/home');
+    if (readOnly) {
+      onClose();
+    } else if (onSubmit) {
+      onSubmit({ title: inputTitle, description });
+      navigate('/home');
+    }
   };
 
   return (
@@ -31,33 +43,47 @@ export default function ConfirmModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-          📋 <span>신청 정보 입력</span>
+          <FileText className="w-5 h-5" />
+          <span>{title}</span>
         </h2>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold mb-1">제목</label>
-            <input
-              type="text"
-              value={inputTitle}
-              onChange={(e) => setInputTitle(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
-              placeholder="예: 백엔드 클러스터 요청"
-            />
+        {!readOnly && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold mb-1">제목</label>
+              <input
+                type="text"
+                value={inputTitle}
+                onChange={(e) => setInputTitle(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
+                placeholder="예: 백엔드 클러스터 요청"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold mb-1">설명</label>
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
+                placeholder="요청 목적 또는 세부사항"
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-semibold mb-1">설명</label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
-              placeholder="요청 목적 또는 세부사항"
-            />
-          </div>
-        </div>
+        )}
 
-        {historyList.length > 0 && (
+        {/* ✅ 신청서 상세 보기 */}
+        {readOnly && viewType === 'application' && item && (
+          <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300 mt-4">
+            <div><span className="font-semibold">제목:</span> {item.title}</div>
+            <div><span className="font-semibold">설명:</span> {item.desc}</div>
+            <div><span className="font-semibold">신청일:</span> {item.date}</div>
+            <div><span className="font-semibold">상태:</span> {item.status}</div>
+          </div>
+        )}
+
+        {/* ✅ 승인 이력 보기 */}
+        {readOnly && viewType === 'history' && historyList.length > 0 && (
           <ul className="mt-6 space-y-2 text-sm">
             {historyList.map((entry, index) => (
               <li
@@ -66,24 +92,24 @@ export default function ConfirmModal({
               >
                 <div><strong>승인자:</strong> {entry.by || '미지정'}</div>
                 <div><strong>일시:</strong> {entry.timestamp || '알 수 없음'}</div>
-                {entry.note && <div className="text-xs text-gray-500 mt-1">📝 {entry.note}</div>}
+                {entry.note && (
+                  <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <Pencil className="w-3 h-3" />
+                    <span>{entry.note}</span>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
         )}
 
+        {/* ✅ 버튼 */}
         <div className="mt-6 flex justify-end space-x-2">
-          <button
-            onClick={onBack}
-            className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-          >
-            이전
-          </button>
           <button
             onClick={handleConfirm}
             className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
           >
-            제출
+            {readOnly ? '확인' : '제출'}
           </button>
         </div>
       </div>

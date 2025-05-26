@@ -1,18 +1,10 @@
 import { useState } from 'react';
+import ApplicationDetailModal from '../components/ApplicationDetailModal';
 import ConfirmModal from '../components/ConfirmModal';
 import { AdminCardData } from '../types/admin';
-
 import {
-  Hourglass,
-  CheckCircle,
-  RefreshCcw,
-  ShieldCheck,
-  Hammer,
-  PartyPopper,
-  HelpCircle,
-  Pin,
-  FileText,
-  CalendarDays
+  Hourglass, CheckCircle, RefreshCcw, ShieldCheck, Hammer,
+  PartyPopper, HelpCircle, Pin, FileText, CalendarDays
 } from 'lucide-react';
 
 interface DashboardDetailProps {
@@ -22,6 +14,8 @@ interface DashboardDetailProps {
 
 export default function DashboardDetail({ item, onClose }: DashboardDetailProps) {
   const [showHistory, setShowHistory] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<AdminCardData | null>(null);
 
   if (!item) return null;
 
@@ -32,14 +26,26 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
       case '승인처리중':
         return (
           <button
-            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 transition"
+            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition"
             onClick={() => setShowHistory(true)}
           >
             승인 이력 보기
           </button>
         );
       case '승인완료':
-        return <div className="text-sm text-gray-300">📝 환경 구성 파일 자동 생성 중</div>;
+        return (
+          <button
+            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition"
+            onClick={() => {
+              console.log('[DEBUG] 신청서 보기 클릭됨 → 카드:', item);
+              console.log('[DEBUG] formDataSnapshot:', item.formDataSnapshot);
+              setSelectedCard(item);
+              setShowDetailModal(true);
+            }}
+          >
+            신청서 내역 보기
+          </button>
+        );
       case '구축중':
         return (
           <progress className="w-full h-2" value={70} max={100}>
@@ -114,17 +120,32 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
           </div>
         )}
 
-        {/* 모달 */}
+        {/* 승인 이력 모달 */}
         {showHistory && (
           <ConfirmModal
-            title={item.title} // ✅ 제목 전달
-            historyList={item.historyList || []}
+            title="승인 이력"
             onClose={() => setShowHistory(false)}
-            onBack={() => setShowHistory(false)} // ✅ onBack 처리
-            onSubmit={() => setShowHistory(false)}
+            viewType="history"
+            readOnly
+            historyList={item.historyList}
           />
         )}
 
+        {/* 신청서 상세 모달 */}
+        {showDetailModal && selectedCard && selectedCard.formDataSnapshot ? (
+          <ApplicationDetailModal
+            item={selectedCard}
+            onClose={() => setShowDetailModal(false)}
+          />
+        ) : showDetailModal && (
+          <ConfirmModal
+            title="신청서 상세 정보 없음"
+            readOnly
+            onClose={() => setShowDetailModal(false)}
+            viewType="application"
+            item={selectedCard}
+          />
+        )}
       </div>
     </div>
   );

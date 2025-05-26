@@ -1,48 +1,58 @@
-import { useSurvey } from '@/context/SurveyContext';
 import { FileText } from 'lucide-react';
+import { AdminCardData } from '@/types/admin';
 
 interface Props {
   onClose: () => void;
-  onSubmit: () => void;
+  item: AdminCardData;
 }
 
-export default function InformationModal({ onClose, onSubmit }: Props) {
-  const { formData } = useSurvey();
-
-  const formatEnv = (env?: string) => {
-    if (!env) return '-';
-    const lowered = env.toLowerCase();
-    return lowered === 'iaas' ? 'IaaS' : lowered === 'paas' ? 'PaaS' : env;
+const formatName = (key?: string) => {
+  if (!key) return '-';
+  const mappings: Record<string, string> = {
+    spring_boot: 'Spring Boot', express: 'Express', nestjs: 'NestJS',
+    django: 'Django', flask: 'Flask', fiber: 'Fiber', rails: 'Ruby on Rails',
+    gin: 'Gin', echo: 'Echo', react: 'React', vue: 'Vue.js', angular: 'Angular',
+    nextjs: 'Next.js', github_actions: 'GitHub Actions', gitlab_ci: 'GitLab CI/CD',
+    jenkins: 'Jenkins', nginx: 'Nginx', apache: 'Apache HTTP Server', tomcat: 'Tomcat',
+    mysql: 'MySQL', postgresql: 'PostgreSQL', mariadb: 'MariaDB', oracle: 'Oracle DB',
+    mongodb: 'MongoDB', redis: 'Redis', elasticsearch: 'Elasticsearch', cassandra: 'Cassandra',
+    relational: 'Relational DB', nosql: 'NoSQL DB'
   };
+  return mappings[key] || key;
+};
 
-  const formatName = (key?: string) => {
-    if (!key) return '-';
-    const mappings: Record<string, string> = {
-      spring_boot: 'Spring Boot', express: 'Express', nestjs: 'NestJS',
-      django: 'Django', flask: 'Flask', fiber: 'Fiber', rails: 'Ruby on Rails',
-      gin: 'Gin', echo: 'Echo', react: 'React', vue: 'Vue.js', angular: 'Angular',
-      nextjs: 'Next.js', github_actions: 'GitHub Actions', gitlab_ci: 'GitLab CI/CD',
-      jenkins: 'Jenkins', nginx: 'Nginx', apache: 'Apache HTTP Server', tomcat: 'Tomcat',
-      mysql: 'MySQL', postgresql: 'PostgreSQL', mariadb: 'MariaDB', oracle: 'Oracle DB',
-      mongodb: 'MongoDB', redis: 'Redis', elasticsearch: 'Elasticsearch', cassandra: 'Cassandra',
-      relational: 'Relational DB', nosql: 'NoSQL DB'
-    };
-    return mappings[key] || key;
-  };
+export default function ApplicationDetailModal({ item, onClose }: Props) {
+  const formData = item.formDataSnapshot; // ✅ 이거 사용
+  if (!formData) {
+    return (
+      <div className="...">
+        <div>❌ 신청서 세부 구성이 존재하지 않습니다.</div>
+        <button onClick={onClose}>닫기</button>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
-      <div
-        className="bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-3xl shadow-2xl transition-colors duration-500 text-foreground-light dark:text-foreground-dark overflow-y-auto max-h-[90vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-3xl shadow-xl text-gray-900 dark:text-white overflow-y-auto max-h-[90vh]">
         <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
           <FileText className="w-5 h-5" />
           <span>신청서 상세 내역</span>
         </h2>
 
+        {/* 기본 정보 */}
+        <div className="space-y-3 text-sm">
+          <div><strong>제목:</strong> {item.title}</div>
+          <div><strong>설명:</strong> {item.desc}</div>
+          <div><strong>신청일:</strong> {item.date}</div>
+          <div><strong>상태:</strong> {item.status}</div>
+        </div>
+
+        <hr className="my-4 border-gray-300 dark:border-gray-600" />
+
+        {/* 상세 구성 */}
         <div className="text-sm space-y-4">
-          <div><strong>1. 환경:</strong> {formatEnv(formData.env)}</div>
+          <div><strong>1. 환경:</strong> {formData.env}</div>
 
           <div>
             <strong>2. {formData.env === 'iaas' ? 'VM 구성' : 'Kubernetes'}:</strong>
@@ -129,18 +139,12 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end space-x-2">
+        <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-          >
-            닫기
-          </button>
-          <button
-            onClick={onSubmit}
             className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
           >
-            확인
+            닫기
           </button>
         </div>
       </div>

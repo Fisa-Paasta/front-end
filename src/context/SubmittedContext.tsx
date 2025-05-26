@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { StatusType } from '@/types/admin';
+import { FormDataType } from '@/types/survey';
 
 export interface GrafanaDashboard {
   id: string;
@@ -17,6 +18,7 @@ export interface SubmittedCard {
   date: string;
   status: StatusType;
   starred: boolean;
+  formDataSnapshot: FormDataType;
   grafanaDashboards?: GrafanaDashboard[];  // ✅ 추가된 필드
   historyList?: {
     by?: string;

@@ -54,7 +54,8 @@ export default function FormStep() {
       date: new Date().toISOString().split('T')[0],
       starred: false,
       status: '접수중' as const,
-      historyList: []
+      historyList: [],
+      formDataSnapshot: formData,  // ✅ 현재 상태 저장
     };
 
     addSubmittedCard(newCard);

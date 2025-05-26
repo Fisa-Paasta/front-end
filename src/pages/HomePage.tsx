@@ -59,12 +59,12 @@ export default function HomePage() {
     >
       <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-md mb-4" />
       <div className="flex items-center justify-between mb-1">
-        <h2 className="text-base font-semibold">{item.title}</h2>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
+        <h2 className="text-base font-semibold truncate max-w-[70%]">{item.title}</h2>
+        <span className={`px-2 py-1 rounded-md text-xs font-semibold whitespace-nowrap ${getStatusColor(item.status)}`}>
           {item.status}
         </span>
       </div>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{item.desc}</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 truncate">{item.desc}</p>
       <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
         <span>{item.date}</span>
         <span
