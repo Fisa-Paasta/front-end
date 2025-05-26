@@ -1,5 +1,6 @@
 import { useSurvey } from '@/context/SurveyContext';
 import { ec2Pricing } from '@/types/ec2';
+import CostSummaryBox from '@/components/Cost/CostSummaryBox';
 
 export default function SidebarSummary() {
   const { formData, currentStep } = useSurvey();
@@ -68,7 +69,7 @@ export default function SidebarSummary() {
     const ebsUnit = EBS_PRICING[volumeType] ?? 0.08;
 
     return `EKS 클러스터 ($0.1/hr) + EC2 노드 (${nodeCount} × $${ec2Unit}/hr) + EBS 볼륨 (1 × ${volumeSize}GB × $${ebsUnit}/GB/월 ÷ 30일 ÷ 24시간) + 데이터 전송 (100GB × $0.09/GB/월 ÷ 30일 ÷ 24시간)`;
-  };// EBS 개수 1개로 가정
+  };
 
   const getOnPremFormula = () => {
     const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
@@ -91,7 +92,7 @@ export default function SidebarSummary() {
     const eksCluster = 0.1;
     const dataTransfer = 100 * 0.09 / 30 / 24;
     const ec2Cost = nodeCount * ec2Unit;
-    const ebsCost = 1 * volumeSize * ebsUnit / 30 / 24;// EBS 개수 1개로 가정
+    const ebsCost = 1 * volumeSize * ebsUnit / 30 / 24;
 
     const hourly = eksCluster + ec2Cost + ebsCost + dataTransfer;
     const monthly = hourly * 24 * 30;
@@ -246,21 +247,17 @@ export default function SidebarSummary() {
             )}
           </SummaryItem>
         )}
-
       </div>
-      {formData.env === 'paas' && (
-        <div className="text-sm bg-gray-50 dark:bg-gray-800 mt-4 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
-          <h3 className="text-sm font-semibold mb-2">💰 비용 요약</h3>
-          <p>⏱️ <strong>시간당:</strong> <span className="font-mono">${hourly.toFixed(4)} /hr</span></p>
-          <p>📆 <strong>월간:</strong> <span className="font-mono">${monthly.toFixed(2)} /mo</span></p>
-          <div className="text-xs text-gray-400 mt-3 border-t border-gray-700 pt-2">
-            <p className="mb-1">📘 <strong>계산식</strong></p>
-            <pre className="whitespace-pre-wrap font-mono leading-snug">{isEKS ? getEKSFormula() : getOnPremFormula()}</pre>
-          </div>
-          <p className="text-[11px] text-gray-500 mt-4">※ 본 계산에는 전력, 인건비, 기존 장비 감가상각 등의 간접비용은 포함되어 있지 않습니다.</p>
-        </div>
-      )}
 
+      {/* ✅ 비용 요약 컴포넌트 적용 */}
+      {formData.env === 'paas' && (
+        <CostSummaryBox
+          hourly={hourly}
+          monthly={monthly}
+          formula={isEKS ? getEKSFormula() : getOnPremFormula()}
+          compact
+        />
+      )}
     </div>
   );
 }

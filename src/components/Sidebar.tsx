@@ -1,5 +1,5 @@
 // src/components/Sidebar.tsx
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
   Menu,
@@ -20,7 +20,6 @@ interface SidebarProps {
 export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const [userId, setUserId] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const id = localStorage.getItem('userId');
