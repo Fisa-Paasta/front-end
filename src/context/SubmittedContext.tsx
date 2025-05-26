@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { StatusType } from '@/types/admin';
 
+export interface GrafanaDashboard {
+  id: string;
+  title: string;
+  description: string;
+  panels: number;
+  refresh: string;
+  url: string;
+}
+
 export interface SubmittedCard {
   id: string;
   title: string;
@@ -8,6 +17,7 @@ export interface SubmittedCard {
   date: string;
   status: StatusType;
   starred: boolean;
+  grafanaDashboards?: GrafanaDashboard[];  // ✅ 추가된 필드
   historyList?: {
     by?: string;
     timestamp?: string;
@@ -20,6 +30,7 @@ interface SubmittedContextType {
   addSubmittedCard: (card: Omit<SubmittedCard, 'id'>) => void;
   toggleStarred: (id: string) => void;
   updateCardStatus: (id: string, newStatus: StatusType, note?: string) => void;
+  attachGrafanaDashboards: (id: string, dashboards: GrafanaDashboard[]) => void;  // ✅ 추가된 함수
 }
 
 const SubmittedContext = createContext<SubmittedContextType | undefined>(undefined);
@@ -56,8 +67,6 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const updated = submittedCards.map(card =>
       card.id === id ? { ...card, starred: !card.starred } : card
     );
-
-    // ✅ 변경된 값이 실제로 존재할 경우에만 업데이트
     if (JSON.stringify(updated) !== JSON.stringify(submittedCards)) {
       syncToLocalStorage(updated);
     }
@@ -66,20 +75,28 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const updateCardStatus = (id: string, newStatus: StatusType, note?: string) => {
     const updated = submittedCards.map(card => {
       if (card.id !== id) return card;
-
       const newHistory = {
         by: 'admin01',
         timestamp: new Date().toISOString(),
         note: note ?? `상태를 '${newStatus}'로 변경함`,
       };
-
       return {
         ...card,
         status: newStatus,
         historyList: [...(card.historyList || []), newHistory],
       };
     });
+    syncToLocalStorage(updated);
+  };
 
+  const attachGrafanaDashboards = (id: string, dashboards: GrafanaDashboard[]) => {
+    const updated = submittedCards.map(card => {
+      if (card.id !== id) return card;
+      return {
+        ...card,
+        grafanaDashboards: dashboards,
+      };
+    });
     syncToLocalStorage(updated);
   };
 
@@ -89,7 +106,13 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   return (
     <SubmittedContext.Provider
-      value={{ submittedCards, addSubmittedCard, toggleStarred, updateCardStatus }}
+      value={{
+        submittedCards,
+        addSubmittedCard,
+        toggleStarred,
+        updateCardStatus,
+        attachGrafanaDashboards,  // ✅ 추가됨
+      }}
     >
       {children}
     </SubmittedContext.Provider>

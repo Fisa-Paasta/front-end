@@ -2,6 +2,19 @@ import { useState } from 'react';
 import ConfirmModal from '../components/ConfirmModal';
 import { AdminCardData } from '../types/admin';
 
+import {
+  Hourglass,
+  CheckCircle,
+  RefreshCcw,
+  ShieldCheck,
+  Hammer,
+  PartyPopper,
+  HelpCircle,
+  Pin,
+  FileText,
+  CalendarDays
+} from 'lucide-react';
+
 interface DashboardDetailProps {
   item: AdminCardData;
   onClose: () => void;
@@ -68,7 +81,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
 
         {/* 상태 블럭 */}
         <div className={`${statusMeta.color} flex items-start gap-3 rounded-lg px-4 py-3 mb-6`}>
-          <div className="text-2xl">{statusMeta.icon}</div>
+          <div className="w-6 h-6">{statusMeta.icon}</div>
           <div className="flex-1">
             <p className="text-base font-bold leading-tight">{statusMeta.title}</p>
             <p className="text-sm mt-1">{statusMeta.description}</p>
@@ -77,9 +90,21 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
 
         {/* 상세 정보 */}
         <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-          <div><span className="text-foreground-light dark:text-white font-medium">📌 제목:</span> {item.title}</div>
-          <div><span className="text-foreground-light dark:text-white font-medium">📝 설명:</span> {item.desc}</div>
-          <div><span className="text-foreground-light dark:text-white font-medium">📅 날짜:</span> {item.date}</div>
+          <div className="flex items-center gap-2">
+            <Pin className="w-4 h-4 text-foreground-light dark:text-white" />
+            <span className="font-medium text-foreground-light dark:text-white">제목:</span>
+            <span className="truncate">{item.title}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-foreground-light dark:text-white" />
+            <span className="font-medium text-foreground-light dark:text-white">설명:</span>
+            <span>{item.desc}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CalendarDays className="w-4 h-4 text-foreground-light dark:text-white" />
+            <span className="font-medium text-foreground-light dark:text-white">날짜:</span>
+            <span>{item.date}</span>
+          </div>
         </div>
 
         {/* 액션 버튼 */}
@@ -92,12 +117,14 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
         {/* 모달 */}
         {showHistory && (
           <ConfirmModal
-            title={item.title}
+            title={item.title} // ✅ 제목 전달
             historyList={item.historyList || []}
             onClose={() => setShowHistory(false)}
+            onBack={() => setShowHistory(false)} // ✅ onBack 처리
             onSubmit={() => setShowHistory(false)}
           />
         )}
+
       </div>
     </div>
   );
@@ -106,44 +133,45 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
 const getStatusMeta = (status: string) => {
   const base = {
     '접수중': {
-      icon: '⏳',
+      icon: <Hourglass className="w-5 h-5" />,
       color: 'bg-yellow-500 text-black',
       title: '신청 접수 중',
       description: '현재 인프라 신청이 접수되어 대기 중입니다.',
     },
     '접수완료': {
-      icon: '✅',
+      icon: <CheckCircle className="w-5 h-5" />,
       color: 'bg-green-600 text-white',
       title: '접수 완료',
       description: '신청이 정상적으로 접수되었습니다.',
     },
     '승인처리중': {
-      icon: '🔄',
+      icon: <RefreshCcw className="w-5 h-5" />,
       color: 'bg-blue-500 text-white',
       title: '승인 처리 중',
       description: '관리자가 요청을 검토 중입니다.',
     },
     '승인완료': {
-      icon: '✔️',
+      icon: <ShieldCheck className="w-5 h-5" />,
       color: 'bg-blue-700 text-white',
       title: '승인 완료',
       description: '승인이 완료되어 곧 구축이 시작됩니다.',
     },
     '구축중': {
-      icon: '🛠️',
+      icon: <Hammer className="w-5 h-5" />,
       color: 'bg-purple-500 text-white',
       title: '구축 중',
       description: '인프라 자동화 작업이 실행 중입니다.',
     },
     '구축완료': {
-      icon: '🎉',
+      icon: <PartyPopper className="w-5 h-5" />,
       color: 'bg-gray-500 text-white',
       title: '구축 완료',
       description: '서비스 배포가 완료되었습니다.',
     },
   };
+
   return base[status as keyof typeof base] ?? {
-    icon: '❓',
+    icon: <HelpCircle className="w-5 h-5" />,
     color: 'bg-white text-black',
     title: '알 수 없음',
     description: '상태 정보가 없습니다.',

@@ -1,11 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import {
+  ClipboardList,
+  Pencil,
+  BarChart3,
+  DollarSign
+} from 'lucide-react';
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // JWT 토큰 유효성 검사 함수
   const isTokenValid = (token: string | null): boolean => {
     if (!token) return false;
     try {
@@ -19,11 +24,7 @@ export default function Header() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (isTokenValid(token)) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
+    setIsLoggedIn(isTokenValid(token));
   }, []);
 
   const handleLogout = () => {
@@ -35,18 +36,32 @@ export default function Header() {
   };
 
   return (
-    <div className="w-full bg-background-dark dark:bg-background-dark text-foreground-dark dark:text-foreground-dark shadow-md px-6 py-4 flex items-center justify-between transition-colors duration-500">
+    <header className="fixed top-0 left-0 w-full h-16 z-50 bg-background-dark dark:bg-background-dark text-foreground-dark dark:text-foreground-dark shadow-md px-6 flex items-center justify-between transition-colors duration-500">
       <Link to="/" className="flex items-center space-x-2">
         <img src="src/assets/logo.png" alt="Paasta" className="h-8 w-auto" />
         <span className="text-xl font-bold">Paasta</span>
       </Link>
+
       <div className="flex items-center space-x-6">
         <nav className="flex space-x-6 text-base font-medium">
-          <Link to="/home" className="text-gray-300 hover:text-white">📋 목록</Link>
-          <Link to="/survey" className="text-gray-300 hover:text-white">🖊️ 신청</Link>
-          <Link to="/monitoring" className="text-gray-300 hover:text-white">📊 모니터링</Link>
-          <Link to="/cost" className="text-gray-300 hover:text-white">💰 비용산정</Link>
+          <Link to="/home" className="flex items-center space-x-1 text-gray-300 hover:text-white">
+            <ClipboardList size={18} />
+            <span>신청서</span>
+          </Link>
+          <Link to="/survey" className="flex items-center space-x-1 text-gray-300 hover:text-white">
+            <Pencil size={18} />
+            <span>신청</span>
+          </Link>
+          <Link to="/monitoring" className="flex items-center space-x-1 text-gray-300 hover:text-white">
+            <BarChart3 size={18} />
+            <span>모니터링</span>
+          </Link>
+          <Link to="/cost" className="flex items-center space-x-1 text-gray-300 hover:text-white">
+            <DollarSign size={18} />
+            <span>비용산정</span>
+          </Link>
         </nav>
+
         {isLoggedIn ? (
           <button
             onClick={handleLogout}
@@ -63,6 +78,6 @@ export default function Header() {
           </Link>
         )}
       </div>
-    </div>
+    </header>
   );
 }

@@ -1,34 +1,104 @@
 // src/components/Sidebar.tsx
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import {
+  Menu,
+  ChevronLeft,
+  Home,
+  Mail,
+  Settings,
+  Sun,
+  Moon
+} from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
-export default function Sidebar() {
+interface SidebarProps {
+  collapsed: boolean;
+  setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const [userId, setUserId] = useState<string | null>(null);
+  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const id = localStorage.getItem('userId');
     setUserId(id);
   }, []);
 
+  const MenuItem = ({
+    icon: Icon,
+    text,
+    to,
+    onClick
+  }: {
+    icon: React.ElementType;
+    text: string;
+    to?: string;
+    onClick?: () => void;
+  }) => {
+    const content = (
+      <div
+        className="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition cursor-pointer"
+        title={text}
+        onClick={onClick}
+      >
+        <Icon size={18} />
+        {!collapsed && <span>{text}</span>}
+      </div>
+    );
+    return to ? <Link to={to}>{content}</Link> : content;
+  };
+
   return (
-    <aside className="w-64 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark p-6 transition-colors duration-500">
-      {/* 사용자 사번 */}
-      {userId && (
-        <div className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-6 text-left">
+    <aside
+      className={`
+        fixed top-16 left-0 z-40
+        transition-all duration-300
+        ${collapsed ? 'w-16' : 'w-64'}
+        h-[calc(100vh-4rem)]
+        bg-white/80 dark:bg-gray-900/80
+        backdrop-blur-sm
+        border-r border-gray-200 dark:border-gray-700
+        shadow-md dark:shadow-lg
+        text-foreground-light dark:text-foreground-dark
+        px-2 py-4
+      `}
+    >
+      <div className="flex items-center justify-between px-2 mb-6">
+      {!collapsed && userId && (
+        <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
           👤 {userId}
         </div>
       )}
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="text-gray-500 dark:text-gray-400"
+      >
+        {collapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
+      </button>
+      </div>
 
-      <div className="text-sm mb-4 uppercase tracking-wide text-gray-500 dark:text-gray-400 font-semibold">메뉴</div>
-      <nav className="space-y-4 text-base">
-        <Link to="/home" className="block hover:text-primary font-medium">🏠 홈</Link>
-        <Link to="/settings" className="block hover:text-primary font-medium">⚙️ 설정</Link>
-        <a
-          href="https://forms.gle/Tsv2qcKeHZZw5Hm49"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block hover:text-primary font-medium"
-        >📩 피드백</a>
+      
+
+      <nav className="space-y-2 text-sm px-1">
+        <MenuItem icon={Home} text="홈" to="/home" />
+        <MenuItem
+          icon={theme === 'dark' ? Sun : Moon}
+          text={theme === 'dark' ? '라이트 모드' : '다크 모드'}
+          onClick={toggleTheme}
+        />
+        <MenuItem
+          icon={Settings}
+          text="상세 설정"
+          to="/settings"
+        />
+        <MenuItem
+          icon={Mail}
+          text="피드백"
+          onClick={() => window.open('https://forms.gle/Tsv2qcKeHZZw5Hm49', '_blank')}
+        />
       </nav>
     </aside>
   );

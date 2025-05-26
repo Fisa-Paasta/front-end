@@ -21,7 +21,7 @@ export default function EKSCostForm() {
   // 노드 관련 상태
   const [nodeType, setNodeType] = useState<EC2InstanceType>('t3.medium');
   const [nodeCount, setNodeCount] = useState<number>(2);
-  const [ec2Hourly, setEc2Hourly] = useState<number>(ec2Pricing['t3.medium']);
+  const [, setEc2Hourly] = useState<number>(ec2Pricing['t3.medium']);
 
   // EBS 볼륨 관련 상태
   const [volumeType, setVolumeType] = useState<EBSVolumeType>('gp3');

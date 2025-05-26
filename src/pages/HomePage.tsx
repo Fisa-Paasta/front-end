@@ -1,11 +1,11 @@
 import { useSubmitted } from '@/context/SubmittedContext';
-import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
 import DashboardDetail from '@/pages/DashboardDetail';
 import { useNavigate } from 'react-router-dom';
 import { AdminCardData, StatusType } from '@/types/admin';
 import { transformSubmittedCards } from '@/utils/transformSubmitted';
 import { useState, useMemo } from 'react';
+import Layout from '@/components/Layout';
+import { ClipboardList, Star, StarOff } from 'lucide-react';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -74,52 +74,51 @@ export default function HomePage() {
           }}
           className="cursor-pointer"
         >
-          {item.starred ? '⭐' : '☆'}
+          {item.starred ? <Star size={14} fill="gold" strokeWidth={1.5} /> : <StarOff size={14} strokeWidth={1.5} />}
         </span>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen transition-colors duration-500 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark text-[15px]">
-      <Header />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-10">
-          <div className="flex items-center justify-between mb-6 min-w-0">
-            <h2 className="text-2xl font-bold truncate">대시보드</h2>
-            <select
-              value={sortType}
-              onChange={(e) => setSortType(e.target.value as typeof sortType)}
-              className="bg-input-light dark:bg-input-dark text-sm rounded px-3 py-2 shadow"
-            >
-              <option value="date">최신순</option>
-              <option value="title">제목순</option>
-              <option value="status">상태순</option>
-            </select>
-          </div>
+    <Layout>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <ClipboardList size={20} /> 신청서 리스트
+        </h1>
+        <select
+          value={sortType}
+          onChange={(e) => setSortType(e.target.value as typeof sortType)}
+          className="w-fit bg-input-light dark:bg-input-dark text-sm rounded px-2 py-1 shadow border border-border-light dark:border-border-dark"
+        >
+          <option value="date">최신순</option>
+          <option value="title">제목순</option>
+          <option value="status">상태순</option>
+        </select>
+      </div>
 
-          {starredDashboards.length > 0 && (
-            <div className="mb-12">
-              <h2 className="text-xl font-semibold mb-4">⭐ 즐겨찾기 대시보드</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {starredDashboards.map(renderCard)}
-              </div>
-            </div>
-          )}
-
-          <h1 className="text-2xl font-bold mb-8">대시보드 리스트</h1>
+      {starredDashboards.length > 0 && (
+        <div className="mb-12">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Star size={18} className="text-yellow-400" /> 즐겨찾기
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {normalDashboards.map(renderCard)}
-
-            <div
-              onClick={() => navigate('/survey')}
-              className="min-h-[160px] bg-panel-light dark:bg-panel-dark rounded-xl flex items-center justify-center text-4xl text-gray-500 hover:bg-panel-light/90 dark:hover:bg-panel-dark/80 transition"
-            >
-              +
-            </div>
+            {starredDashboards.map(renderCard)}
           </div>
-        </main>
+        </div>
+      )}
+
+      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+        <ClipboardList size={18} /> 대시보드
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {normalDashboards.map(renderCard)}
+        <div
+          onClick={() => navigate('/survey')}
+          className="min-h-[160px] bg-panel-light dark:bg-panel-dark rounded-xl flex items-center justify-center text-4xl text-gray-500 hover:bg-panel-light/90 dark:hover:bg-panel-dark/80 transition"
+        >
+          +
+        </div>
       </div>
 
       {selectedDashboard && (
@@ -128,6 +127,6 @@ export default function HomePage() {
           onClose={() => setSelectedId(null)}
         />
       )}
-    </div>
+    </Layout>
   );
 }

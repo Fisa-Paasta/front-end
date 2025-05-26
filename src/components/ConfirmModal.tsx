@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface ConfirmModalProps {
+  title?: string;
   onClose: () => void;
   onBack: () => void;
   onSubmit: (data: { title: string; description: string }) => void;
