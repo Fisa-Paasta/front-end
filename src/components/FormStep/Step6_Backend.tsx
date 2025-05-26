@@ -117,73 +117,77 @@ export default function Step6_Backend() {
     <div className="space-y-4">
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
         {items.map((item: BackendItem, i: number) => (
-          <div key={i} className="space-y-3">
-            {/* 언어 선택 */}
-            <select
-              value={item.language}
-              onChange={(e) => handleItemChange(i, 'language', e.target.value)}
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            >
-              <option value="">언어 선택</option>
-              {Object.keys(languageOptions).map((lang) => (
-                <option key={lang} value={lang}>{lang.toUpperCase()}</option>
-              ))}
-            </select>
-
-            {/* 언어 버전 선택 */}
-            {item.language && (
-              <select
-                value={item.languageVersion}
-                onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-              >
-                <option value="">언어 버전 선택</option>
-                {(languageOptions[item.language] || []).map((v) => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
-            )}
-
-            {/* 프레임워크 선택 */}
-            {item.language && (
-              <select
-                value={item.framework}
-                onChange={(e) => handleItemChange(i, 'framework', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-              >
-                <option value="">프레임워크 선택</option>
-                {(languageToFrameworks[item.language] || []).map((fw) => (
-                  <option key={fw} value={fw}>
-                    {frameworkNames[fw]}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            {/* 프레임워크 버전 선택 */}
-            {item.framework && (
-              <select
-                value={item.frameworkVersion}
-                onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-              >
-                <option value="">프레임워크 버전 선택</option>
-                {(frameworkOptions[item.framework] || []).map((v) => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
-            )}
-
-            {items.length > 1 && (
-              <button onClick={() => handleRemove(i)} className="text-red-500 text-xl">✕</button>
-            )}
-          </div>
+  <div key={i} className="relative mb-6">
+    <div className="space-y-3 pr-10">
+      <select
+        value={item.language}
+        onChange={(e) => handleItemChange(i, 'language', e.target.value)}
+        className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+      >
+        <option value="">언어 선택</option>
+        {Object.keys(languageOptions).map((lang) => (
+          <option key={lang} value={lang}>{lang.toUpperCase()}</option>
         ))}
+      </select>
+
+      {item.language && (
+        <select
+          value={item.languageVersion}
+          onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
+          className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+        >
+          <option value="">언어 버전 선택</option>
+          {(languageOptions[item.language] || []).map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </select>
+      )}
+
+      {item.language && (
+        <select
+          value={item.framework}
+          onChange={(e) => handleItemChange(i, 'framework', e.target.value)}
+          className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+        >
+          <option value="">프레임워크 선택</option>
+          {(languageToFrameworks[item.language] || []).map((fw) => (
+            <option key={fw} value={fw}>{frameworkNames[fw]}</option>
+          ))}
+        </select>
+      )}
+
+      {item.framework && (
+        <select
+          value={item.frameworkVersion}
+          onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
+          className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+        >
+          <option value="">프레임워크 버전 선택</option>
+          {(frameworkOptions[item.framework] || []).map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </select>
+      )}
+    </div>
+
+    {items.length > 1 && (
+      <button
+        type="button"
+        onClick={() => handleRemove(i)}
+        className="absolute top-1/2 right-0 -translate-y-1/2 text-red-500 text-xl"
+      >
+        ✕
+      </button>
+    )}
+  </div>
+))}
+
+
 
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-md"
+          className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md"
         >
           + 백엔드 추가
         </button>
