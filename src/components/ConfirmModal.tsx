@@ -11,7 +11,7 @@ interface ConfirmModalProps {
   readOnly?: boolean;
   viewType?: 'history' | 'application';
   item?: AdminCardData | null;
-  onBack?: () => void; 
+  onBack?: () => void;
 }
 
 export default function ConfirmModal({
@@ -22,6 +22,7 @@ export default function ConfirmModal({
   readOnly = false,
   viewType = 'history',
   item,
+  onBack,
 }: ConfirmModalProps) {
   const [inputTitle, setInputTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -47,6 +48,7 @@ export default function ConfirmModal({
           <span>{title}</span>
         </h2>
 
+        {/* ✅ 입력 폼 */}
         {!readOnly && (
           <div className="space-y-4">
             <div>
@@ -105,9 +107,17 @@ export default function ConfirmModal({
 
         {/* ✅ 버튼 */}
         <div className="mt-6 flex justify-end space-x-2">
+          {!readOnly && onBack && (
+            <button
+              onClick={onBack}
+              className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+            >
+              이전
+            </button>
+          )}
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            className="px-4 py-2 text-sm rounded-md bg-[#5A3EBA] text-white hover:bg-[#4932A0]"
           >
             {readOnly ? '확인' : '제출'}
           </button>
