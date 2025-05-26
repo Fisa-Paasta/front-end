@@ -60,10 +60,11 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const newCard: SubmittedCard = {
       ...card,
       id: crypto.randomUUID(),
+      formDataSnapshot: card.formDataSnapshot,
     };
     syncToLocalStorage([...submittedCards, newCard]);
-    console.log('[✅ SubmittedProvider] 카드 추가됨:', newCard);
   };
+
 
   const toggleStarred = (id: string) => {
     const updated = submittedCards.map(card =>

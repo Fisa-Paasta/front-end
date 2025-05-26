@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ApplicationDetailModal from '../components/ApplicationDetailModal';
 import ConfirmModal from '../components/ConfirmModal';
 import { AdminCardData } from '../types/admin';
+import { SubmittedCard } from '@/context/SubmittedContext';
 import {
   Hourglass, CheckCircle, RefreshCcw, ShieldCheck, Hammer,
   PartyPopper, HelpCircle, Pin, FileText, CalendarDays
