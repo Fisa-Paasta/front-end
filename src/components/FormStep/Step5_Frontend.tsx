@@ -55,6 +55,7 @@ export default function Step5_Frontend() {
         {/* 프론트엔드 목록 */}
         {items.map((item: FrontendItem, i: number) => (
           <div key={i} className="grid grid-cols-2 gap-4 items-center">
+            {/* 프레임워크 선택 */}
             <select
               value={item.framework}
               onChange={(e) => handleChange(i, 'framework', e.target.value)}
@@ -66,7 +67,8 @@ export default function Step5_Frontend() {
               ))}
             </select>
 
-            <div className="relative flex items-center">
+            {/* 버전 + 삭제 버튼 수평 정렬 */}
+            <div className="grid grid-cols-[1fr_40px] gap-2 items-center">
               <select
                 value={item.version}
                 onChange={(e) => handleChange(i, 'version', e.target.value)}
@@ -83,7 +85,7 @@ export default function Step5_Frontend() {
                 <button
                   type="button"
                   onClick={() => handleRemove(i)}
-                  className="absolute right-2 text-red-600 font-bold text-xl"
+                  className="text-red-600 font-bold text-xl text-center"
                 >
                   ✕
                 </button>
@@ -95,7 +97,7 @@ export default function Step5_Frontend() {
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-md"
+          className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md"
         >
           + 프론트엔드 추가
         </button>

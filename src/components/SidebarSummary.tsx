@@ -4,8 +4,12 @@ import CostSummaryBox from '@/components/Cost/CostSummaryBox';
 
 export default function SidebarSummary() {
   const { formData, currentStep } = useSurvey();
+
   const isEKS = formData.k8s?.type === 'amazon_eks';
   const isK8sOnPrem = formData.k8s?.type === 'kubernetes';
+  const isIaaS = formData.env === 'iaas';
+  const isIaaSAWS = isIaaS && formData.vm?.environment === 'aws';
+  const isIaaSOnPrem = isIaaS && formData.vm?.environment === 'on-premise';
 
   const formatEnv = (env: string | undefined) => {
     if (!env) return '-';
@@ -60,56 +64,65 @@ export default function SidebarSummary() {
     sc1: 0.025,
   };
 
-  const getEKSFormula = () => {
-    const nodeType = formData.vm?.ec2Type || '-';
-    const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
-    const volumeSize = parseInt(formData.vm?.ebsSize || '50', 10);
-    const volumeType = formData.vm?.ebsType || 'gp3';
-    const ec2Unit = ec2Pricing[nodeType as keyof typeof ec2Pricing] || 0;
-    const ebsUnit = EBS_PRICING[volumeType] ?? 0.08;
+  // 공통 계산 요소
+  const nodeType = formData.vm?.ec2Type || '-';
+  const nodeCount = isIaaS ? 1 : (parseInt(formData.k8s?.node ?? '0', 10) || 0);
+  const volumeSize = parseInt(formData.vm?.ebsSize || '50', 10);
+  const volumeType = formData.vm?.ebsType || 'gp3';
+  const ec2Unit = ec2Pricing[nodeType as keyof typeof ec2Pricing] || 0;
+  const ebsUnit = EBS_PRICING[volumeType] ?? 0.08;
+  const dataTransferHourly = (100 * 0.09) / 30 / 24;
 
-    return `EKS 클러스터 ($0.1/hr) + EC2 노드 (${nodeCount} × $${ec2Unit}/hr) + EBS 볼륨 (1 × ${volumeSize}GB × $${ebsUnit}/GB/월 ÷ 30일 ÷ 24시간) + 데이터 전송 (100GB × $0.09/GB/월 ÷ 30일 ÷ 24시간)`;
-  };
+  const cpu = parseInt(formData.resources.cpu || '0', 10);
+  const ram = parseInt(formData.resources.ram || '0', 10);
+  const disk = parseInt(formData.resources.disk || '0', 10);
 
-  const getOnPremFormula = () => {
-    const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
-    const cpu = parseInt(formData.resources.cpu || '0', 10);
-    const ram = parseInt(formData.resources.ram || '0', 10);
-    const disk = parseInt(formData.resources.disk || '0', 10);
+  const getCostRate = () => {
+    // PaaS + On-prem
+    if (formData.env === 'paas' && isK8sOnPrem) {
+      const hourly = nodeCount * (cpu * 0.02 + ram * 0.01 + disk * 0.001);
+      const monthly = hourly * 24 * 30;
+      return { hourly, monthly };
+    }
 
-    return `노드 (${nodeCount}) x CPU ${cpu} × $0.02/hr + RAM ${ram}GB × $0.01/hr + DISK ${disk}GB × $0.001/hr`;
-  };
+    // IaaS + On-prem
+    if (isIaaSOnPrem) {
+      const hourly = cpu * 0.02 + ram * 0.01 + disk * 0.001;
+      const monthly = hourly * 24 * 30;
+      return { hourly, monthly };
+    }
 
-  const getEKSRate = () => {
-    const nodeType = formData.vm?.ec2Type || '-';
-    const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
-    const volumeSize = parseInt(formData.vm?.ebsSize || '50', 10);
-    const volumeType = formData.vm?.ebsType || 'gp3';
-
-    const ec2Unit = ec2Pricing[nodeType as keyof typeof ec2Pricing] || 0;
-    const ebsUnit = EBS_PRICING[volumeType] ?? 0.08;
-
-    const eksCluster = 0.1;
-    const dataTransfer = 100 * 0.09 / 30 / 24;
+    // EKS 기준 계산 (PaaS + amazon_eks or IaaS + aws)
+    const includeEksCluster = formData.env === 'paas' && isEKS;
+    const eksCluster = includeEksCluster ? 0.1 : 0;
     const ec2Cost = nodeCount * ec2Unit;
-    const ebsCost = 1 * volumeSize * ebsUnit / 30 / 24;
-
-    const hourly = eksCluster + ec2Cost + ebsCost + dataTransfer;
+    const ebsCost = volumeSize * ebsUnit / 30 / 24;
+    const hourly = eksCluster + ec2Cost + ebsCost + dataTransferHourly;
     const monthly = hourly * 24 * 30;
     return { hourly, monthly };
   };
 
-  const getOnPremRate = () => {
-    const nodeCount = parseInt(formData.k8s?.node ?? '0', 10) || 0;
-    const cpu = parseInt(formData.resources.cpu || '0', 10);
-    const ram = parseInt(formData.resources.ram || '0', 10);
-    const disk = parseInt(formData.resources.disk || '0', 10);
-    const hourly = nodeCount * (cpu * 0.02 + ram * 0.01 + disk * 0.001);
-    const monthly = hourly * 24 * 30;
-    return { hourly, monthly };
+  const getCostFormula = () => {
+    if (formData.env === 'paas' && isK8sOnPrem) {
+      return `노드 (${nodeCount}) x CPU ${cpu} × $0.02/hr + RAM ${ram}GB × $0.01/hr + DISK ${disk}GB × $0.001/hr`;
+    }
+
+    if (isIaaSOnPrem) {
+      return `노드 (1) x CPU ${cpu} × $0.02/hr + RAM ${ram}GB × $0.01/hr + DISK ${disk}GB × $0.001/hr`;
+    }
+
+    const includeEksCluster = formData.env === 'paas' && isEKS;
+
+    return [
+      includeEksCluster ? `EKS 클러스터 ($0.1/hr)` : null,
+      `EC2 노드 (${nodeCount} × $${ec2Unit}/hr)`,
+      `EBS 볼륨 (${volumeSize}GB × $${ebsUnit}/GB/월 ÷ 30일 ÷ 24시간)`,
+      `데이터 전송 (100GB × $0.09/GB/월 ÷ 30일 ÷ 24시간)`
+    ].filter(Boolean).join(' + ');
   };
 
-  const { hourly, monthly } = isEKS ? getEKSRate() : getOnPremRate();
+  const { hourly, monthly } = getCostRate();
+  const formula = getCostFormula();
 
   return (
     <div className="sticky top-24 bg-panel-light dark:bg-panel-dark text-foreground-light dark:text-foreground-dark rounded-2xl p-6 border border-border-light dark:border-border-dark shadow-sm space-y-6 h-fit">
@@ -250,11 +263,11 @@ export default function SidebarSummary() {
       </div>
 
       {/* ✅ 비용 요약 컴포넌트 적용 */}
-      {formData.env === 'paas' && (
+      {(formData.env === 'paas' || formData.env === 'iaas') && (
         <CostSummaryBox
           hourly={hourly}
           monthly={monthly}
-          formula={isEKS ? getEKSFormula() : getOnPremFormula()}
+          formula={formula}
           compact
         />
       )}
