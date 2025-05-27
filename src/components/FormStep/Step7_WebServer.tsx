@@ -4,20 +4,20 @@ import { WebServerItem, WebServerType } from '@/types/survey';
 
 type ValidWebServerType = Exclude<WebServerType, ''>;
 
+const serverCards: { name: ValidWebServerType; label: string; src: string }[] = [
+  { name: 'nginx', label: 'Nginx', src: '/img/webserver/nginx.svg' },
+  { name: 'apache', label: 'Apache HTTP Server', src: '/img/webserver/apache.svg' },
+  { name: 'tomcat', label: 'Tomcat', src: '/img/webserver/tomcat.svg' }
+];
+
+const webServerOptions: Record<ValidWebServerType, string[]> = {
+  nginx: ['1.28.0 (LTS)', '1.27.5'],
+  apache: ['2.4.63 (Latest)', '2.4.0'],
+  tomcat: ['11.0', '10.1', '9.0']
+};
+
 export default function Step7_WebServer() {
   const { formData, updateFormData } = useSurvey();
-
-  const webServerOptions: Record<ValidWebServerType, string[]> = {
-    nginx: ['1.28.0 (LTS)', '1.27.5'],
-    apache: ['2.4.63 (Latest)', '2.4.0'],
-    tomcat: ['11.0', '10.1', '9.0']
-  };
-
-  const serverDisplayNames: Record<ValidWebServerType, string> = {
-    nginx: 'Nginx',
-    apache: 'Apache HTTP Server',
-    tomcat: 'Tomcat'
-  };
 
   const [webServerItems, setWebServerItems] = useState<WebServerItem[]>(() =>
     formData.webServerItems?.length
@@ -63,49 +63,61 @@ export default function Step7_WebServer() {
       {webServerItems.map((item) => (
         <div
           key={item.id}
-          className="flex gap-4 items-center bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm"
+          className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          <div className="flex-1 space-y-2">
-            <select
-              value={item.server}
-              onChange={(e) => handleChange(item.id, 'server', e.target.value)}
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            >
-              <option value="">서버 선택</option>
-              {(Object.keys(webServerOptions) as ValidWebServerType[]).map((server) => (
-                <option key={server} value={server}>
-                  {serverDisplayNames[server]}
-                </option>
-              ))}
-            </select>
-
-            {item.server && (
-              <select
-                value={item.version}
-                onChange={(e) => handleChange(item.id, 'version', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+          {/* 서버 선택 카드 */}
+          <div className="grid grid-cols-3 gap-4">
+            {serverCards.map((server) => (
+              <div
+                key={server.name}
+                className={`p-3 rounded-md border-2 cursor-pointer text-center transition shadow-sm
+                  ${item.server === server.name
+                    ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
+                    : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
+                `}
+                onClick={() => handleChange(item.id, 'server', server.name)}
               >
-                <option value="">버전 선택</option>
-                {(webServerOptions[item.server as ValidWebServerType] || []).map((version) => (
-                  <option key={version} value={version}>
-                    {version}
-                  </option>
-                ))}
-              </select>
-            )}
+                <img
+                  src={server.src}
+                  alt={server.label}
+                  className="h-14 mx-auto object-contain mb-2"
+                />
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {server.label}
+                </p>
+              </div>
+            ))}
           </div>
 
-          <button
-            type="button"
-            onClick={() => removeWebServerItem(item.id)}
-            className="text-red-500 text-xl hover:text-red-700"
-            title="항목 제거"
-          >
-            ×
-          </button>
+          {/* 버전 선택 */}
+          {item.server && (
+            <select
+              value={item.version}
+              onChange={(e) => handleChange(item.id, 'version', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+            >
+              <option value="">버전 선택</option>
+              {(webServerOptions[item.server as ValidWebServerType] || []).map((ver) => (
+                <option key={ver} value={ver}>{ver}</option>
+              ))}
+            </select>
+          )}
+
+          {/* 제거 버튼 */}
+          {webServerItems.length > 1 && (
+            <button
+              type="button"
+              onClick={() => removeWebServerItem(item.id)}
+              className="text-red-500 text-xl hover:text-red-700"
+              title="항목 제거"
+            >
+              ×
+            </button>
+          )}
         </div>
       ))}
 
+      {/* 추가 버튼 */}
       <button
         type="button"
         onClick={addWebServerItem}

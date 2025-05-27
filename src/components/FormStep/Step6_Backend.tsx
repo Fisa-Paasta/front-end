@@ -22,31 +22,37 @@ const frameworkOptions: Record<string, string[]> = {
   echo: ['4.9', '5.0'],
 };
 
-const frameworkNames: Record<string, string> = {
-  spring_boot: 'Spring Boot',
-  express: 'Express',
-  nestjs: 'NestJS',
-  django: 'Django',
-  flask: 'Flask',
-  fiber: 'Fiber',
-  rails: 'Ruby on Rails',
-  gin: 'Gin',
-  echo: 'Echo',
-};
+const languageCards = [
+  { name: 'java', label: 'Java', src: '/img/backend/java.png' },
+  { name: 'nodejs', label: 'Node.js', src: '/img/backend/nodejs.png' },
+  { name: 'python', label: 'Python', src: '/img/backend/python.png' },
+  { name: 'go', label: 'Go', src: '/img/backend/go.png' },
+  { name: 'ruby', label: 'Ruby', src: '/img/backend/ruby.png' },
+];
 
-const languageToFrameworks: Record<string, string[]> = {
-  java: ['spring_boot'],
-  nodejs: ['express', 'nestjs'],
-  python: ['django', 'flask'],
-  go: ['fiber', 'gin', 'echo'],
-  ruby: ['rails'],
+const frameworkCards: Record<string, { name: string; label: string; src: string }[]> = {
+  java: [{ name: 'spring_boot', label: 'Spring Boot', src: '/img/backend/springboot.png' }],
+  nodejs: [
+    { name: 'express', label: 'Express', src: '/img/backend/express.png' },
+    { name: 'nestjs', label: 'NestJS', src: '/img/backend/nestjs.png' },
+  ],
+  python: [
+    { name: 'django', label: 'Django', src: '/img/backend/django.png' },
+    { name: 'flask', label: 'Flask', src: '/img/backend/flask.svg' },
+  ],
+  go: [
+    { name: 'fiber', label: 'Fiber', src: '/img/backend/fiber.png' },
+    { name: 'gin', label: 'Gin', src: '/img/backend/gin.svg' },
+    { name: 'echo', label: 'Echo', src: '/img/backend/echo.png' },
+  ],
+  ruby: [{ name: 'rails', label: 'Rails', src: '/img/backend/rubyonrails.svg' }],
 };
 
 export default function Step6_Backend() {
   const { formData, updateFormData } = useSurvey();
   const [items, setItems] = useState<BackendItem[]>(formData.backendItems || []);
-  const [apiDomain, setApiDomain] = useState<string>(formData.apiDomain || '');
-  const [apiPaths, setApiPaths] = useState<string[]>(formData.apiPaths || ['']);
+  const [apiDomain, setApiDomain] = useState(formData.apiDomain || '');
+  const [apiPaths, setApiPaths] = useState(formData.apiPaths || ['']);
   const [domainError, setDomainError] = useState(false);
 
   useEffect(() => {
@@ -55,13 +61,9 @@ export default function Step6_Backend() {
     updateFormData('apiPaths', apiPaths);
   }, [items, apiDomain, apiPaths]);
 
-  const handleItemChange = (
-    index: number,
-    field: keyof BackendItem,
-    value: string
-  ) => {
+  const handleItemChange = (i: number, field: keyof BackendItem, value: string) => {
     const updated = [...items];
-    const item = { ...updated[index] };
+    const item = { ...updated[i] };
 
     if (field === 'language') {
       item.language = value as BackendLanguage;
@@ -75,20 +77,20 @@ export default function Step6_Backend() {
       (item as any)[field] = value;
     }
 
-    updated[index] = item;
+    updated[i] = item;
     setItems(updated);
   };
 
   const handleAdd = () => {
     setItems([
       ...items,
-      { id: items.length + 1, language: '', languageVersion: '', framework: '', frameworkVersion: '' },
+      { id: Date.now(), language: '', languageVersion: '', framework: '', frameworkVersion: '' },
     ]);
   };
 
-  const handleRemove = (index: number) => {
+  const handleRemove = (i: number) => {
     const updated = [...items];
-    updated.splice(index, 1);
+    updated.splice(i, 1);
     setItems(updated);
   };
 
@@ -97,92 +99,103 @@ export default function Step6_Backend() {
     setDomainError(value !== '' && !/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value));
   };
 
-  const handlePathChange = (index: number, value: string) => {
+  const handlePathChange = (i: number, value: string) => {
     const updated = [...apiPaths];
-    updated[index] = value;
+    updated[i] = value;
     setApiPaths(updated);
   };
 
-  const handleAddPath = () => {
-    setApiPaths([...apiPaths, '']);
-  };
-
-  const handleRemovePath = (index: number) => {
+  const handleAddPath = () => setApiPaths([...apiPaths, '']);
+  const handleRemovePath = (i: number) => {
     const updated = [...apiPaths];
-    updated.splice(index, 1);
+    updated.splice(i, 1);
     setApiPaths(updated);
   };
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
-        {items.map((item: BackendItem, i: number) => (
-  <div key={i} className="relative mb-6">
-    <div className="space-y-3 pr-10">
-      <select
-        value={item.language}
-        onChange={(e) => handleItemChange(i, 'language', e.target.value)}
-        className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-      >
-        <option value="">언어 선택</option>
-        {Object.keys(languageOptions).map((lang) => (
-          <option key={lang} value={lang}>{lang.toUpperCase()}</option>
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
+
+        {items.map((item, i) => (
+          <div key={item.id} className="space-y-3">
+
+            {/* 언어 선택 */}
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+              {languageCards.map((lang) => (
+                <div
+                  key={lang.name}
+                  className={`p-3 rounded-md border-2 cursor-pointer text-center transition shadow-sm
+                    ${item.language === lang.name
+                      ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
+                      : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
+                  `}
+                  onClick={() => handleItemChange(i, 'language', lang.name)}
+                >
+                  <img src={lang.src} alt={lang.label} className="h-14 mx-auto object-contain mb-2" />
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{lang.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* 언어 버전 선택 */}
+            {item.language && (
+              <select
+                value={item.languageVersion}
+                onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+              >
+                <option value="">언어 버전 선택</option>
+                {(languageOptions[item.language] || []).map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            )}
+
+            {/* 프레임워크 선택 */}
+            {item.language && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                {(frameworkCards[item.language] || []).map((fw) => (
+                  <div
+                    key={fw.name}
+                    className={`p-3 rounded-md border-2 cursor-pointer text-center transition shadow-sm
+                      ${item.framework === fw.name
+                        ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
+                        : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
+                    `}
+                    onClick={() => handleItemChange(i, 'framework', fw.name)}
+                  >
+                    <img src={fw.src} alt={fw.label} className="h-14 mx-auto object-contain mb-2" />
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{fw.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 프레임워크 버전 선택 */}
+            {item.framework && (
+              <select
+                value={item.frameworkVersion}
+                onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+              >
+                <option value="">프레임워크 버전 선택</option>
+                {(frameworkOptions[item.framework] || []).map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            )}
+
+            {items.length > 1 && (
+              <button
+                type="button"
+                onClick={() => handleRemove(i)}
+                className="text-red-600 text-xl"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         ))}
-      </select>
-
-      {item.language && (
-        <select
-          value={item.languageVersion}
-          onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
-          className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-        >
-          <option value="">언어 버전 선택</option>
-          {(languageOptions[item.language] || []).map((v) => (
-            <option key={v} value={v}>{v}</option>
-          ))}
-        </select>
-      )}
-
-      {item.language && (
-        <select
-          value={item.framework}
-          onChange={(e) => handleItemChange(i, 'framework', e.target.value)}
-          className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-        >
-          <option value="">프레임워크 선택</option>
-          {(languageToFrameworks[item.language] || []).map((fw) => (
-            <option key={fw} value={fw}>{frameworkNames[fw]}</option>
-          ))}
-        </select>
-      )}
-
-      {item.framework && (
-        <select
-          value={item.frameworkVersion}
-          onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
-          className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-        >
-          <option value="">프레임워크 버전 선택</option>
-          {(frameworkOptions[item.framework] || []).map((v) => (
-            <option key={v} value={v}>{v}</option>
-          ))}
-        </select>
-      )}
-    </div>
-
-    {items.length > 1 && (
-      <button
-        type="button"
-        onClick={() => handleRemove(i)}
-        className="absolute top-1/2 right-0 -translate-y-1/2 text-red-500 text-xl"
-      >
-        ✕
-      </button>
-    )}
-  </div>
-))}
-
-
 
         <button
           type="button"
@@ -194,7 +207,7 @@ export default function Step6_Backend() {
 
         {formData.env === 'paas' && (
           <>
-            {/* API 도메인 */}
+            {/* 도메인 입력 */}
             <div className="mt-6">
               <label className="block mb-1 text-sm font-medium">API 도메인</label>
               <input
@@ -209,10 +222,10 @@ export default function Step6_Backend() {
               )}
             </div>
 
-            {/* API Prefix Paths */}
+            {/* API 경로 입력 */}
             <div className="mt-6 space-y-2">
               <label className="block mb-1 text-sm font-medium">API Prefix Path</label>
-              {apiPaths.map((path: string, i: number) => (
+              {apiPaths.map((path, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input
                     type="text"

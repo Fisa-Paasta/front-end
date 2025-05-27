@@ -7,14 +7,22 @@ const frontendOptions: Record<string, string[]> = {
   vue: ['3.5.13 (Latest)', '3.5.0'],
   angular: ['19.2.9 (Latest)', '19.2.0'],
   nextjs: ['15.3.0', '14.2.0'],
+  vite: ['5.2.7', '5.0.0', '4.5.2'],
+  typescript: ['5.4.5', '5.3.3', '4.9.5'],
 };
 
-const frameworkNames: Record<string, string> = {
-  react: 'React',
-  vue: 'Vue.js',
-  angular: 'Angular',
-  nextjs: 'Next.js',
-};
+const frontendFrameworks: {
+  name: string;
+  label: string;
+  src: string;
+}[] = [
+  { name: 'react', label: 'React', src: '/img/frontend/react.png' },
+  { name: 'vue', label: 'Vue.js', src: '/img/frontend/vue.png' },
+  { name: 'angular', label: 'Angular', src: '/img/frontend/angular.png' },
+  { name: 'nextjs', label: 'Next.js', src: '/img/frontend/nextjs.png' },
+  { name: 'vite', label: 'Vite', src: '/img/frontend/vite.png' },
+  { name: 'typescript', label: 'TypeScript', src: '/img/frontend/typescript.png' },
+];
 
 export default function Step5_Frontend() {
   const { formData, updateFormData } = useSurvey();
@@ -30,11 +38,12 @@ export default function Step5_Frontend() {
   const handleChange = (index: number, field: 'framework' | 'version', value: string) => {
     const updated = [...items];
     updated[index][field] = value;
+    if (field === 'framework') updated[index].version = ''; // 프레임워크 바뀌면 버전 초기화
     setItems(updated);
   };
 
   const handleAdd = () => {
-    setItems([...items, { id: items.length + 1, framework: '', version: '' }]);
+    setItems([...items, { id: Date.now(), framework: '', version: '' }]);
   };
 
   const handleRemove = (index: number) => {
@@ -50,47 +59,60 @@ export default function Step5_Frontend() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
+      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
 
-        {/* 프론트엔드 목록 */}
-        {items.map((item: FrontendItem, i: number) => (
-          <div key={i} className="grid grid-cols-2 gap-4 items-center">
-            {/* 프레임워크 선택 */}
-            <select
-              value={item.framework}
-              onChange={(e) => handleChange(i, 'framework', e.target.value)}
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            >
-              <option value="">프레임워크 선택</option>
-              {Object.entries(frameworkNames).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
+        {items.map((item, i) => (
+          <div key={item.id} className="space-y-2">
 
-            {/* 버전 + 삭제 버튼 수평 정렬 */}
-            <div className="grid grid-cols-[1fr_40px] gap-2 items-center">
-              <select
-                value={item.version}
-                onChange={(e) => handleChange(i, 'version', e.target.value)}
-                disabled={!item.framework}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-              >
-                <option value="">버전 선택</option>
-                {(frontendOptions[item.framework] || []).map((ver) => (
-                  <option key={ver} value={ver}>{ver}</option>
-                ))}
-              </select>
-
-              {items.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => handleRemove(i)}
-                  className="text-red-600 font-bold text-xl text-center"
+            {/* 프레임워크 선택 카드 */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+              {frontendFrameworks.map((fw) => (
+                <div
+                  key={fw.name}
+                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-md
+                    ${item.framework === fw.name
+                      ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
+                      : 'border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800'}
+                  `}
+                  onClick={() => handleChange(i, 'framework', fw.name)}
                 >
-                  ✕
-                </button>
-              )}
+                  <img
+                    src={fw.src}
+                    alt={fw.label}
+                    className="w-full h-16 object-contain mb-2"
+                  />
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {fw.label}
+                  </p>
+                </div>
+              ))}
             </div>
+
+            {/* 버전 선택 + 삭제 */}
+            {item.framework && (
+              <div className="grid grid-cols-[1fr_40px] gap-2 items-center">
+                <select
+                  value={item.version}
+                  onChange={(e) => handleChange(i, 'version', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                >
+                  <option value="">버전 선택</option>
+                  {(frontendOptions[item.framework] || []).map((v) => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+
+                {items.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(i)}
+                    className="text-red-600 font-bold text-xl text-center"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         ))}
 
@@ -102,7 +124,7 @@ export default function Step5_Frontend() {
           + 프론트엔드 추가
         </button>
 
-        {/* 프론트 도메인 (PaaS 전용) */}
+        {/* 도메인 입력 */}
         {formData.env === 'paas' && (
           <div>
             <label className="block mt-6 mb-1 text-sm font-medium">프론트 도메인 (필수 항목 X)</label>

@@ -38,17 +38,24 @@ export default function Step4_OS() {
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
         {osImages.map((os) => (
           <div
-            key={os.name}
-            className={`p-3 rounded-lg border cursor-pointer transition text-center shadow-sm
-              ${localOS.name === os.name
-                ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
-                : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
-            `}
-            onClick={() => handleChange('name', os.name)}
-          >
-            <img src={os.src} alt={os.label} className="w-full h-20 object-contain mb-2" />
-            <p className="text-sm font-medium">{os.label}</p>
-          </div>
+          key={os.name}
+          className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-md
+            ${localOS.name === os.name
+              ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
+              : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
+          `}
+          onClick={() => handleChange('name', os.name)}
+        >
+  <img
+    src={os.src}
+    alt={os.label}
+    className="w-full h-16 object-contain mb-2"
+/>
+  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+    {os.label}
+  </p>
+</div>
+
         ))}
       </div>
 
