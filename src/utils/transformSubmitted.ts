@@ -1,9 +1,10 @@
 import { SubmittedCard } from '@/context/SubmittedContext';
 import { AdminCardData, StatusType } from '@/types/admin';
+import { STATUS_ENUM } from '@/types/admin';
 
 // 상태 값 유효성 체크
 const isValidStatus = (status: string): status is StatusType => {
-  return ['접수중', '접수완료', '승인처리중', '승인완료', '구축중', '구축완료'].includes(status);
+  return (Object.values(STATUS_ENUM) as string[]).includes(status);
 };
 
 export const transformSubmittedCards = (submittedCards: SubmittedCard[]): AdminCardData[] => {

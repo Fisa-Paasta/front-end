@@ -14,7 +14,8 @@ const STATUS_OPTIONS: StatusType[] = [
   '승인처리중',
   '승인완료',
   '구축중',
-  '구축완료'
+  '구축완료',
+  '삭제됨',
 ];
 
 const STATUS_COLORS: Record<StatusType, string> = {
@@ -23,7 +24,8 @@ const STATUS_COLORS: Record<StatusType, string> = {
   승인처리중: 'bg-blue-500 text-white',
   승인완료: 'bg-blue-700 text-white',
   구축중: 'bg-purple-500 text-white',
-  구축완료: 'bg-gray-500 text-white'
+  구축완료: 'bg-gray-500 text-white',
+  삭제됨: 'bg-red-500 text-white',
 };
 
 export default function AdminCardDetail({

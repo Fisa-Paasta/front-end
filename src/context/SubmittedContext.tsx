@@ -34,6 +34,7 @@ interface SubmittedContextType {
   updateCardStatus: (id: string, newStatus: StatusType, note?: string) => void;
   attachGrafanaDashboards: (id: string, dashboards: GrafanaDashboard[]) => void;
   updateCardContent: (id: string, newTitle: string, newDesc: string) => void;
+  deleteCard: (id: string, note?: string) => void;
 }
 
 const SubmittedContext = createContext<SubmittedContextType | undefined>(undefined);
@@ -47,7 +48,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return [];
     }
   });
-
+  
   const syncToLocalStorage = (updated: SubmittedCard[]) => {
     const prev = JSON.stringify(submittedCards);
     const next = JSON.stringify(updated);
@@ -105,6 +106,27 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     syncToLocalStorage(updated);
   };
 
+  const deleteCard = (id: string, note?: string) => {
+    const userId = localStorage.getItem('userId') || 'unknown';
+    const updated = submittedCards.filter(card => card.id !== id);
+    const deletedCard = submittedCards.find(card => card.id === id);
+    
+    if (deletedCard) {
+      const history = {
+        by: userId,
+        timestamp: new Date().toISOString(),
+        note: note ?? '카드가 삭제되었습니다.',
+      };
+      // 삭제 기록만 남기기 위해 localStorage에 로그 백업 (선택)
+      console.log('[🗑 삭제됨]', { ...deletedCard, history }
+      );
+  }
+
+  localStorage.setItem('submittedCards', JSON.stringify(updated));
+  setSubmittedCards(updated);
+};
+
+
   useEffect(() => {
     console.log('[📦 submittedCards 변경됨]', submittedCards);
   }, [submittedCards]);
@@ -118,6 +140,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateCardStatus,
         attachGrafanaDashboards,
         updateCardContent,
+        deleteCard,
       }}
     >
       {children}

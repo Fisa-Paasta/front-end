@@ -20,6 +20,7 @@ export default function HomePage() {
     승인완료: 4,
     구축중: 5,
     구축완료: 6,
+    삭제됨: 7,
   };
 
   const enrichedCards = useMemo(
@@ -47,6 +48,7 @@ export default function HomePage() {
       승인완료: 'bg-blue-700 text-white',
       구축중: 'bg-purple-500 text-white',
       구축완료: 'bg-gray-500 text-white',
+      삭제됨: 'bg-red-500 text-black',
     };
     return map[status] || 'bg-white text-black';
   };

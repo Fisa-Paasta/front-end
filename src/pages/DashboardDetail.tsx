@@ -39,15 +39,20 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
           </button>
         );
       case '승인완료':
+      case '삭제됨':
         return (
           <button
-            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition"
+            className={`px-4 py-2 rounded-md ${
+              item.status === '삭제됨'
+                ? 'bg-red-600 hover:bg-red-700'
+                : 'bg-blue-600 hover:bg-blue-700'
+            } text-white transition`}
             onClick={() => {
               setSelectedCard(item);
               setShowDetailModal(true);
             }}
           >
-            신청서 내역 보기
+            {item.status === '삭제됨' ? '삭제된 신청서 내역 보기' : '신청서 내역 보기'}
           </button>
         );
       case '구축중':
@@ -192,6 +197,12 @@ const getStatusMeta = (status: string) => {
       color: 'bg-gray-500 text-white',
       title: '구축 완료',
       description: '서비스 배포가 완료되었습니다.',
+    },
+    '삭제됨': {
+      icon: <HelpCircle className="w-5 h-5" />,
+      color: 'bg-red-600 text-white',
+      title: '삭제됨',
+      description: '이 요청은 삭제 처리되었습니다.',
     },
   };
 
