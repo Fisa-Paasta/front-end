@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useMemo } from 'react';
 
 import InitPage from './pages/InitPage';
 import HomePage from './pages/HomePage';
@@ -10,36 +9,80 @@ import CostPage from './pages/CostPage';
 import MonitoringPage from './pages/MonitoringPage';
 import AdminPage from './pages/AdminPage';
 
+import PrivateRoute from './routes/PrivateRoute';
+import { useAuth } from './context/AuthContext';
+
 function App() {
-  const isAuthenticated = useMemo(() => {
-    try {
-      return !!localStorage.getItem('token');
-    } catch {
-      return false;
-    }
-  }, []);
+  const { user } = useAuth(); // ✅ AuthContext에서 유저 정보 가져오기
 
   return (
     <Routes>
       <Route path="/" element={<InitPage />} />
       <Route path="/init" element={<InitPage />} />
-      <Route path="/cost" element={<CostPage />} />
-      <Route path="/monitoring" element={<MonitoringPage />} />
-      <Route path="/admin" element={<AdminPage />} />
+
       <Route
         path="/home"
-        element={isAuthenticated ? <HomePage /> : <Navigate to="/init" replace />}
+        element={
+          <PrivateRoute>
+            <HomePage />
+          </PrivateRoute>
+        }
       />
       <Route
         path="/survey"
-        element={isAuthenticated ? <SurveyPage /> : <Navigate to="/init" replace />}
+        element={
+          <PrivateRoute>
+            <SurveyPage />
+          </PrivateRoute>
+        }
       />
       <Route
         path="/list"
-        element={isAuthenticated ? <ListPage /> : <Navigate to="/init" replace />}
+        element={
+          <PrivateRoute>
+            <ListPage />
+          </PrivateRoute>
+        }
       />
-      <Route path="/settings" element={<SettingsPage />} />
-      <Route path="*" element={<Navigate to={isAuthenticated ? "/home" : "/home"} replace />} />
+      <Route
+        path="/admin"
+        element={
+          <PrivateRoute requiredRole="admin">
+            <AdminPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/cost"
+        element={
+          <PrivateRoute>
+            <CostPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/monitoring"
+        element={
+          <PrivateRoute>
+            <MonitoringPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/settings"
+        element={
+          <PrivateRoute>
+            <SettingsPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="*"
+        element={<Navigate to={user ? '/home' : '/init'} replace />}
+      />
     </Routes>
   );
 }

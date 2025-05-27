@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Lock, User, Building2, Sparkles } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const slogans: React.ReactElement[] = [
   <>빠르게 시작하는 <strong className="text-white">PaaS 환경</strong></>,
@@ -54,9 +55,57 @@ export default function InitPage() {
     setErrors((prev) => ({ ...prev, [name as FormField]: '' }));
   };
 
-const handleLogin = async () => {
-  if (!validateForm()) return;
+  const { setUser } = useAuth();
+  const handleLogin = async () => {
+    if (!validateForm()) return;
+  
+    const isTempUserLogin =
+      form.id === '99991234' &&
+      form.password === 'user123!' &&
+      form.department.trim() !== '';
+  
+    const isTempAdminLogin =
+      form.id === '12345678' &&
+      form.password === 'VMware1!' &&
+      form.department.trim() !== '';
+  
+    // ✅ 1. 임시 사용자 로그인 처리
+    if (isTempUserLogin) {
+      alert('✅ 임시 사용자 계정으로 로그인합니다');
+      localStorage.setItem('token', 'test-user-token');
+      localStorage.setItem('userName', '임시 사용자');
+      localStorage.setItem('userId', form.id);
+      localStorage.setItem('role', 'user');
+    
+      setUser({
+        userId: form.id,
+        userName: '임시 사용자',
+        role: 'user',
+      });
+    
+      navigate('/home');
+      return;
+    }
+  
+  // ✅ 2. 임시 관리자 로그인 처리
+  if (isTempAdminLogin) {
+    alert('✅ 임시 관리자 계정으로 로그인합니다');
+    localStorage.setItem('token', 'test-admin-token');
+    localStorage.setItem('userName', '테스트 관리자');
+    localStorage.setItem('userId', form.id);
+    localStorage.setItem('role', 'admin');
 
+    setUser({
+      userId: form.id,
+      userName: '테스트 관리자',
+      role: 'admin',
+    });
+
+    navigate('/admin');
+    return;
+  }
+
+  // ✅ 3. 실제 API 요청 처리
   try {
     const res = await fetch('http://localhost:8080/api/login', {
       method: 'POST',
@@ -67,22 +116,24 @@ const handleLogin = async () => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || '로그인 실패');
 
-    // ✅ 저장
     localStorage.setItem('token', data.token);
     localStorage.setItem('userName', data.name);
     localStorage.setItem('userId', form.id);
-    localStorage.setItem('role', data.role); // 'admin' 또는 'user' 저장
+    localStorage.setItem('role', data.role);
 
-    // ✅ 역할에 따라 라우팅
-    if (data.role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/home');
-    }
+    setUser({
+      userId: form.id,
+      userName: data.name,
+      role: data.role,
+    });
+
+    navigate(data.role === 'admin' ? '/admin' : '/home');
   } catch (err: any) {
-    alert(err.message);
+    alert('❌ 백엔드 로그인 실패\n' + err.message);
   }
 };
+
+
 
   return (
     <div className="flex h-screen transition-colors duration-500 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark">
