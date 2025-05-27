@@ -1,4 +1,5 @@
 import { useSubmitted } from '@/context/SubmittedContext';
+import { useAuth } from '@/context/AuthContext';
 import DashboardDetail from '@/pages/DashboardDetail';
 import { useNavigate } from 'react-router-dom';
 import { AdminCardData, StatusType } from '@/types/admin';
@@ -10,6 +11,8 @@ import { ClipboardList, Star, StarOff } from 'lucide-react';
 export default function HomePage() {
   const navigate = useNavigate();
   const { submittedCards, toggleStarred } = useSubmitted();
+  const { user } = useAuth();
+
   const [sortType, setSortType] = useState<'date' | 'title' | 'status'>('date');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -23,22 +26,25 @@ export default function HomePage() {
     삭제됨: 7,
   };
 
-  const enrichedCards = useMemo(
-    () => transformSubmittedCards(submittedCards),
-    [submittedCards]
-  );
+  const myCards: AdminCardData[] = useMemo(() => {
+    const allCards = transformSubmittedCards(submittedCards);
+    return allCards.filter(card => card.userId === user?.userId);
+  }, [submittedCards, user?.userId]);
 
   const sorted = useMemo(() => {
-    return [...enrichedCards].sort((a, b) => {
+    return [...myCards].sort((a, b) => {
       if (sortType === 'title') return a.title.localeCompare(b.title);
       if (sortType === 'status') return statusPriority[a.status] - statusPriority[b.status];
       return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
-  }, [enrichedCards, sortType]);
+  }, [myCards, sortType]);
 
   const starredDashboards = sorted.filter((d) => d.starred);
   const normalDashboards = sorted.filter((d) => !d.starred);
-  const selectedDashboard = useMemo(() => enrichedCards.find((c) => c.id === selectedId) || null, [enrichedCards, selectedId]);
+  const selectedDashboard = useMemo(
+    () => myCards.find((c) => c.id === selectedId) || null,
+    [myCards, selectedId]
+  );
 
   const getStatusColor = (status: StatusType): string => {
     const map: Record<StatusType, string> = {

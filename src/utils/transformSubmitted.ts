@@ -1,28 +1,31 @@
 import { SubmittedCard } from '@/context/SubmittedContext';
-import { AdminCardData, StatusType } from '@/types/admin';
-import { STATUS_ENUM } from '@/types/admin';
+import { AdminCardData, StatusType, STATUS_ENUM } from '@/types/admin';
 
-// 상태 값 유효성 체크
+// ✅ 유효한 상태인지 체크
 const isValidStatus = (status: string): status is StatusType => {
   return (Object.values(STATUS_ENUM) as string[]).includes(status);
 };
 
 export const transformSubmittedCards = (submittedCards: SubmittedCard[]): AdminCardData[] => {
-  return submittedCards.map((card) => ({
-    id: card.id,
-    title: card.title,
-    desc: card.desc,
-    date: card.date,
-    status: isValidStatus(card.status) ? card.status : '접수중',
-    starred: card.starred,
-    userId: 'unknown', // 향후 로그인 유저 ID로 대체 가능
-    formDataSnapshot: card.formDataSnapshot, // ✅ 🔥 반드시 포함
-    historyList: (card.historyList || []).map((log) => ({
-      status: isValidStatus(card.status) ? card.status : '접수중',
-      timestamp: log.timestamp ?? new Date().toISOString(),
-      approver: log.by ?? 'unknown',
-      comment: log.note ?? ''
-    }))
-  }));
-};
+  return submittedCards.map((card) => {
+    // ✅ formDataSnapshot 안에 userId가 없을 경우 대비
+    const userId = card.formDataSnapshot?.userId ?? localStorage.getItem('userId') ?? 'unknown';
 
+    return {
+      id: card.id,
+      title: card.title,
+      desc: card.desc,
+      date: card.date,
+      status: isValidStatus(card.status) ? card.status : '접수중',
+      starred: card.starred,
+      userId,
+      formDataSnapshot: card.formDataSnapshot,
+      historyList: (card.historyList || []).map((log) => ({
+        status: isValidStatus(card.status) ? card.status : '접수중',
+        timestamp: log.timestamp ?? new Date().toISOString(),
+        approver: log.by ?? 'unknown',
+        comment: log.note ?? '',
+      })),
+    };
+  });
+};

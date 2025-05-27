@@ -12,4 +12,5 @@ export interface Application {
   };
   createdAt: string;
   status?: string;
+  userId?: string;
 }

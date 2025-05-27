@@ -18,7 +18,7 @@ export interface SubmittedCard {
   date: string;
   status: StatusType;
   starred: boolean;
-  formDataSnapshot: FormDataType;
+  formDataSnapshot: FormDataType & { userId?: string };
   grafanaDashboards?: GrafanaDashboard[];
   historyList?: {
     by?: string;
@@ -40,96 +40,123 @@ interface SubmittedContextType {
 const SubmittedContext = createContext<SubmittedContextType | undefined>(undefined);
 
 export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [submittedCards, setSubmittedCards] = useState<SubmittedCard[]>(() => {
-    try {
-      const saved = localStorage.getItem('submittedCards');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-  
-  const syncToLocalStorage = (updated: SubmittedCard[]) => {
-    const prev = JSON.stringify(submittedCards);
-    const next = JSON.stringify(updated);
-    if (prev !== next) {
-      localStorage.setItem('submittedCards', next);
-      setSubmittedCards(updated);
-    }
-  };
+  const [submittedCards, setSubmittedCards] = useState<SubmittedCard[]>([]);
 
-  const updateCardContent = (id: string, newTitle: string, newDesc: string) => {
-    const updated = submittedCards.map(card =>
-      card.id === id ? { ...card, title: newTitle, desc: newDesc } : card
-    );
-    syncToLocalStorage(updated);
-  };
+  // ✅ 서버에서 초기 카드 목록 불러오기
+  useEffect(() => {
+    const fetchSubmittedCardsFromServer = async () => {
+      try {
+        const res = await fetch('http://localhost:8080/api/submitted-cards', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        if (!res.ok) throw new Error('카드 목록 가져오기 실패');
+        const data = await res.json();
+        setSubmittedCards(data);
+      } catch (err) {
+        console.error('❌ 서버 카드 목록 오류:', err);
+      }
+    };
+
+    fetchSubmittedCardsFromServer();
+  }, []);
 
   const addSubmittedCard = (card: Omit<SubmittedCard, 'id'>) => {
+    const userId = localStorage.getItem('userId') || 'unknown';
     const newCard: SubmittedCard = {
       ...card,
       id: crypto.randomUUID(),
-      formDataSnapshot: card.formDataSnapshot,
+      formDataSnapshot: {
+        ...card.formDataSnapshot,
+        userId,
+      },
     };
-    syncToLocalStorage([...submittedCards, newCard]);
+
+    setSubmittedCards(prev => [...prev, newCard]);
+
+    // ✅ 서버로 저장
+    fetch('http://localhost:8080/api/submit-card', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({
+        userId,
+        userName: localStorage.getItem('userName'),
+        formDataSnapshot: newCard.formDataSnapshot,
+        title: newCard.title,
+        desc: newCard.desc,
+        status: newCard.status,
+        date: newCard.date,
+      }),
+    }).catch((err) => {
+      console.error('❌ 서버 저장 실패:', err);
+    });
   };
 
   const toggleStarred = (id: string) => {
-    const updated = submittedCards.map(card =>
-      card.id === id ? { ...card, starred: !card.starred } : card
+    setSubmittedCards(prev =>
+      prev.map(card =>
+        card.id === id ? { ...card, starred: !card.starred } : card
+      )
     );
-    syncToLocalStorage(updated);
   };
 
   const updateCardStatus = (id: string, newStatus: StatusType, note?: string) => {
     const userId = localStorage.getItem('userId') || 'unknown';
-    const updated = submittedCards.map(card => {
-      if (card.id !== id) return card;
-      const newHistory = {
-        by: userId,
-        timestamp: new Date().toISOString(),
-        note: note ?? `상태를 '${newStatus}'로 변경함`,
-      };
-      return {
-        ...card,
-        status: newStatus,
-        historyList: [...(card.historyList || []), newHistory],
-      };
-    });
-    syncToLocalStorage(updated);
+    setSubmittedCards(prev =>
+      prev.map(card => {
+        if (card.id !== id) return card;
+        const newHistory = {
+          by: userId,
+          timestamp: new Date().toISOString(),
+          note: note ?? `상태를 '${newStatus}'로 변경함`,
+        };
+        return {
+          ...card,
+          status: newStatus,
+          historyList: [...(card.historyList || []), newHistory],
+        };
+      })
+    );
+  };
+
+  const updateCardContent = (id: string, newTitle: string, newDesc: string) => {
+    setSubmittedCards(prev =>
+      prev.map(card =>
+        card.id === id ? { ...card, title: newTitle, desc: newDesc } : card
+      )
+    );
   };
 
   const attachGrafanaDashboards = (id: string, dashboards: GrafanaDashboard[]) => {
-    const updated = submittedCards.map(card =>
-      card.id === id ? { ...card, grafanaDashboards: dashboards } : card
+    setSubmittedCards(prev =>
+      prev.map(card =>
+        card.id === id ? { ...card, grafanaDashboards: dashboards } : card
+      )
     );
-    syncToLocalStorage(updated);
   };
 
   const deleteCard = (id: string, note?: string) => {
     const userId = localStorage.getItem('userId') || 'unknown';
-    const updated = submittedCards.filter(card => card.id !== id);
-    const deletedCard = submittedCards.find(card => card.id === id);
-    
-    if (deletedCard) {
-      const history = {
-        by: userId,
-        timestamp: new Date().toISOString(),
-        note: note ?? '카드가 삭제되었습니다.',
-      };
-      // 삭제 기록만 남기기 위해 localStorage에 로그 백업 (선택)
-      console.log('[🗑 삭제됨]', { ...deletedCard, history }
-      );
-  }
-
-  localStorage.setItem('submittedCards', JSON.stringify(updated));
-  setSubmittedCards(updated);
-};
-
-
-  useEffect(() => {
-    console.log('[📦 submittedCards 변경됨]', submittedCards);
-  }, [submittedCards]);
+    setSubmittedCards(prev =>
+      prev.map(card => {
+        if (card.id !== id) return card;
+        const history = {
+          by: userId,
+          timestamp: new Date().toISOString(),
+          note: note ?? '카드가 삭제되었습니다.',
+        };
+        return {
+          ...card,
+          status: '삭제됨' as StatusType,
+          historyList: [...(card.historyList || []), history],
+        };
+      })
+    );
+  };
 
   return (
     <SubmittedContext.Provider

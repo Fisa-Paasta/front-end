@@ -47,20 +47,48 @@ export default function FormStep() {
     }
   };
 
-  const handleConfirmSubmit = ({ title, description }: { title: string; description: string }) => {
-    const newCard = {
-      title,
-      desc: description?.trim() || '—',
-      date: new Date().toISOString().split('T')[0],
-      starred: false,
-      status: '접수중' as const,
-      historyList: [],
-      formDataSnapshot: formData,  // ✅ 현재 상태 저장
-    };
-
-    addSubmittedCard(newCard);
-    setShowConfirmModal(false);
+const handleConfirmSubmit = async ({ title, description }: { title: string; description: string }) => {
+  const userId = localStorage.getItem('userId')!;
+  const userName = localStorage.getItem('userName')!;
+  const newCard = {
+    title,
+    desc: description?.trim() || '—',
+    date: new Date().toISOString().split('T')[0],
+    starred: false,
+    status: '접수중' as const,
+    historyList: [],
+    formDataSnapshot: { ...formData, userId }, // ✅ userId 추가
   };
+
+  // 1. 로컬 상태 저장
+  addSubmittedCard(newCard);
+
+  // 2. 서버 저장 요청
+  try {
+    await fetch('http://localhost:8080/api/submit-card', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+      body: JSON.stringify({
+        userId,
+        userName,
+        formDataSnapshot: formData,
+        title: newCard.title,
+        desc: newCard.desc,
+        status: newCard.status,
+        date: newCard.date,
+      }),
+    });
+  } catch (err) {
+    console.error('✅ 서버 저장 실패:', err);
+    alert('신청서 서버 저장 중 오류가 발생했습니다.');
+  }
+
+  setShowConfirmModal(false);
+};
+
 
   const isCurrentStepValid = (): boolean => {
     switch (currentStep) {
