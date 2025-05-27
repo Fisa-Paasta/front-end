@@ -8,7 +8,6 @@ export default function SidebarSummary() {
   const isEKS = formData.k8s?.type === 'amazon_eks';
   const isK8sOnPrem = formData.k8s?.type === 'kubernetes';
   const isIaaS = formData.env === 'iaas';
-  const isIaaSAWS = isIaaS && formData.vm?.environment === 'aws';
   const isIaaSOnPrem = isIaaS && formData.vm?.environment === 'on-premise';
 
   const formatEnv = (env: string | undefined) => {
