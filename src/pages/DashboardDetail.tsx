@@ -12,6 +12,12 @@ interface DashboardDetailProps {
   onClose: () => void;
 }
 
+interface HistoryEntry {
+  by?: string;
+  timestamp?: string;
+  note?: string;
+}
+
 export default function DashboardDetail({ item, onClose }: DashboardDetailProps) {
   const [showHistory, setShowHistory] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -37,8 +43,6 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
           <button
             className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition"
             onClick={() => {
-              console.log('[DEBUG] 신청서 보기 클릭됨 → 카드:', item);
-              console.log('[DEBUG] formDataSnapshot:', item.formDataSnapshot);
               setSelectedCard(item);
               setShowDetailModal(true);
             }}
@@ -127,7 +131,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
             onClose={() => setShowHistory(false)}
             viewType="history"
             readOnly
-            historyList={item.historyList}
+            historyList={item.historyList as HistoryEntry[]}
           />
         )}
 

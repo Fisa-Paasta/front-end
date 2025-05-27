@@ -22,6 +22,7 @@ export default function AdminSidebar({ onFilter, active }: AdminSidebarProps) {
     { label: '구축 진행중', status: '구축중' },
     { label: '완료됨', status: '구축완료' },
     { label: '로그 보기', status: 'LOG_VIEW' }, // 명시적 로그 보기 구분
+    { label: '삭제된 요청', status: '삭제됨' },
   ];
 
   return (

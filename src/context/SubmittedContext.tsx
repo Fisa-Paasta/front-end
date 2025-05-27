@@ -33,7 +33,7 @@ interface SubmittedContextType {
   toggleStarred: (id: string) => void;
   updateCardStatus: (id: string, newStatus: StatusType, note?: string) => void;
   attachGrafanaDashboards: (id: string, dashboards: GrafanaDashboard[]) => void;
-  updateCardContent: (id: string, newTitle: string, newDesc: string) => void; // ✅
+  updateCardContent: (id: string, newTitle: string, newDesc: string) => void;
 }
 
 const SubmittedContext = createContext<SubmittedContextType | undefined>(undefined);
@@ -81,10 +81,11 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const updateCardStatus = (id: string, newStatus: StatusType, note?: string) => {
+    const userId = localStorage.getItem('userId') || 'unknown';
     const updated = submittedCards.map(card => {
       if (card.id !== id) return card;
       const newHistory = {
-        by: 'admin01',
+        by: userId,
         timestamp: new Date().toISOString(),
         note: note ?? `상태를 '${newStatus}'로 변경함`,
       };
@@ -116,7 +117,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         toggleStarred,
         updateCardStatus,
         attachGrafanaDashboards,
-        updateCardContent, // ✅
+        updateCardContent,
       }}
     >
       {children}

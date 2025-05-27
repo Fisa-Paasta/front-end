@@ -72,8 +72,8 @@ export default function AdminPage() {
 
   const filteredCards = cards.filter(card =>
     (!filterUserId || card.userId.includes(filterUserId)) &&
-    (!filterStatus || card.status === filterStatus) &&
-    (!filterDate || card.date === filterDate)
+    (!filterDate || card.date === filterDate) &&
+    (filterStatus ? card.status === filterStatus : card.status !== '삭제됨') // 기본적으로 삭제된 카드 숨김
   );
 
   return (

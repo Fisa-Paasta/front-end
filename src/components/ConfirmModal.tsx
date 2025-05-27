@@ -92,8 +92,8 @@ export default function ConfirmModal({
                 key={index}
                 className="flex flex-col bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600"
               >
-                <div><strong>승인자:</strong> {entry.by || '미지정'}</div>
-                <div><strong>일시:</strong> {entry.timestamp || '알 수 없음'}</div>
+                <div><strong>작성자:</strong> {entry.by || '미지정'}</div>
+                <div><strong>일시:</strong> {entry.timestamp?.split('T')[0] || '알 수 없음'}</div>
                 {entry.note && (
                   <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                     <Pencil className="w-3 h-3" />
