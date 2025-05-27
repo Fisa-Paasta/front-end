@@ -126,8 +126,8 @@ export default function Step6_Backend() {
                   key={lang.name}
                   className={`p-3 rounded-md border-2 cursor-pointer text-center transition shadow-sm
                     ${item.language === lang.name
-                      ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
-                      : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
+                      ? 'border-violet-500 bg-violet-600 text-white'
+                      : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
                   `}
                   onClick={() => handleItemChange(i, 'language', lang.name)}
                 >
@@ -158,10 +158,10 @@ export default function Step6_Backend() {
                   <div
                     key={fw.name}
                     className={`p-3 rounded-md border-2 cursor-pointer text-center transition shadow-sm
-                      ${item.framework === fw.name
-                        ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
-                        : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
-                    `}
+                    ${item.framework === fw.name
+                      ? 'border-violet-500 bg-violet-600 text-white'
+                      : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
+                  `}
                     onClick={() => handleItemChange(i, 'framework', fw.name)}
                   >
                     <img src={fw.src} alt={fw.label} className="h-14 mx-auto object-contain mb-2" />

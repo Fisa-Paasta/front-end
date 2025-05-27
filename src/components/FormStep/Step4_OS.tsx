@@ -35,47 +35,50 @@ export default function Step4_OS() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-        {osImages.map((os) => (
-          <div
-          key={os.name}
-          className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-md
-            ${localOS.name === os.name
-              ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
-              : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'}
-          `}
-          onClick={() => handleChange('name', os.name)}
-        >
-  <img
-    src={os.src}
-    alt={os.label}
-    className="w-full h-16 object-contain mb-2"
-/>
-  <p className="text-sm font-semibold text-gray-900 dark:text-white">
-    {os.label}
-  </p>
-</div>
-
-        ))}
-      </div>
-
-      {localOS.name && (
-        <div>
-          <label className="block mb-1 text-sm font-semibold">버전 선택</label>
-          <select
-            className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-            value={localOS.version}
-            onChange={(e) => handleChange('version', e.target.value)}
-          >
-            <option value="">버전 선택</option>
-            {(osOptions[localOS.name as Exclude<OSName, ''>] || []).map((v) => (
-              <option key={v} value={v}>
-                {v}
-              </option>
-            ))}
-          </select>
+      <div className="bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
+        {/* 카드 목록 */}
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+          {osImages.map((os) => (
+            <div
+              key={os.name}
+              className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
+                ${localOS.name === os.name
+                  ? 'border-violet-500 bg-violet-600 text-white'
+                  : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
+              `}
+              onClick={() => handleChange('name', os.name)}
+            >
+              <img
+                src={os.src}
+                alt={os.label}
+                className="w-full h-16 object-contain mb-2"
+              />
+              <p className="text-sm font-semibold">
+                {os.label}
+              </p>
+            </div>
+          ))}
         </div>
-      )}
+
+        {/* 버전 선택 */}
+        {localOS.name && (
+          <div>
+            <label className="block mb-1 text-sm font-semibold text-white">버전 선택</label>
+            <select
+              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+              value={localOS.version}
+              onChange={(e) => handleChange('version', e.target.value)}
+            >
+              <option value="">버전 선택</option>
+              {(osOptions[localOS.name as Exclude<OSName, ''>] || []).map((v) => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

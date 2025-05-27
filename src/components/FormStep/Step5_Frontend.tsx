@@ -71,8 +71,8 @@ export default function Step5_Frontend() {
                   key={fw.name}
                   className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-md
                     ${item.framework === fw.name
-                      ? 'border-indigo-500 bg-indigo-100 dark:bg-indigo-900'
-                      : 'border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800'}
+                      ? 'border-violet-500 bg-violet-600 text-white'
+                      : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
                   `}
                   onClick={() => handleChange(i, 'framework', fw.name)}
                 >
