@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminCardList from '@/components/admin/AdminCardList';
@@ -22,10 +23,21 @@ const STATUS_BADGE_COLORS: Record<StatusType, string> = {
 };
 
 export default function AdminPage() {
+  const navigate = useNavigate();
+
+  // ✅ 관리자 권한 확인 (role !== 'admin'이면 홈으로 이동)
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+    if (role !== 'admin') {
+      alert('관리자만 접근 가능한 페이지입니다.');
+      navigate('/home');
+    }
+  }, [navigate]);
+
   const {
     submittedCards,
     updateCardStatus,
-    updateCardContent, // ✅ 가져오기
+    updateCardContent,
   } = useSubmitted();
 
   const cards = transformSubmittedCards(submittedCards);
@@ -48,7 +60,7 @@ export default function AdminPage() {
   };
 
   const handleEdit = (id: string, newTitle: string, newDesc: string) => {
-    updateCardContent(id, newTitle, newDesc); // ✅ 변경된 내용 반영
+    updateCardContent(id, newTitle, newDesc);
   };
 
   const handleStatusChange = (id: string, newStatus: StatusType) => {

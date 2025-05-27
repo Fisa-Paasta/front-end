@@ -57,40 +57,32 @@ export default function InitPage() {
 const handleLogin = async () => {
   if (!validateForm()) return;
 
-  // ✅ 테스트 계정 (DB 없이 임시 로그인용)
-  const isTestLogin =
-    form.id === '12345678' &&
-    form.password === 'VMware1!' &&
-    form.department.trim() !== '';
-
-  if (isTestLogin) {
-    localStorage.setItem('token', 'test-token');
-    localStorage.setItem('userName', '테스트 사용자');
-    localStorage.setItem('userId', form.id);
-    alert('테스트 로그인 성공');
-    navigate('/home');
-    return;
-  }
-
-  // 🔒 실제 API 요청 (나중에 DB 연동 시 사용)
   try {
     const res = await fetch('http://localhost:8080/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
+
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || '로그인 실패');
 
+    // ✅ 저장
     localStorage.setItem('token', data.token);
     localStorage.setItem('userName', data.name);
     localStorage.setItem('userId', form.id);
-    navigate('/home');
+    localStorage.setItem('role', data.role); // 'admin' 또는 'user' 저장
+
+    // ✅ 역할에 따라 라우팅
+    if (data.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/home');
+    }
   } catch (err: any) {
     alert(err.message);
   }
 };
-
 
   return (
     <div className="flex h-screen transition-colors duration-500 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark">
