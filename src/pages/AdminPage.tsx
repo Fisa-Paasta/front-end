@@ -18,10 +18,16 @@ const STATUS_BADGE_COLORS: Record<StatusType, string> = {
   승인완료: 'bg-blue-700 text-white',
   구축중: 'bg-purple-500 text-white',
   구축완료: 'bg-gray-500 text-white',
+  삭제됨: 'bg-red-600 text-white',
 };
 
 export default function AdminPage() {
-  const { submittedCards, updateCardStatus } = useSubmitted();
+  const {
+    submittedCards,
+    updateCardStatus,
+    updateCardContent, // ✅ 가져오기
+  } = useSubmitted();
+
   const cards = transformSubmittedCards(submittedCards);
 
   const [selectedItem, setSelectedItem] = useState<typeof cards[0] | null>(null);
@@ -35,6 +41,14 @@ export default function AdminPage() {
   const handleSidebarFilter = (status: string, label: string) => {
     setFilterStatus(status === 'LOG_VIEW' ? '' : status);
     setActiveSidebar(label);
+  };
+
+  const handleDelete = (id: string, comment?: string) => {
+    updateCardStatus(id, '삭제됨', comment);
+  };
+
+  const handleEdit = (id: string, newTitle: string, newDesc: string) => {
+    updateCardContent(id, newTitle, newDesc); // ✅ 변경된 내용 반영
   };
 
   const handleStatusChange = (id: string, newStatus: StatusType) => {
@@ -97,6 +111,8 @@ export default function AdminPage() {
               selectedIds={selectedIds}
               onToggleSelect={toggleCardSelection}
               badgeColors={STATUS_BADGE_COLORS}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
             />
           </>
         )}

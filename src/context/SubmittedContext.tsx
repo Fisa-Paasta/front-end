@@ -19,7 +19,7 @@ export interface SubmittedCard {
   status: StatusType;
   starred: boolean;
   formDataSnapshot: FormDataType;
-  grafanaDashboards?: GrafanaDashboard[];  // ✅ 추가된 필드
+  grafanaDashboards?: GrafanaDashboard[];
   historyList?: {
     by?: string;
     timestamp?: string;
@@ -32,7 +32,8 @@ interface SubmittedContextType {
   addSubmittedCard: (card: Omit<SubmittedCard, 'id'>) => void;
   toggleStarred: (id: string) => void;
   updateCardStatus: (id: string, newStatus: StatusType, note?: string) => void;
-  attachGrafanaDashboards: (id: string, dashboards: GrafanaDashboard[]) => void;  // ✅ 추가된 함수
+  attachGrafanaDashboards: (id: string, dashboards: GrafanaDashboard[]) => void;
+  updateCardContent: (id: string, newTitle: string, newDesc: string) => void; // ✅
 }
 
 const SubmittedContext = createContext<SubmittedContextType | undefined>(undefined);
@@ -56,6 +57,13 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const updateCardContent = (id: string, newTitle: string, newDesc: string) => {
+    const updated = submittedCards.map(card =>
+      card.id === id ? { ...card, title: newTitle, desc: newDesc } : card
+    );
+    syncToLocalStorage(updated);
+  };
+
   const addSubmittedCard = (card: Omit<SubmittedCard, 'id'>) => {
     const newCard: SubmittedCard = {
       ...card,
@@ -65,14 +73,11 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     syncToLocalStorage([...submittedCards, newCard]);
   };
 
-
   const toggleStarred = (id: string) => {
     const updated = submittedCards.map(card =>
       card.id === id ? { ...card, starred: !card.starred } : card
     );
-    if (JSON.stringify(updated) !== JSON.stringify(submittedCards)) {
-      syncToLocalStorage(updated);
-    }
+    syncToLocalStorage(updated);
   };
 
   const updateCardStatus = (id: string, newStatus: StatusType, note?: string) => {
@@ -93,13 +98,9 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const attachGrafanaDashboards = (id: string, dashboards: GrafanaDashboard[]) => {
-    const updated = submittedCards.map(card => {
-      if (card.id !== id) return card;
-      return {
-        ...card,
-        grafanaDashboards: dashboards,
-      };
-    });
+    const updated = submittedCards.map(card =>
+      card.id === id ? { ...card, grafanaDashboards: dashboards } : card
+    );
     syncToLocalStorage(updated);
   };
 
@@ -114,7 +115,8 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         addSubmittedCard,
         toggleStarred,
         updateCardStatus,
-        attachGrafanaDashboards,  // ✅ 추가됨
+        attachGrafanaDashboards,
+        updateCardContent, // ✅
       }}
     >
       {children}

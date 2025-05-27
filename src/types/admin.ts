@@ -9,6 +9,7 @@ export const STATUS_ENUM = {
   승인완료: '승인완료',
   구축중: '구축중',
   구축완료: '구축완료',
+  삭제됨: '삭제됨',
 } as const;
 
 export type StatusType = keyof typeof STATUS_ENUM;
