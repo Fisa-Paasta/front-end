@@ -63,17 +63,17 @@ export default function Step7_WebServer() {
       {webServerItems.map((item) => (
         <div
           key={item.id}
-          className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
+          className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
           {/* 서버 선택 카드 */}
           <div className="grid grid-cols-3 gap-4">
             {serverCards.map((server) => (
               <div
                 key={server.name}
-                className={`p-3 rounded-md border-2 cursor-pointer text-center transition shadow-sm
+                className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
                   ${item.server === server.name
                     ? 'border-violet-500 bg-violet-600 text-white'
-                    : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
+                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                 `}
                 onClick={() => handleChange(item.id, 'server', server.name)}
               >
@@ -82,9 +82,7 @@ export default function Step7_WebServer() {
                   alt={server.label}
                   className="h-14 mx-auto object-contain mb-2"
                 />
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {server.label}
-                </p>
+                <p className="text-sm font-semibold">{server.label}</p>
               </div>
             ))}
           </div>
@@ -121,7 +119,7 @@ export default function Step7_WebServer() {
       <button
         type="button"
         onClick={addWebServerItem}
-        className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-md transition"
+        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition"
       >
         + 웹서버 추가
       </button>

@@ -119,7 +119,7 @@ export default function Step8_DB() {
       {dbItems.map((item) => (
         <div
           key={item.id}
-          className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
+          className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
           {/* DB 타입 선택 카드 */}
           <div className="grid grid-cols-2 gap-4">
@@ -129,7 +129,7 @@ export default function Step8_DB() {
                 className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm
                   ${item.type === type.value
                     ? 'border-violet-500 bg-violet-600 text-white'
-                    : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
+                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                 `}
                 onClick={() => handleChange(item.id, 'type', type.value)}
               >
@@ -147,7 +147,7 @@ export default function Step8_DB() {
                   className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm
                     ${item.name === db
                       ? 'border-violet-500 bg-violet-600 text-white'
-                      : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
+                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
                   onClick={() => handleChange(item.id, 'name', db)}
                 >
@@ -207,7 +207,7 @@ export default function Step8_DB() {
       <button
         type="button"
         onClick={addDbItem}
-        className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-md transition"
+        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition"
       >
         + 데이터베이스 추가
       </button>

@@ -38,7 +38,7 @@ export default function Step5_Frontend() {
   const handleChange = (index: number, field: 'framework' | 'version', value: string) => {
     const updated = [...items];
     updated[index][field] = value;
-    if (field === 'framework') updated[index].version = ''; // 프레임워크 바뀌면 버전 초기화
+    if (field === 'framework') updated[index].version = '';
     setItems(updated);
   };
 
@@ -59,20 +59,18 @@ export default function Step5_Frontend() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
-
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
         {items.map((item, i) => (
           <div key={item.id} className="space-y-2">
-
             {/* 프레임워크 선택 카드 */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
               {frontendFrameworks.map((fw) => (
                 <div
                   key={fw.name}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-md
+                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
                     ${item.framework === fw.name
                       ? 'border-violet-500 bg-violet-600 text-white'
-                      : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
+                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
                   onClick={() => handleChange(i, 'framework', fw.name)}
                 >
@@ -81,9 +79,7 @@ export default function Step5_Frontend() {
                     alt={fw.label}
                     className="w-full h-16 object-contain mb-2"
                   />
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {fw.label}
-                  </p>
+                  <p className="text-sm font-semibold">{fw.label}</p>
                 </div>
               ))}
             </div>
@@ -127,13 +123,17 @@ export default function Step5_Frontend() {
         {/* 도메인 입력 */}
         {formData.env === 'paas' && (
           <div>
-            <label className="block mt-6 mb-1 text-sm font-medium">프론트 도메인 (필수 항목 X)</label>
+            <label className="block mt-6 mb-1 text-sm font-medium text-gray-900 dark:text-white">
+              프론트 도메인 (필수 항목 X)
+            </label>
             <input
               type="text"
               value={frontendDomain}
               onChange={(e) => handleDomainChange(e.target.value)}
               placeholder="예: www.example.com"
-              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${domainError ? 'border-red-500' : ''}`}
+              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${
+                domainError ? 'border-red-500' : ''
+              }`}
             />
             {domainError && (
               <p className="text-red-500 text-xs mt-1">도메인 형식이 올바르지 않습니다.</p>

@@ -114,25 +114,23 @@ export default function Step6_Backend() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
-
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
         {items.map((item, i) => (
           <div key={item.id} className="space-y-3">
-
             {/* 언어 선택 */}
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
               {languageCards.map((lang) => (
                 <div
                   key={lang.name}
-                  className={`p-3 rounded-md border-2 cursor-pointer text-center transition shadow-sm
+                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
                     ${item.language === lang.name
                       ? 'border-violet-500 bg-violet-600 text-white'
-                      : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
+                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
                   onClick={() => handleItemChange(i, 'language', lang.name)}
                 >
                   <img src={lang.src} alt={lang.label} className="h-14 mx-auto object-contain mb-2" />
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{lang.label}</p>
+                  <p className="text-sm font-semibold">{lang.label}</p>
                 </div>
               ))}
             </div>
@@ -157,15 +155,15 @@ export default function Step6_Backend() {
                 {(frameworkCards[item.language] || []).map((fw) => (
                   <div
                     key={fw.name}
-                    className={`p-3 rounded-md border-2 cursor-pointer text-center transition shadow-sm
-                    ${item.framework === fw.name
-                      ? 'border-violet-500 bg-violet-600 text-white'
-                      : 'border-gray-600 bg-gray-800 hover:bg-gray-700'}
-                  `}
+                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
+                      ${item.framework === fw.name
+                        ? 'border-violet-500 bg-violet-600 text-white'
+                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                    `}
                     onClick={() => handleItemChange(i, 'framework', fw.name)}
                   >
                     <img src={fw.src} alt={fw.label} className="h-14 mx-auto object-contain mb-2" />
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{fw.label}</p>
+                    <p className="text-sm font-semibold">{fw.label}</p>
                   </div>
                 ))}
               </div>
@@ -205,26 +203,27 @@ export default function Step6_Backend() {
           + 백엔드 추가
         </button>
 
+        {/* PaaS 도메인 설정 */}
         {formData.env === 'paas' && (
           <>
-            {/* 도메인 입력 */}
             <div className="mt-6">
-              <label className="block mb-1 text-sm font-medium">API 도메인</label>
+              <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API 도메인</label>
               <input
                 type="text"
                 value={apiDomain}
                 onChange={(e) => handleDomainChange(e.target.value)}
                 placeholder="예: api.example.com"
-                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${domainError ? 'border-red-500' : ''}`}
+                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${
+                  domainError ? 'border-red-500' : ''
+                }`}
               />
               {domainError && (
                 <p className="text-red-500 text-xs mt-1">도메인 형식이 올바르지 않습니다.</p>
               )}
             </div>
 
-            {/* API 경로 입력 */}
             <div className="mt-6 space-y-2">
-              <label className="block mb-1 text-sm font-medium">API Prefix Path</label>
+              <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</label>
               {apiPaths.map((path, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input
