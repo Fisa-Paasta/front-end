@@ -29,12 +29,13 @@ export interface SubmittedCard {
 
 interface SubmittedContextType {
   submittedCards: SubmittedCard[];
-  addSubmittedCard: (card: Omit<SubmittedCard, 'id'>) => void;
+  addSubmittedCard: (card: Omit<SubmittedCard, 'id'>) => Promise<void>; // ✅ Promise 반환
   toggleStarred: (id: string) => void;
   updateCardStatus: (id: string, newStatus: StatusType, note?: string) => void;
   attachGrafanaDashboards: (id: string, dashboards: GrafanaDashboard[]) => void;
   updateCardContent: (id: string, newTitle: string, newDesc: string) => void;
   deleteCard: (id: string, note?: string) => void;
+  refreshCards: () => Promise<void>; // ✅ 새로 추가
 }
 
 const SubmittedContext = createContext<SubmittedContextType | undefined>(undefined);
@@ -42,58 +43,111 @@ const SubmittedContext = createContext<SubmittedContextType | undefined>(undefin
 export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [submittedCards, setSubmittedCards] = useState<SubmittedCard[]>([]);
 
-  // ✅ 서버에서 초기 카드 목록 불러오기
-  useEffect(() => {
-    const fetchSubmittedCardsFromServer = async () => {
-      try {
-        const res = await fetch('http://localhost:8080/api/submitted-cards', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        if (!res.ok) throw new Error('카드 목록 가져오기 실패');
-        const data = await res.json();
-        setSubmittedCards(data);
-      } catch (err) {
-        console.error('❌ 서버 카드 목록 오류:', err);
-      }
-    };
+  // ✅ 서버에서 카드 목록 불러오기
+  const refreshCards = async () => {
+    try {
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
 
-    fetchSubmittedCardsFromServer();
+      const res = await fetch(`http://localhost:8080/api/applications/employee/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      
+      if (!res.ok) throw new Error('신청서 목록 가져오기 실패');
+      
+      const applications = await res.json();
+      
+      // ApplicationResponse를 SubmittedCard로 변환
+      const cards: SubmittedCard[] = applications.map((app: any) => ({
+        id: app.id.toString(),
+        title: app.title,
+        desc: app.description || '—',
+        date: new Date(app.createdAt).toISOString().split('T')[0],
+        status: convertStatusToKorean(app.status),
+        starred: false,
+        formDataSnapshot: {
+          env: app.envType,
+          vm: {
+            hostname: app.vmHostname || '',
+            username: app.vmUsername || '',
+            environment: app.vmEnvironment || 'on-premise',
+            ec2Type: app.vmEc2Type || '',
+            ebsType: app.vmEbsType || '',
+            ebsSize: app.vmEbsSize || '',
+          },
+          k8s: {
+            type: app.k8sType || '',
+            namespace: app.k8sNamespace || '',
+            node: app.k8sNodeCount || '',
+            version: '',
+          },
+          resources: {
+            cpu: app.resourceCpu || '',
+            ram: app.resourceRam || '',
+            disk: app.resourceDisk || '',
+          },
+          os: {
+            name: app.osName || '',
+            version: app.osVersion || '',
+          },
+          frontendItems: app.frontendItems ? JSON.parse(app.frontendItems) : [],
+          frontendDomain: app.frontendDomain || '',
+          backendItems: app.backendItems ? JSON.parse(app.backendItems) : [],
+          apiDomain: app.apiDomain || '',
+          apiPaths: app.apiPaths ? JSON.parse(app.apiPaths) : [],
+          webServerItems: app.webServerItems ? JSON.parse(app.webServerItems) : [],
+          dbItems: app.dbItems ? JSON.parse(app.dbItems) : [],
+          userId,
+        },
+        historyList: [],
+      }));
+      
+      setSubmittedCards(cards);
+    } catch (err) {
+      console.error('❌ 신청서 목록 로드 실패:', err);
+    }
+  };
+
+  // ✅ 초기 로드
+  useEffect(() => {
+    refreshCards();
   }, []);
 
-  const addSubmittedCard = (card: Omit<SubmittedCard, 'id'>) => {
+  // ✅ 중복 제거: 서버 저장만 수행
+  const addSubmittedCard = async (card: Omit<SubmittedCard, 'id'>) => {
     const userId = localStorage.getItem('userId') || 'unknown';
-    const newCard: SubmittedCard = {
-      ...card,
-      id: crypto.randomUUID(),
-      formDataSnapshot: {
-        ...card.formDataSnapshot,
-        userId,
-      },
-    };
+    
+    try {
+      const response = await fetch('http://localhost:8080/api/submit-card', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          userId,
+          userName: localStorage.getItem('userName'),
+          formDataSnapshot: card.formDataSnapshot,
+          title: card.title,
+          desc: card.desc,
+          status: card.status,
+          date: card.date,
+        }),
+      });
 
-    setSubmittedCards(prev => [...prev, newCard]);
-
-    // ✅ 서버로 저장
-    fetch('http://localhost:8080/api/submit-card', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-      body: JSON.stringify({
-        userId,
-        userName: localStorage.getItem('userName'),
-        formDataSnapshot: newCard.formDataSnapshot,
-        title: newCard.title,
-        desc: newCard.desc,
-        status: newCard.status,
-        date: newCard.date,
-      }),
-    }).catch((err) => {
-      console.error('❌ 서버 저장 실패:', err);
-    });
+      if (!response.ok) throw new Error('서버 저장 실패');
+      
+      console.log('✅ 서버 저장 성공');
+      
+      // ✅ 서버 저장 후 목록 새로고침
+      await refreshCards();
+      
+    } catch (err) {
+      console.error('❌ 신청서 저장 실패:', err);
+      throw err; // FormStep에서 에러 처리
+    }
   };
 
   const toggleStarred = (id: string) => {
@@ -168,11 +222,26 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         attachGrafanaDashboards,
         updateCardContent,
         deleteCard,
+        refreshCards,
       }}
     >
       {children}
     </SubmittedContext.Provider>
   );
+};
+
+// ✅ 상태 변환 헬퍼
+const convertStatusToKorean = (status: string): StatusType => {
+  const statusMap: Record<string, StatusType> = {
+    '접수중': '접수중',
+    '접수완료': '접수완료',
+    '승인처리중': '승인처리중',
+    '승인완료': '승인완료',
+    '구축중': '구축중',
+    '구축완료': '구축완료',
+    '삭제됨': '삭제됨',
+  };
+  return statusMap[status] || '접수중';
 };
 
 export const useSubmitted = (): SubmittedContextType => {

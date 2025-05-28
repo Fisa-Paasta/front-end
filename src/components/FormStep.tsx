@@ -14,6 +14,7 @@ import ConfirmModal from './ConfirmModal';
 import InformationModal from './InformationModal';
 import { useSubmitted } from '@/context/SubmittedContext';
 import { SurveyContextType } from '@/types/survey';
+import { useNavigate } from 'react-router-dom';
 
 export default function FormStep() {
   const {
@@ -25,9 +26,11 @@ export default function FormStep() {
   }: SurveyContextType = useSurvey();
 
   const { addSubmittedCard } = useSubmitted();
+  const navigate = useNavigate();
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // ✅ 로딩 상태
 
   const stepsByEnv = {
     iaas: [Step1_Env, Step2_VM, Step3_VMResources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB],
@@ -41,54 +44,44 @@ export default function FormStep() {
   const handleNext = () => {
     if (!isCurrentStepValid()) return;
     if (currentStep === TOTAL_STEPS - 1) {
-      setShowInfoModal(true); // 최종 단계면 정보 모달 먼저 띄움
+      setShowInfoModal(true);
     } else {
       goToNextStep();
     }
   };
 
-const handleConfirmSubmit = async ({ title, description }: { title: string; description: string }) => {
-  const userId = localStorage.getItem('userId')!;
-  const userName = localStorage.getItem('userName')!;
-  const newCard = {
-    title,
-    desc: description?.trim() || '—',
-    date: new Date().toISOString().split('T')[0],
-    starred: false,
-    status: '접수중' as const,
-    historyList: [],
-    formDataSnapshot: { ...formData, userId }, // ✅ userId 추가
+  // ✅ 중복 제거: Context만 사용
+  const handleConfirmSubmit = async ({ title, description }: { title: string; description: string }) => {
+    if (isSubmitting) return; // 중복 제출 방지
+    
+    setIsSubmitting(true);
+    
+    try {
+      const userId = localStorage.getItem('userId')!;
+      const newCard = {
+        title,
+        desc: description?.trim() || '—',
+        date: new Date().toISOString().split('T')[0],
+        starred: false,
+        status: '접수중' as const,
+        historyList: [],
+        formDataSnapshot: { ...formData, userId },
+      };
+
+      // ✅ Context의 addSubmittedCard만 호출 (서버 저장 포함)
+      await addSubmittedCard(newCard);
+      
+      alert('✅ 신청서가 성공적으로 제출되었습니다!');
+      setShowConfirmModal(false);
+      navigate('/home');
+      
+    } catch (err) {
+      console.error('❌ 신청서 제출 실패:', err);
+      alert('❌ 신청서 제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  // 1. 로컬 상태 저장
-  addSubmittedCard(newCard);
-
-  // 2. 서버 저장 요청
-  try {
-    await fetch('http://localhost:8080/api/submit-card', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-      body: JSON.stringify({
-        userId,
-        userName,
-        formDataSnapshot: formData,
-        title: newCard.title,
-        desc: newCard.desc,
-        status: newCard.status,
-        date: newCard.date,
-      }),
-    });
-  } catch (err) {
-    console.error('✅ 서버 저장 실패:', err);
-    alert('신청서 서버 저장 중 오류가 발생했습니다.');
-  }
-
-  setShowConfirmModal(false);
-};
-
 
   const isCurrentStepValid = (): boolean => {
     switch (currentStep) {
@@ -131,7 +124,6 @@ const handleConfirmSubmit = async ({ title, description }: { title: string; desc
         if (formData.env === 'paas') {
           const node = parseInt(formData.k8s?.node ?? '', 10);
 
-          // Amazon EKS일 경우
           if (formData.k8s?.type === 'amazon_eks') {
             const ebsSize = parseInt(formData.vm.ebsSize || '', 10);
             return (
@@ -142,7 +134,6 @@ const handleConfirmSubmit = async ({ title, description }: { title: string; desc
             );
           }
 
-          // On-prem Kubernetes일 경우
           const cpu = parseInt(formData.resources.cpu, 10);
           const ram = parseInt(formData.resources.ram, 10);
           const disk = parseInt(formData.resources.disk, 10);
@@ -157,7 +148,6 @@ const handleConfirmSubmit = async ({ title, description }: { title: string; desc
 
         return false;
 
-
       case 3:
         return !!formData.os?.name && !!formData.os?.version;
 
@@ -165,12 +155,9 @@ const handleConfirmSubmit = async ({ title, description }: { title: string; desc
         return formData.frontendItems?.every(item => {
           const fw = item.framework?.trim();
           const version = item.version?.trim();
-
-          // 프레임워크 선택 시, 버전도 반드시 선택
           if (!fw) return true;
           return !!version;
         });
-
 
       case 5: {
         const backendValid = formData.backendItems?.every(item => {
@@ -196,13 +183,11 @@ const handleConfirmSubmit = async ({ title, description }: { title: string; desc
       }
 
       case 6:
-        // 웹서버 항목 중 하나라도 server가 선택된 경우, version도 필수
         return formData.webServerItems?.every(item => {
           const isEmpty = !item.server && !item.version;
           if (isEmpty) return true;
           return !!item.server && !!item.version;
         });
-
 
       case 7:
         return formData.dbItems?.every(item => {
@@ -210,7 +195,6 @@ const handleConfirmSubmit = async ({ title, description }: { title: string; desc
           if (isEmpty) return true;
           return !!item.type && !!item.name && !!item.version && !!item.size;
         });
-
 
       default:
         return true;
@@ -235,13 +219,13 @@ const handleConfirmSubmit = async ({ title, description }: { title: string; desc
 
         <button
           onClick={handleNext}
-          disabled={!isCurrentStepValid()}
-          className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${!isCurrentStepValid()
+          disabled={!isCurrentStepValid() || isSubmitting}
+          className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${!isCurrentStepValid() || isSubmitting
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
             : 'bg-primary hover:bg-primary-hover text-white shadow-sm'
             }`}
         >
-          {currentStep === TOTAL_STEPS - 1 ? '확인 ✓' : '다음 →'}
+          {isSubmitting ? '제출 중...' : (currentStep === TOTAL_STEPS - 1 ? '확인 ✓' : '다음 →')}
         </button>
       </div>
 
@@ -259,9 +243,9 @@ const handleConfirmSubmit = async ({ title, description }: { title: string; desc
         <ConfirmModal
           onBack={() => {
             setShowConfirmModal(false);
-            setShowInfoModal(true); // "이전" 버튼 누르면 정보 모달로 되돌아감
+            setShowInfoModal(true);
           }}
-          onClose={() => setShowConfirmModal(false)} // X 버튼 등 닫기용
+          onClose={() => setShowConfirmModal(false)}
           onSubmit={handleConfirmSubmit}
         />
       )}

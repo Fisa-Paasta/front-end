@@ -7,10 +7,7 @@ import AdminCardDetail from '@/components/admin/AdminCardDetail';
 import LogView from '@/components/admin/LogView';
 import AdminFilterBar from '@/components/admin/AdminFilterBar';
 
-import { useSubmitted } from '@/context/SubmittedContext';
-import { transformSubmittedCards } from '@/utils/transformSubmitted';
-
-import { StatusType, STATUS_ENUM } from '@/types/admin';
+import { StatusType, STATUS_ENUM, AdminCardData } from '@/types/admin';
 
 const STATUS_BADGE_COLORS: Record<StatusType, string> = {
   접수중: 'bg-yellow-500 text-black',
@@ -25,7 +22,7 @@ const STATUS_BADGE_COLORS: Record<StatusType, string> = {
 export default function AdminPage() {
   const navigate = useNavigate();
 
-  // ✅ 관리자 권한 확인 (role !== 'admin'이면 홈으로 이동)
+  // ✅ 관리자 권한 확인
   useEffect(() => {
     const role = localStorage.getItem('role');
     if (role !== 'admin') {
@@ -34,15 +31,11 @@ export default function AdminPage() {
     }
   }, [navigate]);
 
-  const {
-    submittedCards,
-    updateCardStatus,
-    updateCardContent,
-  } = useSubmitted();
+  // ✅ 서버에서 데이터 가져오기
+  const [cards, setCards] = useState<AdminCardData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const cards = transformSubmittedCards(submittedCards);
-
-  const [selectedItem, setSelectedItem] = useState<typeof cards[0] | null>(null);
+  const [selectedItem, setSelectedItem] = useState<AdminCardData | null>(null);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterUserId, setFilterUserId] = useState('');
   const [filterDate, setFilterDate] = useState('');
@@ -50,28 +43,186 @@ export default function AdminPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeSidebar, setActiveSidebar] = useState<string>('전체 요청');
 
+  // ✅ 서버에서 전체 신청서 가져오기
+  const fetchAllApplications = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:8080/api/admin/applications', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('신청서 목록 가져오기 실패');
+
+      const applications = await response.json();
+      
+      // ApplicationResponse를 AdminCardData로 변환
+      const adminCards: AdminCardData[] = applications.map((app: any) => ({
+        id: app.id.toString(),
+        title: app.title,
+        desc: app.description || '—',
+        date: new Date(app.createdAt).toISOString().split('T')[0],
+        status: convertStatusToKorean(app.status),
+        starred: false,
+        userId: app.employeeId,
+        formDataSnapshot: {
+          env: app.envType,
+          vm: {
+            hostname: app.vmHostname || '',
+            username: app.vmUsername || '',
+            environment: app.vmEnvironment || 'on-premise',
+            ec2Type: app.vmEc2Type || '',
+            ebsType: app.vmEbsType || '',
+            ebsSize: app.vmEbsSize || '',
+          },
+          k8s: {
+            type: app.k8sType || '',
+            namespace: app.k8sNamespace || '',
+            node: app.k8sNodeCount || '',
+            version: '',
+          },
+          resources: {
+            cpu: app.resourceCpu || '',
+            ram: app.resourceRam || '',
+            disk: app.resourceDisk || '',
+          },
+          os: {
+            name: app.osName || '',
+            version: app.osVersion || '',
+          },
+          frontendItems: app.frontendItems ? JSON.parse(app.frontendItems) : [],
+          frontendDomain: app.frontendDomain || '',
+          backendItems: app.backendItems ? JSON.parse(app.backendItems) : [],
+          apiDomain: app.apiDomain || '',
+          apiPaths: app.apiPaths ? JSON.parse(app.apiPaths) : [],
+          webServerItems: app.webServerItems ? JSON.parse(app.webServerItems) : [],
+          dbItems: app.dbItems ? JSON.parse(app.dbItems) : [],
+          userId: app.employeeId,
+        },
+        historyList: [{
+          status: convertStatusToKorean(app.status),
+          timestamp: app.createdAt,
+          approver: app.approvedBy || 'system',
+          comment: app.comments || '신청서 접수',
+        }],
+      }));
+
+      setCards(adminCards);
+    } catch (err) {
+      console.error('❌ 관리자 신청서 목록 로드 실패:', err);
+      alert('신청서 목록을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ 초기 로드
+  useEffect(() => {
+    fetchAllApplications();
+  }, []);
+
   const handleSidebarFilter = (status: string, label: string) => {
     setFilterStatus(status === 'LOG_VIEW' ? '' : status);
     setActiveSidebar(label);
   };
 
-  const handleDelete = (id: string, comment?: string) => {
-    updateCardStatus(id, '삭제됨', comment);
+  const handleDelete = async (id: string, comment?: string) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/admin/applications/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          status: 'DELETED',
+          comments: comment || '관리자가 삭제함',
+          approverEmployeeId: localStorage.getItem('userId'),
+        }),
+      });
+
+      if (!response.ok) throw new Error('삭제 실패');
+
+      alert('✅ 신청서가 삭제되었습니다.');
+      await fetchAllApplications(); // 목록 새로고침
+    } catch (err) {
+      console.error('❌ 삭제 실패:', err);
+      alert('❌ 삭제 중 오류가 발생했습니다.');
+    }
   };
 
   const handleEdit = (id: string, newTitle: string, newDesc: string) => {
-    updateCardContent(id, newTitle, newDesc);
+    // 로컬 상태만 업데이트 (서버 업데이트는 별도 API 필요)
+    setCards(prev =>
+      prev.map(card =>
+        card.id === id ? { ...card, title: newTitle, desc: newDesc } : card
+      )
+    );
   };
 
-  const handleStatusChange = (id: string, newStatus: StatusType) => {
-    updateCardStatus(id, newStatus);
-    const updatedSelected = cards.find(card => card.id === id);
-    if (updatedSelected) setSelectedItem(updatedSelected);
+  const handleStatusChange = async (id: string, newStatus: StatusType) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/admin/applications/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          status: convertKoreanToEnglish(newStatus),
+          comments: `상태를 ${newStatus}로 변경`,
+          approverEmployeeId: localStorage.getItem('userId'),
+        }),
+      });
+
+      if (!response.ok) throw new Error('상태 업데이트 실패');
+
+      console.log('✅ 상태 업데이트 성공');
+      await fetchAllApplications(); // 목록 새로고침
+      
+      // 선택된 아이템 업데이트
+      const updatedCard = cards.find(card => card.id === id);
+      if (updatedCard) {
+        setSelectedItem({ ...updatedCard, status: newStatus });
+      }
+    } catch (err) {
+      console.error('❌ 상태 업데이트 실패:', err);
+      alert('❌ 상태 업데이트 중 오류가 발생했습니다.');
+    }
   };
 
-  const handleBulkStatusChange = () => {
-    selectedIds.forEach(id => updateCardStatus(id, bulkStatus));
-    setSelectedIds(new Set());
+  const handleBulkStatusChange = async () => {
+    if (selectedIds.size === 0) {
+      alert('선택된 항목이 없습니다.');
+      return;
+    }
+
+    try {
+      const promises = Array.from(selectedIds).map(id =>
+        fetch(`http://localhost:8080/api/admin/applications/${id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            status: convertKoreanToEnglish(bulkStatus),
+            comments: `일괄 처리: ${bulkStatus}로 변경`,
+            approverEmployeeId: localStorage.getItem('userId'),
+          }),
+        })
+      );
+
+      await Promise.all(promises);
+      alert(`✅ ${selectedIds.size}개 항목이 ${bulkStatus}로 변경되었습니다.`);
+      
+      setSelectedIds(new Set());
+      await fetchAllApplications();
+    } catch (err) {
+      console.error('❌ 일괄 상태 변경 실패:', err);
+      alert('❌ 일괄 상태 변경 중 오류가 발생했습니다.');
+    }
   };
 
   const toggleCardSelection = (id: string) => {
@@ -85,8 +236,16 @@ export default function AdminPage() {
   const filteredCards = cards.filter(card =>
     (!filterUserId || card.userId.includes(filterUserId)) &&
     (!filterDate || card.date === filterDate) &&
-    (filterStatus ? card.status === filterStatus : card.status !== '삭제됨') // 기본적으로 삭제된 카드 숨김
+    (filterStatus ? card.status === filterStatus : card.status !== '삭제됨')
   );
+
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark transition-colors items-center justify-center">
+        <div className="text-lg">📋 신청서 목록을 불러오는 중...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark transition-colors">
@@ -95,6 +254,9 @@ export default function AdminPage() {
       <main className="flex-1 p-8 overflow-y-auto">
         <h1 className="text-2xl font-bold mb-6">
           {activeSidebar === '로그 보기' ? '📜 로그 보기' : '📋 신청 내역 관리'}
+          <span className="text-sm font-normal text-gray-500 ml-2">
+            (총 {cards.length}개)
+          </span>
         </h1>
 
         {activeSidebar === '로그 보기' ? (
@@ -114,18 +276,24 @@ export default function AdminPage() {
               statusOptions={Object.values(STATUS_ENUM)}
             />
 
-            <AdminCardList
-              cards={filteredCards}
-              onSelect={(item, e) => {
-                if (e.target instanceof HTMLInputElement) return;
-                setSelectedItem(item);
-              }}
-              selectedIds={selectedIds}
-              onToggleSelect={toggleCardSelection}
-              badgeColors={STATUS_BADGE_COLORS}
-              onDelete={handleDelete}
-              onEdit={handleEdit}
-            />
+            {filteredCards.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                📭 해당 조건에 맞는 신청서가 없습니다.
+              </div>
+            ) : (
+              <AdminCardList
+                cards={filteredCards}
+                onSelect={(item, e) => {
+                  if (e.target instanceof HTMLInputElement) return;
+                  setSelectedItem(item);
+                }}
+                selectedIds={selectedIds}
+                onToggleSelect={toggleCardSelection}
+                badgeColors={STATUS_BADGE_COLORS}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+              />
+            )}
           </>
         )}
       </main>
@@ -140,3 +308,30 @@ export default function AdminPage() {
     </div>
   );
 }
+
+// ✅ 상태 변환 헬퍼 함수들
+const convertStatusToKorean = (status: string): StatusType => {
+  const statusMap: Record<string, StatusType> = {
+    '접수중': '접수중',
+    '접수완료': '접수완료', 
+    '승인처리중': '승인처리중',
+    '승인완료': '승인완료',
+    '구축중': '구축중',
+    '구축완료': '구축완료',
+    '삭제됨': '삭제됨',
+  };
+  return statusMap[status] || '접수중';
+};
+
+const convertKoreanToEnglish = (status: StatusType): string => {
+  const statusMap: Record<StatusType, string> = {
+    '접수중': 'RECEIVED',
+    '접수완료': 'RECEIVED_COMPLETE',
+    '승인처리중': 'APPROVAL_PENDING', 
+    '승인완료': 'APPROVED',
+    '구축중': 'BUILDING',
+    '구축완료': 'COMPLETED',
+    '삭제됨': 'DELETED',
+  };
+  return statusMap[status] || 'RECEIVED';
+};
