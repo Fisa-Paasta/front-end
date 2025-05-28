@@ -47,6 +47,8 @@ export default function AdminPage() {
   const fetchAllApplications = async () => {
     try {
       setLoading(true);
+      console.log('🔄 관리자 신청서 목록 로드 시작...');
+      
       const response = await fetch('http://localhost:8080/api/admin/applications', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -56,6 +58,7 @@ export default function AdminPage() {
       if (!response.ok) throw new Error('신청서 목록 가져오기 실패');
 
       const applications = await response.json();
+      console.log('📋 관리자 신청서 원본 데이터:', applications);
       
       // ApplicationResponse를 AdminCardData로 변환
       const adminCards: AdminCardData[] = applications.map((app: any) => ({
@@ -108,6 +111,9 @@ export default function AdminPage() {
         }],
       }));
 
+      console.log('✅ 변환된 관리자 카드 데이터:', adminCards);
+      console.log('🔍 삭제됨 상태 카드 수:', adminCards.filter(card => card.status === '삭제됨').length);
+      
       setCards(adminCards);
     } catch (err) {
       console.error('❌ 관리자 신청서 목록 로드 실패:', err);
