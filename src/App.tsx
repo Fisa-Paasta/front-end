@@ -13,11 +13,23 @@ import PrivateRoute from './routes/PrivateRoute';
 import { useAuth } from './context/AuthContext';
 
 function App() {
-  const { user } = useAuth(); // ✅ AuthContext에서 유저 정보 가져오기
+  const { user, isLoading } = useAuth(); // ✅ 로딩 상태 추가
+
+  // ✅ 인증 로딩 중일 때 표시
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-background-light dark:bg-background-dark">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-lg font-medium">로그인 상태 확인 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
-      <Route path="/" element={<InitPage />} />
+      <Route path="/" element={user ? <Navigate to="/home" replace /> : <Navigate to="/init" replace />} />
       <Route path="/init" element={<InitPage />} />
 
       <Route
