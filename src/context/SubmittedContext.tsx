@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { StatusType } from '@/types/admin';
 import { FormDataType } from '@/types/survey';
+import { useAuth } from '@/context/AuthContext';
 
 export interface GrafanaDashboard {
   id: string;
@@ -29,37 +30,50 @@ export interface SubmittedCard {
 
 interface SubmittedContextType {
   submittedCards: SubmittedCard[];
-  addSubmittedCard: (card: Omit<SubmittedCard, 'id'>) => Promise<void>; // ✅ Promise 반환
+  addSubmittedCard: (card: Omit<SubmittedCard, 'id'>) => Promise<void>;
   toggleStarred: (id: string) => void;
   updateCardStatus: (id: string, newStatus: StatusType, note?: string) => void;
   attachGrafanaDashboards: (id: string, dashboards: GrafanaDashboard[]) => void;
   updateCardContent: (id: string, newTitle: string, newDesc: string) => void;
   deleteCard: (id: string, note?: string) => void;
-  refreshCards: () => Promise<void>; // ✅ 새로 추가
+  refreshCards: () => Promise<void>;
+  isLoading: boolean; // ✅ 로딩 상태 추가
 }
 
 const SubmittedContext = createContext<SubmittedContextType | undefined>(undefined);
 
 export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [submittedCards, setSubmittedCards] = useState<SubmittedCard[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user, isLoading: authLoading } = useAuth();
 
-  // ✅ 서버에서 카드 목록 불러오기
+  // ✅ 서버에서 카드 목록 불러오기 (삭제된 것도 포함)
   const refreshCards = async () => {
-    try {
-      const userId = localStorage.getItem('userId');
-      if (!userId) return;
+    if (!user?.userId || authLoading) return;
 
-      const res = await fetch(`http://localhost:8080/api/applications/employee/${userId}`, {
+    try {
+      setIsLoading(true);
+      console.log('🔄 신청서 목록 새로고침 시작...');
+
+      const res = await fetch(`http://localhost:8080/api/applications/employee/${user.userId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
       
-      if (!res.ok) throw new Error('신청서 목록 가져오기 실패');
+      if (!res.ok) {
+        if (res.status === 404) {
+          console.log('📭 신청서 없음');
+          setSubmittedCards([]);
+          return;
+        }
+        throw new Error(`서버 오류: ${res.status}`);
+      }
       
       const applications = await res.json();
+      console.log(`📋 신청서 ${applications.length}개 로드됨`);
       
-      // ApplicationResponse를 SubmittedCard로 변환
+      // ApplicationResponse를 SubmittedCard로 변환 (삭제된 것도 포함)
       const cards: SubmittedCard[] = applications.map((app: any) => ({
         id: app.id.toString(),
         title: app.title,
@@ -99,27 +113,37 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           apiPaths: app.apiPaths ? JSON.parse(app.apiPaths) : [],
           webServerItems: app.webServerItems ? JSON.parse(app.webServerItems) : [],
           dbItems: app.dbItems ? JSON.parse(app.dbItems) : [],
-          userId,
+          userId: user.userId,
         },
-        historyList: [],
+        historyList: app.comments ? [{
+          by: app.approvedBy || 'system',
+          timestamp: app.updatedAt || app.createdAt,
+          note: app.comments,
+        }] : [],
       }));
       
       setSubmittedCards(cards);
+      console.log('✅ 신청서 목록 로드 완료');
     } catch (err) {
       console.error('❌ 신청서 목록 로드 실패:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // ✅ 초기 로드
+  // ✅ user 변경 시 자동 로드
   useEffect(() => {
-    refreshCards();
-  }, []);
+    if (!authLoading && user) {
+      console.log('👤 사용자 변경 감지, 신청서 로드 시작');
+      refreshCards();
+    }
+  }, [user, authLoading]);
 
-  // ✅ 중복 제거: 서버 저장만 수행
   const addSubmittedCard = async (card: Omit<SubmittedCard, 'id'>) => {
-    const userId = localStorage.getItem('userId') || 'unknown';
+    if (!user?.userId) throw new Error('로그인이 필요합니다');
     
     try {
+      setIsLoading(true);
       const response = await fetch('http://localhost:8080/api/submit-card', {
         method: 'POST',
         headers: {
@@ -127,8 +151,8 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
-          userId,
-          userName: localStorage.getItem('userName'),
+          userId: user.userId,
+          userName: user.userName,
           formDataSnapshot: card.formDataSnapshot,
           title: card.title,
           desc: card.desc,
@@ -140,13 +164,13 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (!response.ok) throw new Error('서버 저장 실패');
       
       console.log('✅ 서버 저장 성공');
-      
-      // ✅ 서버 저장 후 목록 새로고침
-      await refreshCards();
+      await refreshCards(); // 새로고침
       
     } catch (err) {
       console.error('❌ 신청서 저장 실패:', err);
-      throw err; // FormStep에서 에러 처리
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -159,7 +183,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const updateCardStatus = (id: string, newStatus: StatusType, note?: string) => {
-    const userId = localStorage.getItem('userId') || 'unknown';
+    const userId = user?.userId || 'unknown';
     setSubmittedCards(prev =>
       prev.map(card => {
         if (card.id !== id) return card;
@@ -194,7 +218,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const deleteCard = (id: string, note?: string) => {
-    const userId = localStorage.getItem('userId') || 'unknown';
+    const userId = user?.userId || 'unknown';
     setSubmittedCards(prev =>
       prev.map(card => {
         if (card.id !== id) return card;
@@ -223,6 +247,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateCardContent,
         deleteCard,
         refreshCards,
+        isLoading,
       }}
     >
       {children}
