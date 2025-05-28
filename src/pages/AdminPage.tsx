@@ -233,11 +233,25 @@ export default function AdminPage() {
     });
   };
 
-  const filteredCards = cards.filter(card =>
-    (!filterUserId || card.userId.includes(filterUserId)) &&
-    (!filterDate || card.date === filterDate) &&
-    (filterStatus ? card.status === filterStatus : card.status !== '삭제됨')
-  );
+  // ✅ 필터링 로직 수정
+  const filteredCards = cards.filter(card => {
+    // 사번 검색 (부분 일치)
+    const userIdMatch = !filterUserId || card.userId.toLowerCase().includes(filterUserId.toLowerCase());
+    
+    // 날짜 필터
+    const dateMatch = !filterDate || card.date === filterDate;
+    
+    // 상태 필터
+    let statusMatch = true;
+    if (filterStatus) {
+      statusMatch = card.status === filterStatus;
+    } else {
+      // 기본적으로 삭제된 카드는 숨김 (단, "삭제됨" 메뉴 선택 시 제외)
+      statusMatch = activeSidebar === '삭제된 요청' || card.status !== '삭제됨';
+    }
+    
+    return userIdMatch && dateMatch && statusMatch;
+  });
 
   if (loading) {
     return (

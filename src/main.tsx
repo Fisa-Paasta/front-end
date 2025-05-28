@@ -9,14 +9,14 @@ import { AuthProvider } from './context/AuthContext'; // ✅ 추가
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <SubmittedProvider>
-        <AuthProvider> {/* ✅ 추가된 AuthProvider */}
-          <BrowserRouter>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider> {/* ✅ AuthProvider가 가장 바깥쪽에 위치 */}
+          <SubmittedProvider>
             <App />
-          </BrowserRouter>
+          </SubmittedProvider>
         </AuthProvider>
-      </SubmittedProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
