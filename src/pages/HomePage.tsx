@@ -6,12 +6,12 @@ import { AdminCardData, StatusType } from '@/types/admin';
 import { transformSubmittedCards } from '@/utils/transformSubmitted';
 import { useState, useMemo } from 'react';
 import Layout from '@/components/Layout';
-import { ClipboardList, Star, StarOff } from 'lucide-react';
+import { ClipboardList, Star, StarOff, Loader2 } from 'lucide-react';
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { submittedCards, toggleStarred } = useSubmitted();
-  const { user } = useAuth();
+  const { submittedCards, toggleStarred, isLoading } = useSubmitted();
+  const { user, isLoading: authLoading } = useAuth();
 
   const [sortType, setSortType] = useState<'date' | 'title' | 'status'>('date');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -54,7 +54,7 @@ export default function HomePage() {
       승인완료: 'bg-blue-700 text-white',
       구축중: 'bg-purple-500 text-white',
       구축완료: 'bg-gray-500 text-white',
-      삭제됨: 'bg-red-500 text-black',
+      삭제됨: 'bg-red-500 text-white', // ✅ 삭제됨 상태 추가
     };
     return map[status] || 'bg-white text-black';
   };
@@ -63,11 +63,16 @@ export default function HomePage() {
     <div
       key={item.id}
       onClick={() => setSelectedId(item.id)}
-      className="bg-panel-light dark:bg-panel-dark hover:bg-panel-light/90 dark:hover:bg-panel-dark/90 transition rounded-xl p-5 cursor-pointer"
+      className={`bg-panel-light dark:bg-panel-dark hover:bg-panel-light/90 dark:hover:bg-panel-dark/90 transition rounded-xl p-5 cursor-pointer ${
+        item.status === '삭제됨' ? 'opacity-60 border-2 border-red-300' : ''
+      }`}
     >
       <div className="relative h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-md mb-4" />
       <div className="flex items-center justify-between mb-1">
-        <h2 className="text-base font-semibold truncate max-w-[70%]">{item.title}</h2>
+        <h2 className="text-base font-semibold truncate max-w-[70%]">
+          {item.title}
+          {item.status === '삭제됨' && <span className="text-red-500 text-xs ml-1">(삭제됨)</span>}
+        </h2>
         <span className={`px-2 py-1 rounded-md text-xs font-semibold whitespace-nowrap ${getStatusColor(item.status)}`}>
           {item.status}
         </span>
@@ -88,11 +93,28 @@ export default function HomePage() {
     </div>
   );
 
+  // ✅ 로딩 중 표시
+  if (authLoading || isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center gap-3 text-lg">
+            <Loader2 size={24} className="animate-spin" />
+            <span>신청서 목록을 불러오는 중...</span>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <ClipboardList size={20} /> 신청서 리스트
+          {myCards.length > 0 && (
+            <span className="text-sm font-normal text-gray-500">({myCards.length}개)</span>
+          )}
         </h1>
         <select
           value={sortType}
@@ -119,15 +141,30 @@ export default function HomePage() {
       <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
         <ClipboardList size={18} /> 대시보드
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {normalDashboards.map(renderCard)}
-        <div
-          onClick={() => navigate('/survey')}
-          className="min-h-[160px] bg-panel-light dark:bg-panel-dark rounded-xl flex items-center justify-center text-4xl text-gray-500 hover:bg-panel-light/90 dark:hover:bg-panel-dark/80 transition"
-        >
-          +
+      
+      {normalDashboards.length === 0 && starredDashboards.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">📋</div>
+          <h3 className="text-lg font-semibold mb-2">아직 신청서가 없습니다</h3>
+          <p className="text-gray-500 mb-4">새로운 인프라 환경을 신청해보세요!</p>
+          <button
+            onClick={() => navigate('/survey')}
+            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition"
+          >
+            첫 신청서 작성하기
+          </button>
         </div>
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {normalDashboards.map(renderCard)}
+          <div
+            onClick={() => navigate('/survey')}
+            className="min-h-[160px] bg-panel-light dark:bg-panel-dark rounded-xl flex items-center justify-center text-4xl text-gray-500 hover:bg-panel-light/90 dark:hover:bg-panel-dark/80 transition cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-600"
+          >
+            +
+          </div>
+        </div>
+      )}
 
       {selectedDashboard && (
         <DashboardDetail
