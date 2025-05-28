@@ -48,7 +48,7 @@ export default function Step4_OS() {
                     : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'
                 }
               `}
-              onClick={() => handleChange('name', os.name)}
+              onClick={() => handleChange('name', localOS.name === os.name ? '' : os.name)}
             >
               <img
                 src={os.src}

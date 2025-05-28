@@ -127,7 +127,7 @@ export default function Step6_Backend() {
                       ? 'border-violet-500 bg-violet-600 text-white'
                       : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
-                  onClick={() => handleItemChange(i, 'language', lang.name)}
+                  onClick={() => handleItemChange(i, 'language', item.language === lang.name ? '' : lang.name)}
                 >
                   <img src={lang.src} alt={lang.label} className="h-14 mx-auto object-contain mb-2" />
                   <p className="text-sm font-semibold">{lang.label}</p>
@@ -160,7 +160,7 @@ export default function Step6_Backend() {
                         ? 'border-violet-500 bg-violet-600 text-white'
                         : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                     `}
-                    onClick={() => handleItemChange(i, 'framework', fw.name)}
+                    onClick={() => handleItemChange(i, 'framework', item.framework === fw.name ? '' : fw.name)}
                   >
                     <img src={fw.src} alt={fw.label} className="h-14 mx-auto object-contain mb-2" />
                     <p className="text-sm font-semibold">{fw.label}</p>

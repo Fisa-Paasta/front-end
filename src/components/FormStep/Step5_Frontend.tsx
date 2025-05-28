@@ -72,7 +72,7 @@ export default function Step5_Frontend() {
                       ? 'border-violet-500 bg-violet-600 text-white'
                       : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
-                  onClick={() => handleChange(i, 'framework', fw.name)}
+                  onClick={() => handleChange(i, 'framework', item.framework === fw.name ? '' : fw.name)}
                 >
                   <img
                     src={fw.src}
