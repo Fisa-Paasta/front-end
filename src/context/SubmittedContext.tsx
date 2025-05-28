@@ -26,6 +26,7 @@ export interface SubmittedCard {
     by?: string;
     timestamp?: string;
     note?: string;
+    status?: StatusType; 
   }[];
 }
 

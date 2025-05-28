@@ -6,6 +6,7 @@ import AdminCardList from '@/components/admin/AdminCardList';
 import AdminCardDetail from '@/components/admin/AdminCardDetail';
 import LogView from '@/components/admin/LogView';
 import AdminFilterBar from '@/components/admin/AdminFilterBar';
+import { SubmittedCard } from '@/context/SubmittedContext';
 
 import { StatusType, STATUS_ENUM, AdminCardData } from '@/types/admin';
 
@@ -61,55 +62,75 @@ export default function AdminPage() {
       console.log('📋 관리자 신청서 원본 데이터:', applications);
       
       // ApplicationResponse를 AdminCardData로 변환
-      const adminCards: AdminCardData[] = applications.map((app: any) => ({
-        id: app.id.toString(),
-        title: app.title,
-        desc: app.description || '—',
-        date: new Date(app.createdAt).toISOString().split('T')[0],
-        status: convertStatusToKorean(app.status),
-        starred: false,
-        userId: app.employeeId,
-        formDataSnapshot: {
-          env: app.envType,
-          vm: {
-            hostname: app.vmHostname || '',
-            username: app.vmUsername || '',
-            environment: app.vmEnvironment || 'on-premise',
-            ec2Type: app.vmEc2Type || '',
-            ebsType: app.vmEbsType || '',
-            ebsSize: app.vmEbsSize || '',
-          },
-          k8s: {
-            type: app.k8sType || '',
-            namespace: app.k8sNamespace || '',
-            node: app.k8sNodeCount || '',
-            version: '',
-          },
-          resources: {
-            cpu: app.resourceCpu || '',
-            ram: app.resourceRam || '',
-            disk: app.resourceDisk || '',
-          },
-          os: {
-            name: app.osName || '',
-            version: app.osVersion || '',
-          },
-          frontendItems: app.frontendItems ? JSON.parse(app.frontendItems) : [],
-          frontendDomain: app.frontendDomain || '',
-          backendItems: app.backendItems ? JSON.parse(app.backendItems) : [],
-          apiDomain: app.apiDomain || '',
-          apiPaths: app.apiPaths ? JSON.parse(app.apiPaths) : [],
-          webServerItems: app.webServerItems ? JSON.parse(app.webServerItems) : [],
-          dbItems: app.dbItems ? JSON.parse(app.dbItems) : [],
-          userId: app.employeeId,
-        },
-        historyList: [{
-          status: convertStatusToKorean(app.status),
-          timestamp: app.createdAt,
-          approver: app.approvedBy || 'system',
-          comment: app.comments || '신청서 접수',
-        }],
-      }));
+const adminCards: AdminCardData[] = applications.map((app: any) => {
+  const history: SubmittedCard['historyList'] = [];
+
+  // ✅ 서버에서 내려온 historyList가 있다면 먼저 반영
+  if (Array.isArray(app.historyList)) {
+    history.push(
+      ...app.historyList.map((h: any) => ({
+        by: h.approver || 'system',
+        timestamp: h.timestamp || app.createdAt,
+        note: h.comment || '',
+        status: convertStatusToKorean(h.status || app.status),
+      }))
+    );
+  }
+
+  // ✅ 최신 상태가 반영되지 않았다면 수동으로 추가
+  history.push({
+    by: app.approvedBy || 'system',
+    timestamp: app.updatedAt || app.createdAt,
+    note: app.comments || '상태 변경됨',
+    status: convertStatusToKorean(app.status),
+  });
+
+  return {
+    id: app.id.toString(),
+    title: app.title,
+    desc: app.description || '—',
+    date: new Date(app.createdAt).toISOString().split('T')[0],
+    status: convertStatusToKorean(app.status),
+    starred: false,
+    userId: app.employeeId,
+    formDataSnapshot: {
+      env: app.envType,
+      vm: {
+        hostname: app.vmHostname || '',
+        username: app.vmUsername || '',
+        environment: app.vmEnvironment || 'on-premise',
+        ec2Type: app.vmEc2Type || '',
+        ebsType: app.vmEbsType || '',
+        ebsSize: app.vmEbsSize || '',
+      },
+      k8s: {
+        type: app.k8sType || '',
+        namespace: app.k8sNamespace || '',
+        node: app.k8sNodeCount || '',
+        version: '',
+      },
+      resources: {
+        cpu: app.resourceCpu || '',
+        ram: app.resourceRam || '',
+        disk: app.resourceDisk || '',
+      },
+      os: {
+        name: app.osName || '',
+        version: app.osVersion || '',
+      },
+      frontendItems: app.frontendItems ? JSON.parse(app.frontendItems) : [],
+      frontendDomain: app.frontendDomain || '',
+      backendItems: app.backendItems ? JSON.parse(app.backendItems) : [],
+      apiDomain: app.apiDomain || '',
+      apiPaths: app.apiPaths ? JSON.parse(app.apiPaths) : [],
+      webServerItems: app.webServerItems ? JSON.parse(app.webServerItems) : [],
+      dbItems: app.dbItems ? JSON.parse(app.dbItems) : [],
+      userId: app.employeeId,
+    },
+    historyList: history,
+  };
+});
+
 
       console.log('✅ 변환된 관리자 카드 데이터:', adminCards);
       console.log('🔍 삭제됨 상태 카드 수:', adminCards.filter(card => card.status === '삭제됨').length);
