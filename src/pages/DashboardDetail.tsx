@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react'; // ⬅️ useMemo 추가
 import ApplicationDetailModal from '../components/ApplicationDetailModal';
 import ConfirmModal from '../components/ConfirmModal';
-import { AdminCardData } from '../types/admin';
+import { useSubmitted } from '@/context/SubmittedContext'; // ⬅️ submittedCards 가져오기
+import { SubmittedCard } from '@/context/SubmittedContext';
+
 import {
   Hourglass, CheckCircle, RefreshCcw, ShieldCheck, Hammer,
   PartyPopper, HelpCircle, Pin, FileText, CalendarDays
 } from 'lucide-react';
 
 interface DashboardDetailProps {
-  item: AdminCardData;
+  item: SubmittedCard;
   onClose: () => void;
 }
 
@@ -21,11 +23,18 @@ interface HistoryEntry {
 export default function DashboardDetail({ item, onClose }: DashboardDetailProps) {
   const [showHistory, setShowHistory] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [selectedCard, setSelectedCard] = useState<AdminCardData | null>(null);
+  const [selectedCard, setSelectedCard] = useState<SubmittedCard | null>(null);
 
-  if (!item) return null;
+  const { submittedCards } = useSubmitted(); // ⬅️ 최신 상태 카드 배열
+  const latestItem = useMemo(
+    () => submittedCards.find((card) => card.id === item.id) || item,
+    [submittedCards, item.id]
+  );
 
-  const statusMeta = getStatusMeta(item.status);
+
+  if (!latestItem) return null;
+
+  const statusMeta = getStatusMeta(latestItem.status);
 
   const renderAction = () => {
     switch (item.status) {
@@ -48,7 +57,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
                 : 'bg-blue-600 hover:bg-blue-700'
             } text-white transition`}
             onClick={() => {
-              setSelectedCard(item);
+              setSelectedCard(latestItem);
               setShowDetailModal(true);
             }}
           >
@@ -108,17 +117,17 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
           <div className="flex items-center gap-2">
             <Pin className="w-4 h-4 text-foreground-light dark:text-white" />
             <span className="font-medium text-foreground-light dark:text-white">제목:</span>
-            <span className="truncate">{item.title}</span>
+            <span className="truncate">{latestItem.title}</span>
           </div>
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-foreground-light dark:text-white" />
-            <span className="font-medium text-foreground-light dark:text-white">설명:</span>
-            <span>{item.desc}</span>
+            <span className="font-medium text-foreground-light dark:text-white">요청사항:</span>
+            <span>{latestItem.desc}</span>
           </div>
           <div className="flex items-center gap-2">
             <CalendarDays className="w-4 h-4 text-foreground-light dark:text-white" />
             <span className="font-medium text-foreground-light dark:text-white">날짜:</span>
-            <span>{item.date}</span>
+            <span>{latestItem.date}</span>
           </div>
         </div>
 
@@ -136,7 +145,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
             onClose={() => setShowHistory(false)}
             viewType="history"
             readOnly
-            historyList={item.historyList as HistoryEntry[]}
+            historyList={latestItem.historyList as HistoryEntry[]}
           />
         )}
 

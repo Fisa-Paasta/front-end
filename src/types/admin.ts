@@ -1,6 +1,5 @@
 // src/types/admin.ts
-
-import { FormDataType } from '@/types/survey'; // ✅ 반드시 추가
+import { SubmittedCard } from '@/context/SubmittedContext';
 
 export const STATUS_ENUM = {
   접수중: '접수중',
@@ -14,27 +13,5 @@ export const STATUS_ENUM = {
 
 export type StatusType = keyof typeof STATUS_ENUM;
 
-export interface AdminCardData {
-  id: string;
-  title: string;
-  desc: string;
-  date: string;
-  status: StatusType;
-  starred: boolean;
-  userId: string;
-  formDataSnapshot: FormDataType;  // ✅ 추가된 부분
-  grafanaDashboards?: {
-    id: string;
-    title: string;
-    description: string;
-    panels: number;
-    refresh: string;
-    url: string;
-  }[];
-  historyList: {
-    status: StatusType;
-    timestamp: string;
-    approver: string;
-    comment: string;
-  }[];
-}
+// ✅ 핵심: SubmittedCard를 그대로 재사용
+export type AdminCardData = SubmittedCard;

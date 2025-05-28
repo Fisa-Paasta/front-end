@@ -62,7 +62,7 @@ export default function AdminCardDetail({
 
         <h2 className="text-xl font-bold mb-4">📋 요청 상세</h2>
         <p><strong>제목:</strong> {item.title}</p>
-        <p><strong>설명:</strong> {item.desc}</p>
+        <p><strong>요청사항:</strong> {item.desc}</p>
         <p><strong>날짜:</strong> {item.date}</p>
 
         <div className="w-full">

@@ -158,14 +158,29 @@ export default function AdminPage() {
     }
   };
 
-  const handleEdit = (id: string, newTitle: string, newDesc: string) => {
-    // 로컬 상태만 업데이트 (서버 업데이트는 별도 API 필요)
-    setCards(prev =>
-      prev.map(card =>
-        card.id === id ? { ...card, title: newTitle, desc: newDesc } : card
-      )
-    );
+  const handleEdit = async (id: string, newTitle: string, newDesc: string) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/applications/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          title: newTitle,
+          description: newDesc,
+        }),
+      });
+  
+      if (!response.ok) throw new Error('서버 수정 실패');
+  
+      await fetchAllApplications(); // ✅ 최신 정보 반영
+    } catch (err) {
+      console.error('❌ 관리자 요청 수정 실패:', err);
+      alert('요청사항 수정에 실패했습니다.');
+    }
   };
+  
 
   const handleStatusChange = async (id: string, newStatus: StatusType) => {
     try {
@@ -242,7 +257,9 @@ export default function AdminPage() {
   // ✅ 필터링 로직 수정
   const filteredCards = cards.filter(card => {
     // 사번 검색 (부분 일치)
-    const userIdMatch = !filterUserId || card.userId.toLowerCase().includes(filterUserId.toLowerCase());
+    const userIdMatch =
+  !filterUserId || (card.userId?.toLowerCase() ?? '').includes(filterUserId.toLowerCase());
+
     
     // 날짜 필터
     const dateMatch = !filterDate || card.date === filterDate;

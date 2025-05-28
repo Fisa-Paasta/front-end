@@ -19,6 +19,7 @@ export interface SubmittedCard {
   date: string;
   status: StatusType;
   starred: boolean;
+  userId?: string;
   formDataSnapshot: FormDataType & { userId?: string };
   grafanaDashboards?: GrafanaDashboard[];
   historyList?: {
@@ -81,6 +82,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         date: new Date(app.createdAt).toISOString().split('T')[0],
         status: convertStatusToKorean(app.status),
         starred: false,
+        userId: user.userId,
         formDataSnapshot: {
           env: app.envType,
           vm: {
@@ -201,13 +203,42 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     );
   };
 
-  const updateCardContent = (id: string, newTitle: string, newDesc: string) => {
-    setSubmittedCards(prev =>
-      prev.map(card =>
-        card.id === id ? { ...card, title: newTitle, desc: newDesc } : card
-      )
-    );
+  const updateCardContent = async (id: string, newTitle: string, newDesc: string) => {
+    try {
+      setIsLoading(true);
+  
+      // 1. 서버에 PATCH 요청
+      const response = await fetch(`http://localhost:8080/api/applications/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          title: newTitle,
+          description: newDesc,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('서버 수정 실패');
+      }
+  
+      // 2. 클라이언트 상태도 업데이트
+      setSubmittedCards(prev =>
+        prev.map(card =>
+          card.id === id ? { ...card, title: newTitle, desc: newDesc } : card
+        )
+      );
+  
+      console.log(`✅ 요청사항 업데이트 완료 (id: ${id})`);
+    } catch (err) {
+      console.error('❌ 요청사항 수정 실패:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
+  
 
   const attachGrafanaDashboards = (id: string, dashboards: GrafanaDashboard[]) => {
     setSubmittedCards(prev =>

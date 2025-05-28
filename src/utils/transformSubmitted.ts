@@ -19,12 +19,15 @@ export const transformSubmittedCards = (submittedCards: SubmittedCard[]): AdminC
       status: isValidStatus(card.status) ? card.status : '접수중',
       starred: card.starred,
       userId,
-      formDataSnapshot: card.formDataSnapshot,
+      formDataSnapshot: {
+        ...card.formDataSnapshot,
+        userId, // ✅ Snapshot에도 userId 반영
+      },
       historyList: (card.historyList || []).map((log) => ({
-        status: isValidStatus(card.status) ? card.status : '접수중',
-        timestamp: log.timestamp ?? new Date().toISOString(),
-        approver: log.by ?? 'unknown',
-        comment: log.note ?? '',
+      status: isValidStatus(card.status) ? card.status : '접수중',
+      timestamp: log.timestamp ?? new Date().toISOString(),
+      approver: log.by ?? 'unknown',
+      comment: log.note ?? '',
       })),
     };
   });

@@ -23,7 +23,7 @@ export default function LogView({ cards }: LogViewProps) {
     .flatMap((card): LogItem[] =>
       (card.historyList as HistoryEntry[] || []).map((log): LogItem => ({
         title: card.title,
-        userId: card.userId,
+        userId: card.userId || 'unknown',
         by: log.by || 'unknown',
         timestamp: log.timestamp || '',
         note: log.note || '',

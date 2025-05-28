@@ -1,9 +1,9 @@
 import { FileText } from 'lucide-react';
-import { AdminCardData } from '@/types/admin';
+import { SubmittedCard } from '@/context/SubmittedContext';
 
 interface Props {
   onClose: () => void;
-  item: AdminCardData;
+  item: SubmittedCard;
 }
 
 const formatName = (key?: string) => {
