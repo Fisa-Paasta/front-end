@@ -73,7 +73,7 @@ export default function AdminCardList({
                     }}
                     className="text-xs text-blue-500 hover:underline"
                   >
-                    수정
+                    요청사항
                   </button>
                   <button
                     onClick={(e) => {

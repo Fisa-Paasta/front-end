@@ -62,13 +62,13 @@ export default function ConfirmModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1">설명</label>
+              <label className="block text-sm font-semibold mb-1">요청사항</label>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
-                placeholder="요청 목적 또는 세부사항"
+                placeholder="요청 또는 세부사항"
               />
             </div>
           </div>
