@@ -28,13 +28,15 @@ export default function ConfirmModal({
   const [description, setDescription] = useState('');
   const navigate = useNavigate();
 
-  const handleConfirm = () => {
-    if (readOnly) {
-      onClose();
-    } else if (onSubmit) {
+  const handleSubmit = () => {
+    if (onSubmit) {
       onSubmit({ title: inputTitle, description });
       navigate('/home');
     }
+  };
+  
+  const handleReadOnlyConfirm = () => {
+    onClose();
   };
 
   return (
@@ -62,8 +64,11 @@ export default function ConfirmModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1">요청사항</label>
+              <label htmlFor="description-input" className="block text-sm font-semibold mb-1">
+                요청사항
+              </label>
               <input
+                id="description-input"
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -116,7 +121,7 @@ export default function ConfirmModal({
             </button>
           )}
           <button
-            onClick={handleConfirm}
+            onClick={readOnly ? handleReadOnlyConfirm : handleSubmit}
             className="px-4 py-2 text-sm rounded-md bg-[#5A3EBA] text-white hover:bg-[#4932A0]"
           >
             {readOnly ? '확인' : '제출'}

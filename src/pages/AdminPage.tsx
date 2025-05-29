@@ -8,8 +8,7 @@ import LogView from '@/components/admin/LogView';
 import AdminFilterBar from '@/components/admin/AdminFilterBar';
 
 import { StatusType, STATUS_ENUM } from '@/types/admin';
-import { useSubmitted } from '@/context/SubmittedContext';
-import { SubmittedCard } from '@/context/SubmittedContext'; 
+import { useSubmitted, SubmittedCard } from '@/context/SubmittedContext';
 
 const STATUS_BADGE_COLORS: Record<StatusType, string> = {
   접수중: 'bg-yellow-500 text-black',
