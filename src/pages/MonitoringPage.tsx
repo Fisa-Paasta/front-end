@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Layout from '@/components/Layout';
-import { useSubmitted } from '@/context/SubmittedContext';
-import { GrafanaDashboard, SubmittedCard } from '@/context/SubmittedContext';
+import { GrafanaDashboard, SubmittedCard, useSubmitted } from '@/context/SubmittedContext';
 import {
   FolderKanban,
   BarChart2,
@@ -35,24 +34,24 @@ export default function MonitoringPage() {
             </h3>
             <div className="space-y-3">
               {submittedCards.map((card) => (
-                <div
-                  key={card.id}
-                  onClick={() => setSelectedCard(card)}
-                  className={`p-4 rounded-lg border cursor-pointer transition shadow-sm ${
-                    selectedCard?.id === card.id
-                      ? 'bg-blue-100 dark:bg-blue-900 border-blue-400'
-                      : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  <div className="font-medium truncate text-sm">{card.title}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{card.status}</div>
-                </div>
+                <button
+                key={card.id}
+                type="button"
+                onClick={() => setSelectedCard(card)}
+                className={`w-full text-left p-4 rounded-lg border cursor-pointer transition shadow-sm ${
+                  selectedCard?.id === card.id
+                    ? 'bg-blue-100 dark:bg-blue-900 border-blue-400'
+                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              >
+                <div className="font-medium truncate text-sm">{card.title}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{card.status}</div>
+              </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* 대시보드 목록 */}
         {/* 대시보드 목록 */}
       <div className="w-3/4">
         {selectedCard ? (
@@ -65,10 +64,10 @@ export default function MonitoringPage() {
             {selectedCard.grafanaDashboards?.length ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {selectedCard.grafanaDashboards.map((dashboard) => (
-                  <div
-                    key={dashboard.id}
-                    onClick={() => setSelectedDashboard(dashboard)}
-                    className="bg-panel-light dark:bg-panel-dark border border-border-light dark:border-border-dark hover:border-primary transition rounded-xl p-6 cursor-pointer shadow-md"
+                  <button
+                  type="button"
+                  onClick={() => setSelectedDashboard(dashboard)}
+                  className="w-full text-left bg-panel-light dark:bg-panel-dark border border-border-light dark:border-border-dark hover:border-primary transition rounded-xl p-6 cursor-pointer shadow-md"
                   >
                     <div className="h-32 bg-gradient-to-br from-purple-600 to-blue-500 rounded-lg mb-4" />
                     <h3 className="text-base font-semibold mb-2">{dashboard.title}</h3>
@@ -81,7 +80,7 @@ export default function MonitoringPage() {
                         <Clock size={14} /> {dashboard.refresh}
                       </span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             ) : (

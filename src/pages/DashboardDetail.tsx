@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react'; // ⬅️ useMemo 추가
 import ApplicationDetailModal from '../components/ApplicationDetailModal';
 import ConfirmModal from '../components/ConfirmModal';
-import { useSubmitted } from '@/context/SubmittedContext'; // ⬅️ submittedCards 가져오기
-import { SubmittedCard } from '@/context/SubmittedContext';
+import { useSubmitted, SubmittedCard } from '@/context/SubmittedContext'; // ⬅️ submittedCards 가져오기
 
 import {
   Hourglass, CheckCircle, RefreshCcw, ShieldCheck, Hammer,

@@ -56,17 +56,20 @@ export default function SettingsPage() {
             <span className="text-sm text-gray-700 dark:text-gray-300">
               다크 모드 {isDark ? '사용 중' : '해제됨'}
             </span>
-            <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isDark}
-                onChange={toggleTheme}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-gray-300 peer-checked:bg-purple-500 rounded-full relative transition-all duration-300">
-                <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 peer-checked:translate-x-full" />
-              </div>
-            </label>
+            <label htmlFor="dark-mode-toggle" className="inline-flex items-center cursor-pointer">
+  <span className="sr-only">다크 모드 토글</span>
+  <input
+    id="dark-mode-toggle"
+    type="checkbox"
+    checked={isDark}
+    onChange={toggleTheme}
+    className="sr-only peer"
+  />
+  <div className="w-11 h-6 bg-gray-300 peer-checked:bg-purple-500 rounded-full relative transition-all duration-300">
+    <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 peer-checked:translate-x-full" />
+  </div>
+</label>
+
           </div>
         </div>
 

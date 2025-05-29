@@ -3,8 +3,8 @@ import { useAuth } from '@/context/AuthContext';
 import type { ReactNode } from 'react';
 
 interface PrivateRouteProps {
-  children: ReactNode;
-  requiredRole?: 'admin' | 'user';
+  readonly children: ReactNode;
+  readonly requiredRole?: 'admin' | 'user';
 }
 
 export default function PrivateRoute({ children, requiredRole }: PrivateRouteProps) {
