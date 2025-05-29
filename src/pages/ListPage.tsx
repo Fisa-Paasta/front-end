@@ -90,7 +90,7 @@ export default function ListPage() {
                   Disk: {app.resources.disk}
                 </td>
                 <td>{new Date(app.createdAt).toLocaleString()}</td>
-                <td>{app.status || '대기중'}</td>
+                <td>{app.status ?? '대기중'}</td>
                 <td>
                   <button
                     className="formbold-btn-sm"

@@ -51,7 +51,7 @@ export default function SidebarSummary() {
       amazon_eks: 'Amazon EKS',
       kubernetes: 'On-Premise'
     };
-    return mappings[key] || key;
+    return mappings[key] ?? key;
   };
 
   const EBS_PRICING: Record<string, number> = {
@@ -64,17 +64,17 @@ export default function SidebarSummary() {
   };
 
   // 공통 계산 요소
-  const nodeType = formData.vm?.ec2Type || '-';
-  const nodeCount = isIaaS ? 1 : (parseInt(formData.k8s?.node ?? '0', 10) || 0);
-  const volumeSize = parseInt(formData.vm?.ebsSize || '50', 10);
-  const volumeType = formData.vm?.ebsType || 'gp3';
-  const ec2Unit = ec2Pricing[nodeType as keyof typeof ec2Pricing] || 0;
+  const nodeType = formData.vm?.ec2Type ?? '-';
+  const nodeCount = isIaaS ? 1 : (parseInt(formData.k8s?.node ?? '0', 10) ?? 0);
+  const volumeSize = parseInt(formData.vm?.ebsSize ?? '50', 10);
+  const volumeType = formData.vm?.ebsType ?? 'gp3';
+  const ec2Unit = ec2Pricing[nodeType as keyof typeof ec2Pricing] ?? 0;
   const ebsUnit = EBS_PRICING[volumeType] ?? 0.08;
   const dataTransferHourly = (100 * 0.09) / 30 / 24;
 
-  const cpu = parseInt(formData.resources.cpu || '0', 10);
-  const ram = parseInt(formData.resources.ram || '0', 10);
-  const disk = parseInt(formData.resources.disk || '0', 10);
+  const cpu = parseInt(formData.resources.cpu ?? '0', 10);
+  const ram = parseInt(formData.resources.ram ?? '0', 10);
+  const disk = parseInt(formData.resources.disk ?? '0', 10);
 
   const getCostRate = () => {
     // PaaS + On-prem
@@ -135,14 +135,14 @@ export default function SidebarSummary() {
         {currentStep === 1 && formData.env === 'paas' && (
           <SummaryItem label="2. Kubernetes">
             <div>Type: {formatName(formData.k8s.type)}</div>
-            <div>Namespace: {formData.k8s.namespace || '-'}</div>
+            <div>Namespace: {formData.k8s.namespace ?? '-'}</div>
           </SummaryItem>
         )}
 
         {currentStep === 1 && formData.env === 'iaas' && (
           <SummaryItem label="2. VM 구성">
-            <div>Hostname: {formData.vm.hostname || '-'}</div>
-            <div>Username: {formData.vm.username || '-'}</div>
+            <div>Hostname: {formData.vm.hostname ?? '-'}</div>
+            <div>Username: {formData.vm.username ?? '-'}</div>
           </SummaryItem>
         )}
 
@@ -150,32 +150,32 @@ export default function SidebarSummary() {
           <SummaryItem label="3. 자원">
             {formData.env === 'paas' && isEKS && (
               <>
-                <div>Worker Node 수: {formData.k8s.node || '0'}</div>
-                <div>EC2: {formData.vm?.ec2Type || '-'}</div>
-                <div>EBS: {formData.vm?.ebsType || '-'}</div>
-                <div>EBS 볼륨 크기: {formData.vm?.ebsSize || '0'} GB</div>
+                <div>Worker Node 수: {formData.k8s.node ?? '0'}</div>
+                <div>EC2: {formData.vm?.ec2Type ?? '-'}</div>
+                <div>EBS: {formData.vm?.ebsType ?? '-'}</div>
+                <div>EBS 볼륨 크기: {formData.vm?.ebsSize ?? '0'} GB</div>
               </>
             )}
             {formData.env === 'paas' && isK8sOnPrem && (
               <>
-                <div>Worker Node 수: {formData.k8s.node || '0'}</div>
-                <div>CPU: {formData.resources.cpu || '0'} cores</div>
-                <div>RAM: {formData.resources.ram || '0'} GB</div>
-                <div>Disk: {formData.resources.disk || '0'} GB</div>
+                <div>Worker Node 수: {formData.k8s.node ?? '0'}</div>
+                <div>CPU: {formData.resources.cpu ?? '0'} cores</div>
+                <div>RAM: {formData.resources.ram ?? '0'} GB</div>
+                <div>Disk: {formData.resources.disk ?? '0'} GB</div>
               </>
             )}
             {formData.env === 'iaas' && formData.vm.environment === 'aws' && (
               <>
-                <div>EC2: {formData.vm?.ec2Type || '-'}</div>
-                <div>EBS: {formData.vm?.ebsType || '-'}</div>
-                <div>EBS 볼륨 크기: {formData.vm?.ebsSize || '0'} GB</div>
+                <div>EC2: {formData.vm?.ec2Type ?? '-'}</div>
+                <div>EBS: {formData.vm?.ebsType ?? '-'}</div>
+                <div>EBS 볼륨 크기: {formData.vm?.ebsSize ?? '0'} GB</div>
               </>
             )}
             {formData.env === 'iaas' && formData.vm.environment === 'on-premise' && (
               <>
-                <div>CPU: {formData.resources.cpu || '0'} cores</div>
-                <div>RAM: {formData.resources.ram || '0'} GB</div>
-                <div>Disk: {formData.resources.disk || '0'} GB</div>
+                <div>CPU: {formData.resources.cpu ?? '0'} cores</div>
+                <div>RAM: {formData.resources.ram ?? '0'} GB</div>
+                <div>Disk: {formData.resources.disk ?? '0'} GB</div>
               </>
             )}
           </SummaryItem>
@@ -183,13 +183,13 @@ export default function SidebarSummary() {
 
         {currentStep === 3 && (
           <SummaryItem label="4. OS"
-            value={`${formatName(formData.os.name)} ${formData.os.version || '-'}`}
+            value={`${formatName(formData.os.name)} ${formData.os.version ?? '-'}`}
           />
         )}
 
         {currentStep === 4 && (
           <SummaryItem label="5. 프론트엔드">
-            {formData.frontendItems.length > 0 && formData.frontendItems.some(item => item.framework || item.version) ? (
+            {formData.frontendItems.length > 0 && formData.frontendItems.some(item => item.framework ?? item.version) ? (
               formData.frontendItems.map((item) => (
                 <div key={item.id}>
                   {formatName(item.framework)} {item.version}
@@ -206,7 +206,7 @@ export default function SidebarSummary() {
 
         {currentStep === 5 && (
           <SummaryItem label="6. 백엔드">
-            {formData.backendItems.length > 0 && formData.backendItems.some(item => item.language || item.framework) ? (
+            {formData.backendItems.length > 0 && formData.backendItems.some(item => item.language ?? item.framework) ? (
               formData.backendItems.map((item) => (
                 <div key={item.id}>
                   {formatName(item.language)} {item.languageVersion}
@@ -234,7 +234,7 @@ export default function SidebarSummary() {
 
         {currentStep === 6 && (
           <SummaryItem label="7. 웹 서버/WAS">
-            {formData.webServerItems.length > 0 && formData.webServerItems.some(item => item.server || item.version) ? (
+            {formData.webServerItems.length > 0 && formData.webServerItems.some(item => item.server ?? item.version) ? (
               formData.webServerItems.map((item) => (
                 <div key={item.id}>
                   {formatName(item.server)} {item.version}
@@ -248,7 +248,7 @@ export default function SidebarSummary() {
 
         {currentStep === 7 && (
           <SummaryItem label="8. DB">
-            {formData.dbItems.length > 0 && formData.dbItems.some(item => item.name || item.version) ? (
+            {formData.dbItems.length > 0 && formData.dbItems.some(item => item.name ?? item.version) ? (
               formData.dbItems.map((item) => (
                 <div key={item.id}>
                   {formatName(item.type)} / {formatName(item.name)} {item.version} ({item.size} GB)

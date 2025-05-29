@@ -27,7 +27,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
 
   const { submittedCards } = useSubmitted(); // ⬅️ 최신 상태 카드 배열
   const latestItem = useMemo(
-    () => submittedCards.find((card) => card.id === item.id) || item,
+    () => submittedCards.find((card) => card.id === item.id) ?? item,
     [submittedCards, item.id]
   );
 

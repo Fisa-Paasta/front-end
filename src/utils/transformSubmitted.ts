@@ -23,7 +23,7 @@ export const transformSubmittedCards = (submittedCards: SubmittedCard[]): AdminC
         ...card.formDataSnapshot,
         userId, // ✅ Snapshot에도 userId 반영
       },
-      historyList: (card.historyList || []).map((log) => ({
+      historyList: (card.historyList ?? []).map((log) => ({
       status: isValidStatus(card.status) ? card.status : '접수중',
       timestamp: log.timestamp ?? new Date().toISOString(),
       approver: log.by ?? 'unknown',

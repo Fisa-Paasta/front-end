@@ -50,7 +50,7 @@ export default function AdminCardList({
               />
 
               <div className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-1">
-                👤 사번: {item.userId || '미입력'}
+                👤 사번: {item.userId ?? '미입력'}
                 <span className="ml-1 text-[11px] text-gray-500">#{item.id}</span>
               </div>
               <div className="text-sm text-gray-400 dark:text-gray-500 mb-2">{item.date}</div>

@@ -91,7 +91,7 @@ export default function AdminCardDetail({
             <ul className="text-sm space-y-1">
               {item.historyList.map((entry, idx) => (
                 <li key={idx} className="text-gray-500 dark:text-gray-400">
-                  {entry.timestamp} - {entry.by || '시스템'}
+                  {entry.timestamp} - {entry.by ?? '시스템'}
                   {entry.note && (
                   <span className="text-xs text-gray-400 ml-2">({entry.note})</span>
                   )}

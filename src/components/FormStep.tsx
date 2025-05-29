@@ -39,7 +39,7 @@ export default function FormStep() {
 
   const StepComponent = formData.env === 'iaas'
     ? stepsByEnv.iaas[currentStep]
-    : stepsByEnv.paas[currentStep] || Step1_Env;
+    : stepsByEnv.paas[currentStep] ?? Step1_Env;
 
   const handleNext = () => {
     if (!isCurrentStepValid()) return;
@@ -60,7 +60,7 @@ export default function FormStep() {
       const userId = localStorage.getItem('userId')!;
       const newCard = {
         title,
-        desc: description?.trim() || '—',
+        desc: description?.trim() ?? '—',
         date: new Date().toISOString().split('T')[0],
         starred: false,
         status: '접수중' as const,
@@ -90,8 +90,8 @@ export default function FormStep() {
 
       case 1:
         if (formData.env === 'iaas') {
-          const hostnameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.hostname || '');
-          const usernameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.username || '');
+          const hostnameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.hostname ?? '');
+          const usernameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.username ?? '');
           return hostnameValid && usernameValid;
         }
 
@@ -112,7 +112,7 @@ export default function FormStep() {
             const disk = parseInt(formData.resources.disk, 10);
             return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
           } else {
-            const ebsSize = parseInt(formData.vm.ebsSize || '', 10);
+            const ebsSize = parseInt(formData.vm.ebsSize ?? '', 10);
             return (
               !!formData.vm.ec2Type &&
               !!formData.vm.ebsType &&
@@ -125,7 +125,7 @@ export default function FormStep() {
           const node = parseInt(formData.k8s?.node ?? '', 10);
 
           if (formData.k8s?.type === 'amazon_eks') {
-            const ebsSize = parseInt(formData.vm.ebsSize || '', 10);
+            const ebsSize = parseInt(formData.vm.ebsSize ?? '', 10);
             return (
               !isNaN(node) && node > 0 &&
               !!formData.vm.ec2Type &&

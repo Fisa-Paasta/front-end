@@ -24,7 +24,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   };
 
   const [theme, setTheme] = useState(() =>
-    localStorage.getItem('theme') || getSystemTheme()
+    localStorage.getItem('theme') ?? getSystemTheme()
   );
 
   useEffect(() => {

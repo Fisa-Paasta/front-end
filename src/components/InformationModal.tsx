@@ -18,7 +18,7 @@ const formatName = (key?: string) => {
     mongodb: 'MongoDB', redis: 'Redis', elasticsearch: 'Elasticsearch', cassandra: 'Cassandra',
     relational: 'Relational DB', nosql: 'NoSQL DB'
   };
-  return mappings[key] || key;
+  return mappings[key] ?? key;
 };
 
 const formatValue = (value?: string | number | null): React.ReactNode =>

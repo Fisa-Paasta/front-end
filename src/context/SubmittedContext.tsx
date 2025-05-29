@@ -85,14 +85,14 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           const id = app.id.toString();
           const status = convertStatusToKorean(app.status);
           const newHistoryItem = {
-            by: app.approvedBy || 'system',
-            timestamp: app.updatedAt || app.createdAt,
-            note: app.comments || '',
+            by: app.approvedBy ?? 'system',
+            timestamp: app.updatedAt ?? app.createdAt,
+            note: app.comments ?? '',
             status,
           };
   
           const existingCard = prevCards.find(c => c.id === id);
-          const existingHistory = existingCard?.historyList || [];
+          const existingHistory = existingCard?.historyList ?? [];
   
           const isDuplicate = existingHistory.some(
             h =>
@@ -104,7 +104,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           return {
             id,
             title: app.title,
-            desc: status === '삭제됨' ? app.comments || '—' : app.description || '—',
+            desc: status === '삭제됨' ? app.comments ?? '—' : app.description ?? '—',
             date: new Date(app.createdAt).toISOString().split('T')[0],
             status,
             starred: existingCard?.starred ?? false,
@@ -112,32 +112,32 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             formDataSnapshot: {
               env: app.envType,
               vm: {
-                hostname: app.vmHostname || '',
-                username: app.vmUsername || '',
-                environment: app.vmEnvironment || 'on-premise',
-                ec2Type: app.vmEc2Type || '',
-                ebsType: app.vmEbsType || '',
-                ebsSize: app.vmEbsSize || '',
+                hostname: app.vmHostname ?? '',
+                username: app.vmUsername ?? '',
+                environment: app.vmEnvironment ?? 'on-premise',
+                ec2Type: app.vmEc2Type ?? '',
+                ebsType: app.vmEbsType ?? '',
+                ebsSize: app.vmEbsSize ?? '',
               },
               k8s: {
-                type: app.k8sType || '',
-                namespace: app.k8sNamespace || '',
-                node: app.k8sNodeCount || '',
+                type: app.k8sType ?? '',
+                namespace: app.k8sNamespace ?? '',
+                node: app.k8sNodeCount ?? '',
                 version: '',
               },
               resources: {
-                cpu: app.resourceCpu || '',
-                ram: app.resourceRam || '',
-                disk: app.resourceDisk || '',
+                cpu: app.resourceCpu ?? '',
+                ram: app.resourceRam ?? '',
+                disk: app.resourceDisk ?? '',
               },
               os: {
-                name: app.osName || '',
-                version: app.osVersion || '',
+                name: app.osName ?? '',
+                version: app.osVersion ?? '',
               },
               frontendItems: app.frontendItems ? JSON.parse(app.frontendItems) : [],
-              frontendDomain: app.frontendDomain || '',
+              frontendDomain: app.frontendDomain ?? '',
               backendItems: app.backendItems ? JSON.parse(app.backendItems) : [],
-              apiDomain: app.apiDomain || '',
+              apiDomain: app.apiDomain ?? '',
               apiPaths: app.apiPaths ? JSON.parse(app.apiPaths) : [],
               webServerItems: app.webServerItems ? JSON.parse(app.webServerItems) : [],
               dbItems: app.dbItems ? JSON.parse(app.dbItems) : [],
@@ -213,7 +213,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const updateCardStatus = (id: string, newStatus: StatusType, note?: string) => {
-    const userId = user?.userId || 'unknown';
+    const userId = user?.userId ?? 'unknown';
     setSubmittedCards(prev =>
       prev.map(card => {
         if (card.id !== id) return card;
@@ -225,7 +225,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return {
           ...card,
           status: newStatus,
-          historyList: [...(card.historyList || []), newHistory],
+          historyList: [...(card.historyList ?? []), newHistory],
         };
       })
     );
@@ -277,7 +277,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const deleteCard = (id: string, note?: string) => {
-    const userId = user?.userId || 'unknown';
+    const userId = user?.userId ?? 'unknown';
     setSubmittedCards(prev =>
       prev.map(card => {
         if (card.id !== id) return card;
@@ -289,7 +289,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return {
           ...card,
           status: '삭제됨' as StatusType,
-          historyList: [...(card.historyList || []), history],
+          historyList: [...(card.historyList ?? []), history],
         };
       })
     );
@@ -325,7 +325,7 @@ const convertStatusToKorean = (status: string): StatusType => {
     '구축완료': '구축완료',
     '삭제됨': '삭제됨',
   };
-  return statusMap[status] || '접수중';
+  return statusMap[status] ?? '접수중';
 };
 
 export const useSubmitted = (): SubmittedContextType => {

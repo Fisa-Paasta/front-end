@@ -63,7 +63,7 @@ export default function AdminPage() {
         },
         body: JSON.stringify({
           status: 'DELETED',
-          comments: comment || '관리자가 삭제함',
+          comments: comment ?? '관리자가 삭제함',
           approverEmployeeId: localStorage.getItem('userId'),
         }),
       });

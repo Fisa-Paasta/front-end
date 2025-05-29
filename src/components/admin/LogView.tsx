@@ -21,12 +21,12 @@ interface LogItem {
 export default function LogView({ cards }: LogViewProps) {
   const logs: LogItem[] = cards
     .flatMap((card): LogItem[] =>
-      (card.historyList as HistoryEntry[] || []).map((log): LogItem => ({
+      (card.historyList as HistoryEntry[] ?? []).map((log): LogItem => ({
         title: card.title,
-        userId: card.userId || 'unknown',
-        by: log.by || 'unknown',
-        timestamp: log.timestamp || '',
-        note: log.note || '',
+        userId: card.userId ?? 'unknown',
+        by: log.by ?? 'unknown',
+        timestamp: log.timestamp ?? '',
+        note: log.note ?? '',
       }))
     )
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());

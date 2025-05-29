@@ -42,7 +42,7 @@ export default function HomePage() {
   const starredDashboards = sorted.filter((d) => d.starred);
   const normalDashboards = sorted.filter((d) => !d.starred);
   const selectedDashboard = useMemo(
-    () => myCards.find((c) => c.id === selectedId) || null,
+    () => myCards.find((c) => c.id === selectedId) ?? null,
     [myCards, selectedId]
   );
 
@@ -56,7 +56,7 @@ export default function HomePage() {
       구축완료: 'bg-gray-500 text-white',
       삭제됨: 'bg-red-500 text-white', // ✅ 삭제됨 상태 추가
     };
-    return map[status] || 'bg-white text-black';
+    return map[status] ?? 'bg-white text-black';
   };
 
   const renderCard = (item: AdminCardData) => (
