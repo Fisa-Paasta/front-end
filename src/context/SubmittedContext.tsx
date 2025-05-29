@@ -52,17 +52,22 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // ✅ 서버에서 카드 목록 불러오기 (삭제된 것도 포함)
   const refreshCards = async () => {
     if (!user?.userId || authLoading) return;
-
+  
     try {
       setIsLoading(true);
+      const isAdmin = localStorage.getItem('role') === 'admin';
+  
       console.log('🔄 신청서 목록 새로고침 시작...');
-
-      const res = await fetch(`http://localhost:8080/api/applications/employee/${user.userId}`, {
+      const url = isAdmin
+        ? `http://localhost:8080/api/admin/applications`
+        : `http://localhost:8080/api/applications/employee/${user.userId}`;
+  
+      const res = await fetch(url, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      
+  
       if (!res.ok) {
         if (res.status === 404) {
           console.log('📭 신청서 없음');
@@ -71,68 +76,90 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
         throw new Error(`서버 오류: ${res.status}`);
       }
-      
+  
       const applications = await res.json();
       console.log(`📋 신청서 ${applications.length}개 로드됨`);
-      
-      // ApplicationResponse를 SubmittedCard로 변환 (삭제된 것도 포함)
-      const cards: SubmittedCard[] = applications.map((app: any) => ({
-        id: app.id.toString(),
-        title: app.title,
-        desc: app.description || '—',
-        date: new Date(app.createdAt).toISOString().split('T')[0],
-        status: convertStatusToKorean(app.status),
-        starred: false,
-        userId: user.userId,
-        formDataSnapshot: {
-          env: app.envType,
-          vm: {
-            hostname: app.vmHostname || '',
-            username: app.vmUsername || '',
-            environment: app.vmEnvironment || 'on-premise',
-            ec2Type: app.vmEc2Type || '',
-            ebsType: app.vmEbsType || '',
-            ebsSize: app.vmEbsSize || '',
-          },
-          k8s: {
-            type: app.k8sType || '',
-            namespace: app.k8sNamespace || '',
-            node: app.k8sNodeCount || '',
-            version: '',
-          },
-          resources: {
-            cpu: app.resourceCpu || '',
-            ram: app.resourceRam || '',
-            disk: app.resourceDisk || '',
-          },
-          os: {
-            name: app.osName || '',
-            version: app.osVersion || '',
-          },
-          frontendItems: app.frontendItems ? JSON.parse(app.frontendItems) : [],
-          frontendDomain: app.frontendDomain || '',
-          backendItems: app.backendItems ? JSON.parse(app.backendItems) : [],
-          apiDomain: app.apiDomain || '',
-          apiPaths: app.apiPaths ? JSON.parse(app.apiPaths) : [],
-          webServerItems: app.webServerItems ? JSON.parse(app.webServerItems) : [],
-          dbItems: app.dbItems ? JSON.parse(app.dbItems) : [],
-          userId: user.userId,
-        },
-        historyList: app.comments ? [{
-          by: app.approvedBy || 'system',
-          timestamp: app.updatedAt || app.createdAt,
-          note: app.comments,
-        }] : [],
-      }));
-      
-      setSubmittedCards(cards);
-      console.log('✅ 신청서 목록 로드 완료');
+  
+      setSubmittedCards(prevCards => {
+        const cards: SubmittedCard[] = applications.map((app: any) => {
+          const id = app.id.toString();
+          const status = convertStatusToKorean(app.status);
+          const newHistoryItem = {
+            by: app.approvedBy || 'system',
+            timestamp: app.updatedAt || app.createdAt,
+            note: app.comments || '',
+            status,
+          };
+  
+          const existingCard = prevCards.find(c => c.id === id);
+          const existingHistory = existingCard?.historyList || [];
+  
+          const isDuplicate = existingHistory.some(
+            h =>
+              h.timestamp === newHistoryItem.timestamp &&
+              h.note === newHistoryItem.note &&
+              h.status === newHistoryItem.status
+          );
+  
+          return {
+            id,
+            title: app.title,
+            desc: status === '삭제됨' ? app.comments || '—' : app.description || '—',
+            date: new Date(app.createdAt).toISOString().split('T')[0],
+            status,
+            starred: existingCard?.starred ?? false,
+            userId: app.employeeId,
+            formDataSnapshot: {
+              env: app.envType,
+              vm: {
+                hostname: app.vmHostname || '',
+                username: app.vmUsername || '',
+                environment: app.vmEnvironment || 'on-premise',
+                ec2Type: app.vmEc2Type || '',
+                ebsType: app.vmEbsType || '',
+                ebsSize: app.vmEbsSize || '',
+              },
+              k8s: {
+                type: app.k8sType || '',
+                namespace: app.k8sNamespace || '',
+                node: app.k8sNodeCount || '',
+                version: '',
+              },
+              resources: {
+                cpu: app.resourceCpu || '',
+                ram: app.resourceRam || '',
+                disk: app.resourceDisk || '',
+              },
+              os: {
+                name: app.osName || '',
+                version: app.osVersion || '',
+              },
+              frontendItems: app.frontendItems ? JSON.parse(app.frontendItems) : [],
+              frontendDomain: app.frontendDomain || '',
+              backendItems: app.backendItems ? JSON.parse(app.backendItems) : [],
+              apiDomain: app.apiDomain || '',
+              apiPaths: app.apiPaths ? JSON.parse(app.apiPaths) : [],
+              webServerItems: app.webServerItems ? JSON.parse(app.webServerItems) : [],
+              dbItems: app.dbItems ? JSON.parse(app.dbItems) : [],
+              userId: app.employeeId,
+            },
+            historyList: isDuplicate
+              ? existingHistory
+              : [...existingHistory, newHistoryItem],
+          };
+        });
+  
+        console.log('✅ 신청서 목록 로드 완료');
+        return cards;
+      });
     } catch (err) {
       console.error('❌ 신청서 목록 로드 실패:', err);
     } finally {
       setIsLoading(false);
     }
   };
+  
+  
 
   // ✅ user 변경 시 자동 로드
   useEffect(() => {
