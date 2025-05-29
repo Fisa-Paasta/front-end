@@ -70,7 +70,7 @@ export default function AdminPage() {
   
       if (!res.ok) throw new Error('삭제 실패');
   
-      await deleteCard(id, comment);
+      deleteCard(id, comment);
       await refreshCards(); // 상태 동기화
       setSelectedItem(null); // ✅ 명확한 선택 해제 (최신 카드 다시 선택 권장 시점)
   
@@ -160,13 +160,12 @@ export default function AdminPage() {
     if (filterStatus) {
       statusMatch = card.status === filterStatus;
     } else {
-      if (activeSidebar === '삭제된 요청') {
-        statusMatch = card.status === '삭제됨';
-      } else {
-        statusMatch = card.status !== '삭제됨';
-      }
+      const isDeletedView = activeSidebar === '삭제된 요청';
+      statusMatch = isDeletedView
+        ? card.status === '삭제됨'
+        : card.status !== '삭제됨';
     }
-  
+    
     return userIdMatch && dateMatch && statusMatch;
   });
   
