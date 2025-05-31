@@ -44,7 +44,7 @@ interface SubmittedContextType {
 
 const SubmittedContext = createContext<SubmittedContextType | undefined>(undefined);
 
-// ✅ 상태 변환 헬퍼 함수 분리
+// 상태 변환 헬퍼 함수 분리
 const convertStatusToKorean = (status: string): StatusType => {
   const statusMap: Record<string, StatusType> = {
     '접수중': '접수중',
@@ -58,7 +58,7 @@ const convertStatusToKorean = (status: string): StatusType => {
   return statusMap[status] ?? '접수중';
 };
 
-// ✅ 히스토리 아이템 생성 함수 분리
+// 히스토리 아이템 생성 함수 분리
 const createHistoryItem = (app: any, status: StatusType) => ({
   by: app.approvedBy ?? 'system',
   timestamp: app.updatedAt ?? app.createdAt,
@@ -66,7 +66,7 @@ const createHistoryItem = (app: any, status: StatusType) => ({
   status,
 });
 
-// ✅ 폼 데이터 스냅샷 생성 함수 분리
+// 폼 데이터 스냅샷 생성 함수 분리
 const createFormDataSnapshot = (app: any): FormDataType & { userId?: string } => ({
   env: app.envType,
   vm: {
@@ -102,19 +102,26 @@ const createFormDataSnapshot = (app: any): FormDataType & { userId?: string } =>
   userId: app.employeeId,
 });
 
-// ✅ 카드 변환 함수 분리 (중첩 레벨 감소)
+// 히스토리 중복 체크 함수 분리
+const isDuplicateHistory = (existingHistory: any[], newHistoryItem: any): boolean => {
+  return existingHistory.some(
+    h =>
+      h.timestamp === newHistoryItem.timestamp &&
+      h.note === newHistoryItem.note &&
+      h.status === newHistoryItem.status
+  );
+};
+
+// 카드 변환 함수 분리 (중첩 레벨 감소)
 const transformApplicationToCard = (app: any, existingCard?: SubmittedCard): SubmittedCard => {
   const id = app.id.toString();
   const status = convertStatusToKorean(app.status);
   const newHistoryItem = createHistoryItem(app, status);
   const existingHistory = existingCard?.historyList ?? [];
 
-  const isDuplicate = existingHistory.some(
-    h =>
-      h.timestamp === newHistoryItem.timestamp &&
-      h.note === newHistoryItem.note &&
-      h.status === newHistoryItem.status
-  );
+  const historyList = isDuplicateHistory(existingHistory, newHistoryItem) 
+    ? existingHistory 
+    : [...existingHistory, newHistoryItem];
 
   return {
     id,
@@ -125,7 +132,7 @@ const transformApplicationToCard = (app: any, existingCard?: SubmittedCard): Sub
     starred: existingCard?.starred ?? false,
     userId: app.employeeId,
     formDataSnapshot: createFormDataSnapshot(app),
-    historyList: isDuplicate ? existingHistory : [...existingHistory, newHistoryItem],
+    historyList,
   };
 };
 
@@ -134,7 +141,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isLoading, setIsLoading] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
 
-  // ✅ 서버에서 카드 목록 불러오기 함수 분리
+  // 서버에서 카드 목록 불러오기 함수 분리
   const fetchCardsFromServer = useCallback(async (): Promise<SubmittedCard[]> => {
     const isAdmin = localStorage.getItem('role') === 'admin';
     const url = isAdmin
@@ -157,7 +164,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return res.json();
   }, [user?.userId]);
 
-  // ✅ 카드 변환 로직 분리
+  // 카드 변환 로직 분리
   const processApplicationsToCards = useCallback((applications: any[], prevCards: SubmittedCard[]): SubmittedCard[] => {
     return applications.map((app: any) => {
       const existingCard = prevCards.find(c => c.id === app.id.toString());
@@ -165,7 +172,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
   }, []);
 
-  // ✅ refreshCards 함수 최적화 (중첩 레벨 감소)
+  // refreshCards 함수 최적화 (중첩 레벨 감소)
   const refreshCards = useCallback(async (): Promise<void> => {
     if (!user?.userId || authLoading) return;
 
@@ -188,11 +195,11 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [user?.userId, authLoading, fetchCardsFromServer, processApplicationsToCards]);
 
-  // ✅ user 변경 시 자동 로드
+  // user 변경 시 자동 로드
   useEffect(() => {
     if (!authLoading && user) {
       console.log('👤 사용자 변경 감지, 신청서 로드 시작');
-      refreshCards().catch(console.error); // ✅ Promise 반환값 처리
+      refreshCards().catch(console.error);
     }
   }, [user, authLoading, refreshCards]);
 
@@ -319,7 +326,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     );
   }, [user?.userId]);
 
-  // ✅ Context 값을 useMemo로 메모이제이션하여 불필요한 리렌더링 방지
+  // Context 값을 useMemo로 메모이제이션하여 불필요한 리렌더링 방지
   const contextValue = useMemo(() => ({
     submittedCards,
     addSubmittedCard,

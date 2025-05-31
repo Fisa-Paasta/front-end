@@ -6,6 +6,7 @@ import React, {
   useState,
   ReactNode,
   useMemo,
+  useCallback,
 } from 'react';
 
 type Role = 'admin' | 'user';
@@ -32,30 +33,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     console.log('⏱️ 자동 로그아웃 또는 수동 로그아웃');
     localStorage.clear();
     setUser(null);
     if (logoutTimer) clearTimeout(logoutTimer);
     window.location.href = '/init';
-  };
+  }, []);
 
-  const handleSetUser = (newUser: AuthUser | null) => {
-    setUser(newUser);
-    if (newUser) startInactivityTimer();
-  };
-
-  const startInactivityTimer = () => {
+  const startInactivityTimer = useCallback(() => {
     if (logoutTimer) clearTimeout(logoutTimer);
     logoutTimer = setTimeout(() => {
       alert('15분 동안 활동이 없어 자동 로그아웃되었습니다.');
       logout();
     }, 15 * 60 * 1000); // 15분
-  };
+  }, [logout]);
 
-  const resetInactivityTimer = () => {
+  const handleSetUser = useCallback((newUser: AuthUser | null) => {
+    setUser(newUser);
+    if (newUser) startInactivityTimer();
+  }, [startInactivityTimer]);
+
+  const resetInactivityTimer = useCallback(() => {
     if (user) startInactivityTimer();
-  };
+  }, [user, startInactivityTimer]);
 
   // 초기 인증 상태 복구 (새로고침 대응)
   useEffect(() => {
@@ -123,7 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     restoreAuthState();
-  }, []);
+  }, [startInactivityTimer]);
 
   // 비활동 이벤트 감지
   useEffect(() => {
@@ -134,14 +135,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       events.forEach((e) => window.removeEventListener(e, resetInactivityTimer));
       if (logoutTimer) clearTimeout(logoutTimer);
     };
-  }, [user]);
+  }, [resetInactivityTimer]);
 
   const contextValue = useMemo(() => ({
     user,
     setUser: handleSetUser,
     logout,
     isLoading,
-  }), [user, isLoading]);
+  }), [user, handleSetUser, logout, isLoading]);
 
   return (
     <AuthContext.Provider value={contextValue}>

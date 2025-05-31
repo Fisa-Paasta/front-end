@@ -21,48 +21,69 @@ const validateStep0 = (formData: any): boolean => {
   return !!formData.env;
 };
 
+const validateStep1IaaS = (formData: any): boolean => {
+  const hostnameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.hostname ?? '');
+  const usernameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.username ?? '');
+  return hostnameValid && usernameValid;
+};
+
+const validateStep1PaaS = (formData: any): boolean => {
+  const typeValid = !!formData.k8s?.type;
+  const namespace = formData.k8s?.namespace;
+  const namespaceValid = !!namespace && /^[a-zA-Z][-a-zA-Z0-9]*$/.test(namespace);
+  return typeValid && namespaceValid;
+};
+
 const validateStep1 = (formData: any): boolean => {
   if (formData.env === 'iaas') {
-    const hostnameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.hostname ?? '');
-    const usernameValid = /^[a-zA-Z][-a-zA-Z0-9]*$/.test(formData.vm.username ?? '');
-    return hostnameValid && usernameValid;
+    return validateStep1IaaS(formData);
   }
 
   if (formData.env === 'paas') {
-    const typeValid = !!formData.k8s?.type;
-    const namespace = formData.k8s?.namespace;
-    const namespaceValid = !!namespace && /^[a-zA-Z][-a-zA-Z0-9]*$/.test(namespace);
-    return typeValid && namespaceValid;
+    return validateStep1PaaS(formData);
   }
 
   return false;
 };
 
-const validateIaaSResources = (formData: any): boolean => {
-  if (formData.vm.environment === 'on-premise') {
-    const cpu = parseInt(formData.resources.cpu, 10);
-    const ram = parseInt(formData.resources.ram, 10);
-    const disk = parseInt(formData.resources.disk, 10);
-    return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
-  }
-  
+const validateIaaSOnPremResources = (formData: any): boolean => {
+  const cpu = parseInt(formData.resources.cpu, 10);
+  const ram = parseInt(formData.resources.ram, 10);
+  const disk = parseInt(formData.resources.disk, 10);
+  return !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
+};
+
+const validateIaaSAwsResources = (formData: any): boolean => {
   const ebsSize = parseInt(formData.vm.ebsSize ?? '', 10);
   return !!formData.vm.ec2Type && !!formData.vm.ebsType && !isNaN(ebsSize) && ebsSize > 0;
 };
 
-const validatePaaSResources = (formData: any): boolean => {
-  const node = parseInt(formData.k8s?.node ?? '', 10);
-  
-  if (formData.k8s?.type === 'amazon_eks') {
-    const ebsSize = parseInt(formData.vm.ebsSize ?? '', 10);
-    return !isNaN(node) && node > 0 && !!formData.vm.ec2Type && !!formData.vm.ebsType && !isNaN(ebsSize) && ebsSize > 0;
+const validateIaaSResources = (formData: any): boolean => {
+  if (formData.vm.environment === 'on-premise') {
+    return validateIaaSOnPremResources(formData);
   }
+  return validateIaaSAwsResources(formData);
+};
 
+const validatePaaSEksResources = (formData: any): boolean => {
+  const node = parseInt(formData.k8s?.node ?? '', 10);
+  const ebsSize = parseInt(formData.vm.ebsSize ?? '', 10);
+  return !isNaN(node) && node > 0 && !!formData.vm.ec2Type && !!formData.vm.ebsType && !isNaN(ebsSize) && ebsSize > 0;
+};
+
+const validatePaaSOnPremResources = (formData: any): boolean => {
+  const node = parseInt(formData.k8s?.node ?? '', 10);
   const cpu = parseInt(formData.resources.cpu, 10);
   const ram = parseInt(formData.resources.ram, 10);
   const disk = parseInt(formData.resources.disk, 10);
-
   return !isNaN(node) && node > 0 && !isNaN(cpu) && cpu > 0 && !isNaN(ram) && ram > 0 && !isNaN(disk) && disk > 0;
+};
+
+const validatePaaSResources = (formData: any): boolean => {
+  if (formData.k8s?.type === 'amazon_eks') {
+    return validatePaaSEksResources(formData);
+  }
+  return validatePaaSOnPremResources(formData);
 };
 
 const validateStep2 = (formData: any): boolean => {
@@ -90,16 +111,22 @@ const validateStep4 = (formData: any): boolean => {
   });
 };
 
+const validatePaaSBackendDomain = (formData: any): boolean => {
+  return !!formData.apiDomain && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(formData.apiDomain);
+};
+
+const validatePaaSBackendPaths = (formData: any): boolean => {
+  return formData.apiPaths?.length > 0 && 
+    formData.apiPaths.every((path: string) => /^\/[a-zA-Z0-9/_-]+$/.test(path.trim()));
+};
+
 const validatePaaSBackend = (formData: any): boolean => {
   const hasFramework = formData.backendItems?.some((item: any) => !!item.framework);
-  const domainValid = !hasFramework || (
-    !!formData.apiDomain &&
-    /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(formData.apiDomain)
-  );
-  const pathsValid = !hasFramework || (
-    formData.apiPaths?.length > 0 &&
-    formData.apiPaths.every((path: string) => /^\/[a-zA-Z0-9/_-]+$/.test(path.trim()))
-  );
+  
+  if (!hasFramework) return true;
+  
+  const domainValid = validatePaaSBackendDomain(formData);
+  const pathsValid = validatePaaSBackendPaths(formData);
   return domainValid && pathsValid;
 };
 
@@ -154,7 +181,6 @@ export default function FormStep() {
     paas: [Step1_Env, Step2_K8s, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB]
   };
 
-  // 중첩 삼항 연산자를 독립적인 함수로 분리
   const getStepComponent = () => {
     if (formData.env === 'iaas') {
       return stepsByEnv.iaas[currentStep];
@@ -209,7 +235,6 @@ export default function FormStep() {
     }
   };
 
-  // 단순화된 메인 검증 함수
   const isCurrentStepValid = (): boolean => {
     const validators = [
       validateStep0,

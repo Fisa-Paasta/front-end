@@ -47,6 +47,192 @@ const dbVersions: Record<DBName, string[]> = {
   cassandra: ['4.1.3', '4.0.12', '3.11.16'],
 };
 
+// 검증 함수 분리
+const validateField = (field: keyof DBItem, value: string): boolean => {
+  if (field === 'size') {
+    const n = parseInt(value, 10);
+    return !isNaN(n) && n > 0;
+  }
+  return !!value;
+};
+
+// 아이템 업데이트 함수 분리
+const createUpdatedItem = (item: DBItem, field: keyof DBItem, value: string): DBItem => {
+  const updated = { ...item, [field]: value };
+  
+  if (field === 'type') {
+    updated.name = '';
+    updated.version = '';
+  } else if (field === 'name') {
+    updated.version = '';
+  }
+  
+  return updated;
+};
+
+// 에러 체크 함수 분리
+const hasError = (errors: Record<string, Record<string, boolean>>, id: number, field: keyof DBItem): boolean => {
+  return errors[id?.toString()]?.[field] === true;
+};
+
+// DB 타입 섹션 렌더링 함수 분리
+const DBTypeSection = ({ 
+  item, 
+  onTypeChange 
+}: { 
+  item: DBItem; 
+  onTypeChange: (id: number, value: string) => void; 
+}) => (
+  <div className="space-y-2">
+    <fieldset>
+      <legend className="text-sm font-medium mb-2">데이터베이스 타입 선택</legend>
+      <div className="grid grid-cols-2 gap-4">
+        {dbTypeCards.map((type) => (
+          <div key={type.value}>
+            <input
+              type="radio"
+              id={`db-type-${item.id}-${type.value}`}
+              name={`db-type-${item.id}`}
+              value={type.value}
+              checked={item.type === type.value}
+              onChange={(e) => onTypeChange(item.id, e.target.value)}
+              className="sr-only"
+            />
+            <label
+              htmlFor={`db-type-${item.id}-${type.value}`}
+              className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
+                ${item.type === type.value
+                  ? 'border-violet-500 bg-violet-600 text-white'
+                  : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+              `}
+            >
+              <span className="text-sm font-semibold">{type.label}</span>
+            </label>
+          </div>
+        ))}
+      </div>
+    </fieldset>
+  </div>
+);
+
+// DB 선택 섹션 렌더링 함수 분리
+const DBSelectionSection = ({ 
+  item, 
+  onNameChange 
+}: { 
+  item: DBItem; 
+  onNameChange: (id: number, value: string) => void; 
+}) => {
+  if (!item.type) return null;
+  
+  const availableDBs = dbOptions[item.type as ValidDBType] ?? [];
+  
+  return (
+    <div className="space-y-2">
+      <fieldset>
+        <legend className="text-sm font-medium mb-2">{item.type} 데이터베이스 선택</legend>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {availableDBs.map((db) => (
+            <div key={db}>
+              <input
+                type="radio"
+                id={`db-name-${item.id}-${db}`}
+                name={`db-name-${item.id}`}
+                value={db}
+                checked={item.name === db}
+                onChange={(e) => onNameChange(item.id, e.target.value)}
+                className="sr-only"
+              />
+              <label
+                htmlFor={`db-name-${item.id}-${db}`}
+                className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
+                  ${item.name === db
+                    ? 'border-violet-500 bg-violet-600 text-white'
+                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                `}
+              >
+                <img
+                  src={dbImages[db]}
+                  alt={`${dbLabels[db]} 로고`}
+                  className="h-14 mx-auto object-contain mb-2"
+                />
+                <span className="text-sm font-semibold">{dbLabels[db]}</span>
+              </label>
+            </div>
+          ))}
+        </div>
+      </fieldset>
+    </div>
+  );
+};
+
+// 버전 및 크기 섹션 렌더링 함수 분리
+const VersionAndSizeSection = ({ 
+  item, 
+  errors, 
+  onChange 
+}: { 
+  item: DBItem; 
+  errors: Record<string, Record<string, boolean>>; 
+  onChange: (id: number, field: keyof DBItem, value: string) => void; 
+}) => {
+  if (!item.name) return null;
+  
+  const versions = dbVersions[item.name as DBName] ?? [];
+  
+  return (
+    <div className="space-y-4">
+      <div>
+        <label htmlFor={`db-version-select-${item.id}`} className="block mb-1 text-sm font-medium">
+          {dbLabels[item.name as DBName]} 버전 선택
+        </label>
+        <select
+          id={`db-version-select-${item.id}`}
+          value={item.version}
+          onChange={(e) => onChange(item.id, 'version', e.target.value)}
+          className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
+            hasError(errors, item.id, 'version') ? 'border-red-500' : ''
+          }`}
+          aria-describedby={hasError(errors, item.id, 'version') ? `version-error-${item.id}` : undefined}
+        >
+          <option value="">버전 선택</option>
+          {versions.map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </select>
+        {hasError(errors, item.id, 'version') && (
+          <p id={`version-error-${item.id}`} className="text-red-500 text-xs mt-1" role="alert">
+            버전을 선택해주세요.
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor={`db-size-input-${item.id}`} className="block mb-1 text-sm font-medium">
+          DB 크기 (GB)
+        </label>
+        <input
+          id={`db-size-input-${item.id}`}
+          type="number"
+          min="1"
+          value={item.size}
+          onChange={(e) => onChange(item.id, 'size', e.target.value)}
+          placeholder="DB Size (GB)"
+          className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
+            hasError(errors, item.id, 'size') ? 'border-red-500' : ''
+          }`}
+          aria-describedby={hasError(errors, item.id, 'size') ? `size-error-${item.id}` : undefined}
+        />
+        {hasError(errors, item.id, 'size') && (
+          <p id={`size-error-${item.id}`} className="text-red-500 text-xs mt-1" role="alert">
+            유효한 크기를 입력해주세요.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function Step8_DB() {
   const { formData, updateFormData } = useSurvey();
 
@@ -79,26 +265,11 @@ export default function Step8_DB() {
     });
   };
 
-  const validateField = (field: keyof DBItem, value: string): boolean => {
-    if (field === 'size') {
-      const n = parseInt(value, 10);
-      return !isNaN(n) && n > 0;
-    }
-    return !!value;
-  };
-
   const updateItemField = (id: number, field: keyof DBItem, value: string) => {
     setDbItems((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
-        const updated = { ...item, [field]: value };
-        if (field === 'type') {
-          updated.name = '';
-          updated.version = '';
-        } else if (field === 'name') {
-          updated.version = '';
-        }
-        return updated;
+        return createUpdatedItem(item, field, value);
       })
     );
   };
@@ -123,144 +294,6 @@ export default function Step8_DB() {
     handleChange(id, 'name', value);
   };
 
-  const hasError = (id: number, field: keyof DBItem) =>
-    errors[id?.toString()]?.[field] === true;
-
-  const renderDBTypeSection = (item: DBItem) => (
-    <div className="space-y-2">
-      <fieldset>
-        <legend className="text-sm font-medium mb-2">데이터베이스 타입 선택</legend>
-        <div className="grid grid-cols-2 gap-4">
-          {dbTypeCards.map((type) => (
-            <div key={type.value}>
-              <input
-                type="radio"
-                id={`db-type-${item.id}-${type.value}`}
-                name={`db-type-${item.id}`}
-                value={type.value}
-                checked={item.type === type.value}
-                onChange={(e) => handleTypeChange(item.id, e.target.value)}
-                className="sr-only"
-              />
-              <label
-                htmlFor={`db-type-${item.id}-${type.value}`}
-                className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
-                  ${item.type === type.value
-                    ? 'border-violet-500 bg-violet-600 text-white'
-                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                `}
-              >
-                <span className="text-sm font-semibold">{type.label}</span>
-              </label>
-            </div>
-          ))}
-        </div>
-      </fieldset>
-    </div>
-  );
-
-  const renderDBSelectionSection = (item: DBItem) => {
-    if (!item.type) return null;
-    
-    const availableDBs = dbOptions[item.type as ValidDBType] || [];
-    
-    return (
-      <div className="space-y-2">
-        <fieldset>
-          <legend className="text-sm font-medium mb-2">{item.type} 데이터베이스 선택</legend>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {availableDBs.map((db) => (
-              <div key={db}>
-                <input
-                  type="radio"
-                  id={`db-name-${item.id}-${db}`}
-                  name={`db-name-${item.id}`}
-                  value={db}
-                  checked={item.name === db}
-                  onChange={(e) => handleNameChange(item.id, e.target.value)}
-                  className="sr-only"
-                />
-                <label
-                  htmlFor={`db-name-${item.id}-${db}`}
-                  className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
-                    ${item.name === db
-                      ? 'border-violet-500 bg-violet-600 text-white'
-                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                  `}
-                >
-                  <img
-                    src={dbImages[db]}
-                    alt={`${dbLabels[db]} 로고`}
-                    className="h-14 mx-auto object-contain mb-2"
-                  />
-                  <span className="text-sm font-semibold">{dbLabels[db]}</span>
-                </label>
-              </div>
-            ))}
-          </div>
-        </fieldset>
-      </div>
-    );
-  };
-
-  const renderVersionAndSizeSection = (item: DBItem) => {
-    if (!item.name) return null;
-    
-    const versions = dbVersions[item.name as DBName] || [];
-    
-    return (
-      <div className="space-y-4">
-        <div>
-          <label htmlFor={`db-version-select-${item.id}`} className="block mb-1 text-sm font-medium">
-            {dbLabels[item.name as DBName]} 버전 선택
-          </label>
-          <select
-            id={`db-version-select-${item.id}`}
-            value={item.version}
-            onChange={(e) => handleChange(item.id, 'version', e.target.value)}
-            className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
-              hasError(item.id, 'version') ? 'border-red-500' : ''
-            }`}
-            aria-describedby={hasError(item.id, 'version') ? `version-error-${item.id}` : undefined}
-          >
-            <option value="">버전 선택</option>
-            {versions.map((v) => (
-              <option key={v} value={v}>{v}</option>
-            ))}
-          </select>
-          {hasError(item.id, 'version') && (
-            <p id={`version-error-${item.id}`} className="text-red-500 text-xs mt-1" role="alert">
-              버전을 선택해주세요.
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor={`db-size-input-${item.id}`} className="block mb-1 text-sm font-medium">
-            DB 크기 (GB)
-          </label>
-          <input
-            id={`db-size-input-${item.id}`}
-            type="number"
-            min="1"
-            value={item.size}
-            onChange={(e) => handleChange(item.id, 'size', e.target.value)}
-            placeholder="DB Size (GB)"
-            className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
-              hasError(item.id, 'size') ? 'border-red-500' : ''
-            }`}
-            aria-describedby={hasError(item.id, 'size') ? `size-error-${item.id}` : undefined}
-          />
-          {hasError(item.id, 'size') && (
-            <p id={`size-error-${item.id}`} className="text-red-500 text-xs mt-1" role="alert">
-              유효한 크기를 입력해주세요.
-            </p>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-4">
       {dbItems.map((item) => (
@@ -268,9 +301,9 @@ export default function Step8_DB() {
           key={`db-item-${item.id}`}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          {renderDBTypeSection(item)}
-          {renderDBSelectionSection(item)}
-          {renderVersionAndSizeSection(item)}
+          <DBTypeSection item={item} onTypeChange={handleTypeChange} />
+          <DBSelectionSection item={item} onNameChange={handleNameChange} />
+          <VersionAndSizeSection item={item} errors={errors} onChange={handleChange} />
 
           {dbItems.length > 1 && (
             <button
