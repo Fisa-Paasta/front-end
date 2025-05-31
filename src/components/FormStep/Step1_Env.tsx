@@ -12,8 +12,9 @@ export default function Step1_Env() {
   return (
     <div className="space-y-4">
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm">
-        <label className="block mb-2 text-sm font-medium">환경 선택</label>
+        <label htmlFor="env-select" className="block mb-2 text-sm font-medium">환경 선택</label>
         <select
+          id="env-select"
           name="env"
           className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
           value={formData.env || ''}

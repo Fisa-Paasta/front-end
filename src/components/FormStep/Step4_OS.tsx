@@ -63,10 +63,11 @@ export default function Step4_OS() {
         {/* 버전 선택 */}
         {localOS.name && (
           <div>
-            <label className="block mb-1 text-sm font-semibold text-gray-900 dark:text-white">
+            <label htmlFor="os-version-select" className="block mb-1 text-sm font-semibold text-gray-900 dark:text-white">
               버전 선택
             </label>
             <select
+              id="os-version-select"
               className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
               value={localOS.version}
               onChange={(e) => handleChange('version', e.target.value)}

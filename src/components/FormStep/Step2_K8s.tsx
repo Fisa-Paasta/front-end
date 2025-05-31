@@ -46,8 +46,9 @@ export default function Step2_K8s() {
 
         {/* 오케스트레이션 선택 */}
         <div>
-          <label className="block mb-1 text-sm font-medium">컨테이너 오케스트레이션</label>
+          <label htmlFor="orchestration-select" className="block mb-1 text-sm font-medium">컨테이너 오케스트레이션</label>
           <select
+            id="orchestration-select"
             value={localK8s.type}
             onChange={(e) => handleChange('type', e.target.value)}
             className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${errors.type ? 'border-red-500' : ''}`}
@@ -62,8 +63,9 @@ export default function Step2_K8s() {
 
         {/* Namespace Prefix */}
         <div>
-          <label className="block mb-1 text-sm font-medium">Namespace Prefix</label>
+          <label htmlFor="namespace-input" className="block mb-1 text-sm font-medium">Namespace Prefix</label>
           <input
+            id="namespace-input"
             type="text"
             value={localK8s.namespace}
             onChange={(e) => handleChange('namespace', e.target.value)}

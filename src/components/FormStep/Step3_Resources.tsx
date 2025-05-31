@@ -45,8 +45,9 @@ export default function Step3_Resources() {
     <div className="space-y-4">
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
         <div>
-          <label className="block mb-1 text-sm font-medium">Worker Node 수</label>
+          <label htmlFor="worker-nodes-input" className="block mb-1 text-sm font-medium">Worker Node 수</label>
           <input
+            id="worker-nodes-input"
             type="number"
             min="1"
             value={formData.k8s?.node || ''}
@@ -58,8 +59,9 @@ export default function Step3_Resources() {
         {initialK8s.type === 'amazon_eks' ? (
           <>
             <div>
-              <label className="block mb-1 text-sm font-medium">EC2 인스턴스 타입</label>
+              <label htmlFor="ec2-instance-select" className="block mb-1 text-sm font-medium">EC2 인스턴스 타입</label>
               <select
+                id="ec2-instance-select"
                 value={localVM.ec2Type}
                 onChange={(e) => handleVmChange('ec2Type', e.target.value)}
                 className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
@@ -74,8 +76,9 @@ export default function Step3_Resources() {
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium">EBS 볼륨 타입</label>
+              <label htmlFor="ebs-volume-select" className="block mb-1 text-sm font-medium">EBS 볼륨 타입</label>
               <select
+                id="ebs-volume-select"
                 value={localVM.ebsType}
                 onChange={(e) => handleVmChange('ebsType', e.target.value)}
                 className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
@@ -91,8 +94,9 @@ export default function Step3_Resources() {
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium">EBS 볼륨 크기 (GB)</label>
+              <label htmlFor="ebs-size-input" className="block mb-1 text-sm font-medium">EBS 볼륨 크기 (GB)</label>
               <input
+                id="ebs-size-input"
                 type="number"
                 min="1"
                 value={localVM.ebsSize || ''}
@@ -105,8 +109,9 @@ export default function Step3_Resources() {
         ) : (
           <>
             <div>
-              <label className="block mb-1 text-sm font-medium">CPU (cores)</label>
+              <label htmlFor="cpu-cores-input" className="block mb-1 text-sm font-medium">CPU (cores)</label>
               <input
+                id="cpu-cores-input"
                 type="number"
                 value={localResources.cpu}
                 onChange={(e) => handleResourceChange('cpu', e.target.value)}
@@ -116,8 +121,9 @@ export default function Step3_Resources() {
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium">RAM (GB)</label>
+              <label htmlFor="ram-gb-input" className="block mb-1 text-sm font-medium">RAM (GB)</label>
               <input
+                id="ram-gb-input"
                 type="number"
                 value={localResources.ram}
                 onChange={(e) => handleResourceChange('ram', e.target.value)}
@@ -127,8 +133,9 @@ export default function Step3_Resources() {
             </div>
 
             <div>
-              <label className="block mb-1 text-sm font-medium">DISK (GB)</label>
+              <label htmlFor="disk-gb-input" className="block mb-1 text-sm font-medium">DISK (GB)</label>
               <input
+                id="disk-gb-input"
                 type="number"
                 value={localResources.disk}
                 onChange={(e) => handleResourceChange('disk', e.target.value)}

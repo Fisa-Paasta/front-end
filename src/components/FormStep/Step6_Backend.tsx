@@ -137,16 +137,20 @@ export default function Step6_Backend() {
 
             {/* 언어 버전 선택 */}
             {item.language && (
-              <select
-                value={item.languageVersion}
-                onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-              >
-                <option value="">언어 버전 선택</option>
-                {(languageOptions[item.language] || []).map((v) => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
+              <div>
+                <label htmlFor={`language-version-select-${i}`} className="block mb-1 text-sm font-medium">언어 버전 선택</label>
+                <select
+                  id={`language-version-select-${i}`}
+                  value={item.languageVersion}
+                  onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                >
+                  <option value="">언어 버전 선택</option>
+                  {(languageOptions[item.language] || []).map((v) => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+              </div>
             )}
 
             {/* 프레임워크 선택 */}
@@ -171,16 +175,20 @@ export default function Step6_Backend() {
 
             {/* 프레임워크 버전 선택 */}
             {item.framework && (
-              <select
-                value={item.frameworkVersion}
-                onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-              >
-                <option value="">프레임워크 버전 선택</option>
-                {(frameworkOptions[item.framework] || []).map((v) => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
+              <div>
+                <label htmlFor={`framework-version-select-${i}`} className="block mb-1 text-sm font-medium">프레임워크 버전 선택</label>
+                <select
+                  id={`framework-version-select-${i}`}
+                  value={item.frameworkVersion}
+                  onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                >
+                  <option value="">프레임워크 버전 선택</option>
+                  {(frameworkOptions[item.framework] || []).map((v) => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+              </div>
             )}
 
             {items.length > 1 && (
@@ -207,8 +215,9 @@ export default function Step6_Backend() {
         {formData.env === 'paas' && (
           <>
             <div className="mt-6">
-              <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API 도메인</label>
+              <label htmlFor="api-domain-input" className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API 도메인</label>
               <input
+                id="api-domain-input"
                 type="text"
                 value={apiDomain}
                 onChange={(e) => handleDomainChange(e.target.value)}
@@ -226,7 +235,9 @@ export default function Step6_Backend() {
               <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</label>
               {apiPaths.map((path, i) => (
                 <div key={i} className="flex items-center gap-2">
+                  <label htmlFor={`api-path-input-${i}`} className="sr-only">API 경로 {i + 1}</label>
                   <input
+                    id={`api-path-input-${i}`}
                     type="text"
                     value={path}
                     onChange={(e) => handlePathChange(i, e.target.value)}

@@ -38,8 +38,9 @@ export default function Step2_VM() {
     <div className="space-y-4">
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
         <div>
-          <label className="block mb-1 text-sm font-medium">호스트네임</label>
+          <label htmlFor="hostname-input" className="block mb-1 text-sm font-medium">호스트네임</label>
           <input
+            id="hostname-input"
             type="text"
             value={localVM.hostname}
             onChange={(e) => handleChange('hostname', e.target.value)}
@@ -54,8 +55,9 @@ export default function Step2_VM() {
         </div>
 
         <div>
-          <label className="block mb-1 text-sm font-medium">사용자 이름</label>
+          <label htmlFor="username-input" className="block mb-1 text-sm font-medium">사용자 이름</label>
           <input
+            id="username-input"
             type="text"
             value={localVM.username}
             onChange={(e) => handleChange('username', e.target.value)}
