@@ -33,7 +33,7 @@ export default function Step5_Frontend() {
   useEffect(() => {
     updateFormData('frontendItems', items);
     updateFormData('frontendDomain', frontendDomain);
-  }, [items, frontendDomain]);
+  }, [items, frontendDomain, updateFormData]);
 
   const handleChange = (index: number, field: 'framework' | 'version', value: string) => {
     const updated = [...items];
@@ -57,60 +57,48 @@ export default function Step5_Frontend() {
     setDomainError(value !== '' && !/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value));
   };
 
-  const handleFrameworkClick = (itemIndex: number, frameworkName: string) => {
-    const newValue = items[itemIndex].framework === frameworkName ? '' : frameworkName;
-    handleChange(itemIndex, 'framework', newValue);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent, itemIndex: number, frameworkName: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleFrameworkClick(itemIndex, frameworkName);
-    }
-  };
-
   return (
     <div className="space-y-4">
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
         {items.map((item, i) => (
-          <div key={item.id} className="space-y-2">
-            {/* 프레임워크 선택 카드 - 접근성 개선 */}
-            <fieldset className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-              <legend className="sr-only">프론트엔드 프레임워크 선택 {i + 1}</legend>
-              {frontendFrameworks.map((fw) => {
-                const isSelected = item.framework === fw.name;
-                return (
-                  <button
+          <div key={item.id} className="space-y-4">
+            {/* 프레임워크 선택 라디오 그룹 */}
+            <fieldset>
+              <legend className="text-sm font-medium mb-3">프론트엔드 프레임워크 선택 {i + 1}</legend>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                {frontendFrameworks.map((fw) => (
+                  <label
                     key={fw.name}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    aria-label={`${fw.label} 선택`}
-                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
-                      ${isSelected
+                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                      ${item.framework === fw.name
                         ? 'border-violet-500 bg-violet-600 text-white'
                         : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                     `}
-                    onClick={() => handleFrameworkClick(i, fw.name)}
-                    onKeyDown={(e) => handleKeyDown(e, i, fw.name)}
-                    tabIndex={0}
                   >
+                    <input
+                      type="radio"
+                      name={`frontend-framework-${item.id}`}
+                      value={fw.name}
+                      checked={item.framework === fw.name}
+                      onChange={(e) => handleChange(i, 'framework', e.target.value)}
+                      className="sr-only"
+                    />
                     <img
                       src={fw.src}
                       alt=""
                       className="w-full h-16 object-contain mb-2"
                     />
-                    <p className="text-sm font-semibold">{fw.label}</p>
-                  </button>
-                );
-              })}
+                    <span className="text-sm font-semibold">{fw.label}</span>
+                  </label>
+                ))}
+              </div>
             </fieldset>
 
             {/* 버전 선택 + 삭제 */}
             {item.framework && (
               <div className="grid grid-cols-[1fr_40px] gap-2 items-center">
                 <div>
-                  <label htmlFor={`version-select-${item.id}`} className="sr-only">
+                  <label htmlFor={`version-select-${item.id}`} className="block mb-1 text-sm font-medium">
                     {item.framework} 버전 선택
                   </label>
                   <select
@@ -133,7 +121,6 @@ export default function Step5_Frontend() {
                     onClick={() => handleRemove(i)}
                     className="text-red-600 font-bold text-xl text-center hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
                     aria-label={`프론트엔드 항목 ${i + 1} 삭제`}
-                    tabIndex={0}
                   >
                     ✕
                   </button>

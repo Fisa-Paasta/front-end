@@ -25,7 +25,7 @@ export default function Step4_OS() {
 
   useEffect(() => {
     updateFormData('os', localOS);
-  }, [localOS]);
+  }, [localOS, updateFormData]);
 
   const handleChange = (field: keyof OSConfig, value: string) => {
     const updated = { ...localOS, [field]: value };
@@ -33,52 +33,40 @@ export default function Step4_OS() {
     setLocalOS(updated);
   };
 
-  const handleOSClick = (osName: string) => {
-    const newValue = localOS.name === osName ? '' : osName;
-    handleChange('name', newValue);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent, osName: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleOSClick(osName);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
-        {/* 카드 목록 - 접근성 개선 */}
-        <fieldset className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-          <legend className="sr-only">운영 체제 선택</legend>
-          {osImages.map((os) => {
-            const isSelected = localOS.name === os.name;
-            return (
-              <button
+        {/* OS 선택 라디오 그룹 */}
+        <fieldset>
+          <legend className="text-sm font-medium mb-3">운영 체제 선택</legend>
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+            {osImages.map((os) => (
+              <label
                 key={os.name}
-                type="button"
-                role="radio"
-                aria-checked={isSelected}
-                aria-label={`${os.label} 선택`}
-                className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
-                  ${isSelected
+                className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                  ${localOS.name === os.name
                     ? 'border-violet-500 bg-violet-600 text-white'
                     : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'
                   }
                 `}
-                onClick={() => handleOSClick(os.name)}
-                onKeyDown={(e) => handleKeyDown(e, os.name)}
-                tabIndex={0}
               >
+                <input
+                  type="radio"
+                  name="os-selection"
+                  value={os.name}
+                  checked={localOS.name === os.name}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  className="sr-only"
+                />
                 <img
                   src={os.src}
                   alt=""
                   className="w-full h-16 object-contain mb-2"
                 />
-                <p className="text-sm font-semibold">{os.label}</p>
-              </button>
-            );
-          })}
+                <span className="text-sm font-semibold">{os.label}</span>
+              </label>
+            ))}
+          </div>
         </fieldset>
 
         {/* 버전 선택 */}

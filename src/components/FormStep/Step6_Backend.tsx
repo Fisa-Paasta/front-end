@@ -59,7 +59,7 @@ export default function Step6_Backend() {
     updateFormData('backendItems', items);
     updateFormData('apiDomain', apiDomain);
     updateFormData('apiPaths', apiPaths);
-  }, [items, apiDomain, apiPaths]);
+  }, [items, apiDomain, apiPaths, updateFormData]);
 
   const handleItemChange = (i: number, field: keyof BackendItem, value: string) => {
     const updated = [...items];
@@ -116,33 +116,34 @@ export default function Step6_Backend() {
     <div className="space-y-4">
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
         {items.map((item, i) => (
-          <div key={item.id} className="space-y-3">
-            {/* 언어 선택 */}
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-              {languageCards.map((lang) => (
-                <div
-                  key={lang.name}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
-                    ${item.language === lang.name
-                      ? 'border-violet-500 bg-violet-600 text-white'
-                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                  `}
-                  onClick={() => handleItemChange(i, 'language', item.language === lang.name ? '' : lang.name)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleItemChange(i, 'language', item.language === lang.name ? '' : lang.name);
-                    }
-                  }}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`${lang.label} 선택`}
-                >
-                  <img src={lang.src} alt={lang.label} className="h-14 mx-auto object-contain mb-2" />
-                  <p className="text-sm font-semibold">{lang.label}</p>
-                </div>
-              ))}
-            </div>
+          <div key={item.id} className="space-y-4">
+            {/* 언어 선택 라디오 그룹 */}
+            <fieldset>
+              <legend className="text-sm font-medium mb-3">백엔드 언어 선택 {i + 1}</legend>
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+                {languageCards.map((lang) => (
+                  <label
+                    key={lang.name}
+                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                      ${item.language === lang.name
+                        ? 'border-violet-500 bg-violet-600 text-white'
+                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                    `}
+                  >
+                    <input
+                      type="radio"
+                      name={`backend-language-${item.id}`}
+                      value={lang.name}
+                      checked={item.language === lang.name}
+                      onChange={(e) => handleItemChange(i, 'language', e.target.value)}
+                      className="sr-only"
+                    />
+                    <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                    <span className="text-sm font-semibold">{lang.label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
 
             {/* 언어 버전 선택 */}
             {item.language && (
@@ -152,7 +153,8 @@ export default function Step6_Backend() {
                   id={`language-version-select-${item.id}`}
                   value={item.languageVersion}
                   onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  aria-label={`${item.language} 버전 선택`}
                 >
                   <option value="">언어 버전 선택</option>
                   {(languageOptions[item.language] || []).map((v) => (
@@ -162,33 +164,34 @@ export default function Step6_Backend() {
               </div>
             )}
 
-            {/* 프레임워크 선택 */}
+            {/* 프레임워크 선택 라디오 그룹 */}
             {item.language && (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                {(frameworkCards[item.language] || []).map((fw) => (
-                  <div
-                    key={fw.name}
-                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
-                      ${item.framework === fw.name
-                        ? 'border-violet-500 bg-violet-600 text-white'
-                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                    `}
-                    onClick={() => handleItemChange(i, 'framework', item.framework === fw.name ? '' : fw.name)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleItemChange(i, 'framework', item.framework === fw.name ? '' : fw.name);
-                      }
-                    }}
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`${fw.label} 선택`}
-                  >
-                    <img src={fw.src} alt={fw.label} className="h-14 mx-auto object-contain mb-2" />
-                    <p className="text-sm font-semibold">{fw.label}</p>
-                  </div>
-                ))}
-              </div>
+              <fieldset>
+                <legend className="text-sm font-medium mb-3">{item.language} 프레임워크 선택</legend>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                  {(frameworkCards[item.language] || []).map((fw) => (
+                    <label
+                      key={fw.name}
+                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                        ${item.framework === fw.name
+                          ? 'border-violet-500 bg-violet-600 text-white'
+                          : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                      `}
+                    >
+                      <input
+                        type="radio"
+                        name={`backend-framework-${item.id}`}
+                        value={fw.name}
+                        checked={item.framework === fw.name}
+                        onChange={(e) => handleItemChange(i, 'framework', e.target.value)}
+                        className="sr-only"
+                      />
+                      <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                      <span className="text-sm font-semibold">{fw.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
             )}
 
             {/* 프레임워크 버전 선택 */}
@@ -199,7 +202,8 @@ export default function Step6_Backend() {
                   id={`framework-version-select-${item.id}`}
                   value={item.frameworkVersion}
                   onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  aria-label={`${item.framework} 버전 선택`}
                 >
                   <option value="">프레임워크 버전 선택</option>
                   {(frameworkOptions[item.framework] || []).map((v) => (
@@ -213,7 +217,8 @@ export default function Step6_Backend() {
               <button
                 type="button"
                 onClick={() => handleRemove(i)}
-                className="text-red-600 text-xl"
+                className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                aria-label={`백엔드 항목 ${i + 1} 삭제`}
               >
                 ✕
               </button>
@@ -224,7 +229,8 @@ export default function Step6_Backend() {
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md"
+          className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          aria-label="새 백엔드 항목 추가"
         >
           + 백엔드 추가
         </button>
@@ -240,12 +246,15 @@ export default function Step6_Backend() {
                 value={apiDomain}
                 onChange={(e) => handleDomainChange(e.target.value)}
                 placeholder="예: api.example.com"
-                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${
+                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
                   domainError ? 'border-red-500' : ''
                 }`}
+                aria-describedby={domainError ? 'api-domain-error' : undefined}
               />
               {domainError && (
-                <p className="text-red-500 text-xs mt-1">도메인 형식이 올바르지 않습니다.</p>
+                <p id="api-domain-error" className="text-red-500 text-xs mt-1" role="alert">
+                  도메인 형식이 올바르지 않습니다.
+                </p>
               )}
             </div>
 
@@ -260,13 +269,14 @@ export default function Step6_Backend() {
                     value={path}
                     onChange={(e) => handlePathChange(i, e.target.value)}
                     placeholder="/api"
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                   {apiPaths.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemovePath(i)}
-                      className="text-red-500 text-xl"
+                      className="text-red-500 text-xl hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                      aria-label={`API 경로 ${i + 1} 삭제`}
                     >
                       ✕
                     </button>
@@ -276,7 +286,8 @@ export default function Step6_Backend() {
               <button
                 type="button"
                 onClick={handleAddPath}
-                className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md"
+                className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                aria-label="새 API 경로 추가"
               >
                 + 경로 추가
               </button>

@@ -27,7 +27,7 @@ export default function Step7_WebServer() {
 
   useEffect(() => {
     updateFormData('webServerItems', webServerItems);
-  }, [webServerItems]);
+  }, [webServerItems, updateFormData]);
 
   const addWebServerItem = () => {
     setWebServerItems((prev) => [
@@ -58,19 +58,6 @@ export default function Step7_WebServer() {
     );
   };
 
-  const handleServerClick = (itemId: number, serverName: string) => {
-    const item = webServerItems.find(item => item.id === itemId);
-    const newValue = item?.server === serverName ? '' : serverName;
-    handleChange(itemId, 'server', newValue);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent, itemId: number, serverName: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleServerClick(itemId, serverName);
-    }
-  };
-
   return (
     <div className="space-y-4">
       {webServerItems.map((item) => (
@@ -78,36 +65,36 @@ export default function Step7_WebServer() {
           key={item.id}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          {/* 서버 선택 카드 - 접근성 개선 */}
-          <fieldset className="grid grid-cols-3 gap-4">
-            <legend className="sr-only">웹서버 선택</legend>
-            {serverCards.map((server) => {
-              const isSelected = item.server === server.name;
-              return (
-                <button
+          {/* 서버 선택 라디오 그룹 */}
+          <fieldset>
+            <legend className="text-sm font-medium mb-3">웹서버 선택</legend>
+            <div className="grid grid-cols-3 gap-4">
+              {serverCards.map((server) => (
+                <label
                   key={server.name}
-                  type="button"
-                  role="radio"
-                  aria-checked={isSelected}
-                  aria-label={`${server.label} 선택`}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
-                    ${isSelected
+                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                    ${item.server === server.name
                       ? 'border-violet-500 bg-violet-600 text-white'
                       : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
-                  onClick={() => handleServerClick(item.id, server.name)}
-                  onKeyDown={(e) => handleKeyDown(e, item.id, server.name)}
-                  tabIndex={0}
                 >
+                  <input
+                    type="radio"
+                    name={`webserver-${item.id}`}
+                    value={server.name}
+                    checked={item.server === server.name}
+                    onChange={(e) => handleChange(item.id, 'server', e.target.value)}
+                    className="sr-only"
+                  />
                   <img
                     src={server.src}
                     alt=""
                     className="h-14 mx-auto object-contain mb-2"
                   />
-                  <p className="text-sm font-semibold">{server.label}</p>
-                </button>
-              );
-            })}
+                  <span className="text-sm font-semibold">{server.label}</span>
+                </label>
+              ))}
+            </div>
           </fieldset>
 
           {/* 버전 선택 */}
@@ -137,8 +124,7 @@ export default function Step7_WebServer() {
               type="button"
               onClick={() => removeWebServerItem(item.id)}
               className="text-red-500 text-xl hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
-              title="항목 제거"
-              aria-label={`웹서버 항목 삭제`}
+              aria-label="웹서버 항목 삭제"
             >
               ×
             </button>
