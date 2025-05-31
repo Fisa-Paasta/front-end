@@ -157,6 +157,14 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return res.json();
   }, [user?.userId]);
 
+  // ✅ 카드 변환 로직 분리
+  const processApplicationsToCards = useCallback((applications: any[], prevCards: SubmittedCard[]): SubmittedCard[] => {
+    return applications.map((app: any) => {
+      const existingCard = prevCards.find(c => c.id === app.id.toString());
+      return transformApplicationToCard(app, existingCard);
+    });
+  }, []);
+
   // ✅ refreshCards 함수 최적화 (중첩 레벨 감소)
   const refreshCards = useCallback(async (): Promise<void> => {
     if (!user?.userId || authLoading) return;
@@ -169,11 +177,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       console.log(`📋 신청서 ${applications.length}개 로드됨`);
 
       setSubmittedCards(prevCards => {
-        const cards: SubmittedCard[] = applications.map((app: any) => {
-          const existingCard = prevCards.find(c => c.id === app.id.toString());
-          return transformApplicationToCard(app, existingCard);
-        });
-
+        const cards = processApplicationsToCards(applications, prevCards);
         console.log('✅ 신청서 목록 로드 완료');
         return cards;
       });
@@ -182,7 +186,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } finally {
       setIsLoading(false);
     }
-  }, [user?.userId, authLoading, fetchCardsFromServer]);
+  }, [user?.userId, authLoading, fetchCardsFromServer, processApplicationsToCards]);
 
   // ✅ user 변경 시 자동 로드
   useEffect(() => {
