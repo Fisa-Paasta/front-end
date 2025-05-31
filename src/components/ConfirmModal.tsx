@@ -57,7 +57,7 @@ export default function ConfirmModal({
           <ul className="mt-6 space-y-2 text-sm">
             {historyList.map((entry, index) => (
               <li
-                key={`history-entry-${index}`}
+                key={`history-entry-${entry.timestamp ?? Date.now()}-${index}`}
                 className="flex flex-col bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600"
               >
                 <div><strong>작성자:</strong> {entry.by ?? '미지정'}</div>

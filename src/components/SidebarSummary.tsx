@@ -114,8 +114,8 @@ export default function SidebarSummary() {
 
     return [
       includeEksCluster ? `EKS 클러스터 ($0.1/hr)` : null,
-      `EC2 노드 (${nodeCount} × $${ec2Unit}/hr)`,
-      `EBS 볼륨 (${volumeSize}GB × $${ebsUnit}/GB/월 ÷ 30일 ÷ 24시간)`,
+      `EC2 노드 (${nodeCount} × ${ec2Unit}/hr)`,
+      `EBS 볼륨 (${volumeSize}GB × ${ebsUnit}/GB/월 ÷ 30일 ÷ 24시간)`,
       `데이터 전송 (100GB × $0.09/GB/월 ÷ 30일 ÷ 24시간)`
     ].filter(Boolean).join(' + ');
   };
@@ -224,7 +224,7 @@ export default function SidebarSummary() {
                 API 경로:
                 <ul className="list-disc ml-5">
                   {formData.apiPaths.filter((path) => path.trim() !== '').map((path, pathIndex) => (
-                    <li key={`api-path-summary-${pathIndex}`}>{path}</li>
+                    <li key={`api-path-summary-${pathIndex}-${path}`}>{path}</li>
                   ))}
                 </ul>
               </div>

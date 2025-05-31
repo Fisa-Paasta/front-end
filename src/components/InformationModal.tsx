@@ -151,8 +151,8 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
 
           <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
             <KeyGroup>
-              {formData.frontendItems.map((f, i) => (
-                <KeyValue key={`frontend-item-${f.id || i}`} label={`Frontend ${i + 1}`} value={formatValue(`${formatName(f.framework)} ${f.version}`)} />
+              {formData.frontendItems.map((f) => (
+                <KeyValue key={`frontend-item-${f.id}-${f.framework}`} label={`Frontend`} value={formatValue(`${formatName(f.framework)} ${f.version}`)} />
               ))}
               <KeyValue label="도메인" value={formatValue(formData.frontendDomain)} />
             </KeyGroup>
@@ -160,32 +160,32 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
 
           <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
             <KeyGroup>
-              {formData.backendItems.map((b, i) => (
+              {formData.backendItems.map((b) => (
                 <KeyValue
-                  key={`backend-item-${b.id || i}`}
-                  label={`Backend ${i + 1}`}
+                  key={`backend-item-${b.id}-${b.language}-${b.framework}`}
+                  label={`Backend`}
                   value={formatValue(`${formatName(b.language)} ${b.languageVersion} / ${formatName(b.framework)} ${b.frameworkVersion}`)}
                 />
               ))}
               <KeyValue label="API 도메인" value={formatValue(formData.apiDomain)} />
-              {formData.apiPaths?.map((p, i) => <KeyValue key={`api-path-${i}`} label={`경로 ${i + 1}`} value={formatValue(p)} />)}
+              {formData.apiPaths?.map((p, pathIndex) => <KeyValue key={`api-path-${pathIndex}-${p}`} label={`경로`} value={formatValue(p)} />)}
             </KeyGroup>
           </div>
 
           <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
             <KeyGroup>
-              {formData.webServerItems.map((w, i) => (
-                <KeyValue key={`webserver-item-${w.id || i}`} label={`Web Server ${i + 1}`} value={formatValue(`${formatName(w.server)} ${w.version}`)} />
+              {formData.webServerItems.map((w) => (
+                <KeyValue key={`webserver-item-${w.id}-${w.server}`} label={`Web Server`} value={formatValue(`${formatName(w.server)} ${w.version}`)} />
               ))}
             </KeyGroup>
           </div>
 
           <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
             <KeyGroup>
-              {formData.dbItems.map((d, i) => (
+              {formData.dbItems.map((d) => (
                 <KeyValue
-                  key={`db-item-${d.id || i}`}
-                  label={`DB ${i + 1}`}
+                  key={`db-item-${d.id}-${d.name}`}
+                  label={`DB`}
                   value={formatValue(`${formatName(d.type)} / ${formatName(d.name)} ${d.version} (${d.size} GB)`)}
                 />
               ))}

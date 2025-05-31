@@ -44,12 +44,6 @@ export default function AdminCardDetail({
     onStatusChange(item.id, newStatus);
   };
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
@@ -62,7 +56,6 @@ export default function AdminCardDetail({
     <dialog 
       open
       className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center" 
-      onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
       aria-labelledby="card-detail-title"
     >
@@ -113,7 +106,7 @@ export default function AdminCardDetail({
             <h3 className="text-sm font-semibold mb-2">📜 상태 변경 이력</h3>
             <ul className="text-sm space-y-1">
               {item.historyList.map((entry, idx) => (
-                <li key={`history-${item.id}-${idx}`} className="text-gray-500 dark:text-gray-400">
+                <li key={`history-${item.id}-${entry.timestamp ?? Date.now()}-${idx}`} className="text-gray-500 dark:text-gray-400">
                   <time dateTime={entry.timestamp}>{entry.timestamp}</time> - {entry.by ?? '시스템'}
                   {entry.note && (
                     <span className="text-xs text-gray-400 ml-2">({entry.note})</span>

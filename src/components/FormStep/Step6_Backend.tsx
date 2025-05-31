@@ -123,25 +123,28 @@ export default function Step6_Backend() {
               <legend className="text-sm font-medium mb-3">백엔드 언어 선택 {index + 1}</legend>
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
                 {languageCards.map((lang) => (
-                  <label
-                    key={`lang-${item.id}-${lang.name}`}
-                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
-                      ${item.language === lang.name
-                        ? 'border-violet-500 bg-violet-600 text-white'
-                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                    `}
-                  >
+                  <div key={`lang-${item.id}-${lang.name}`}>
                     <input
                       type="radio"
+                      id={`backend-language-${item.id}-${lang.name}`}
                       name={`backend-language-${item.id}`}
                       value={lang.name}
                       checked={item.language === lang.name}
                       onChange={(e) => handleItemChange(index, 'language', e.target.value)}
                       className="sr-only"
                     />
-                    <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
-                    <span className="text-sm font-semibold">{lang.label}</span>
-                  </label>
+                    <label
+                      htmlFor={`backend-language-${item.id}-${lang.name}`}
+                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                        ${item.language === lang.name
+                          ? 'border-violet-500 bg-violet-600 text-white'
+                          : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                      `}
+                    >
+                      <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                      <span className="text-sm font-semibold">{lang.label}</span>
+                    </label>
+                  </div>
                 ))}
               </div>
             </fieldset>
@@ -171,25 +174,28 @@ export default function Step6_Backend() {
                 <legend className="text-sm font-medium mb-3">{item.language} 프레임워크 선택</legend>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                   {(frameworkCards[item.language] || []).map((fw) => (
-                    <label
-                      key={`fw-${item.id}-${fw.name}`}
-                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
-                        ${item.framework === fw.name
-                          ? 'border-violet-500 bg-violet-600 text-white'
-                          : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                      `}
-                    >
+                    <div key={`fw-${item.id}-${fw.name}`}>
                       <input
                         type="radio"
+                        id={`backend-framework-${item.id}-${fw.name}`}
                         name={`backend-framework-${item.id}`}
                         value={fw.name}
                         checked={item.framework === fw.name}
                         onChange={(e) => handleItemChange(index, 'framework', e.target.value)}
                         className="sr-only"
                       />
-                      <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
-                      <span className="text-sm font-semibold">{fw.label}</span>
-                    </label>
+                      <label
+                        htmlFor={`backend-framework-${item.id}-${fw.name}`}
+                        className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                          ${item.framework === fw.name
+                            ? 'border-violet-500 bg-violet-600 text-white'
+                            : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                        `}
+                      >
+                        <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                        <span className="text-sm font-semibold">{fw.label}</span>
+                      </label>
+                    </div>
                   ))}
                 </div>
               </fieldset>
@@ -262,7 +268,7 @@ export default function Step6_Backend() {
             <fieldset className="mt-6 space-y-2">
               <legend className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</legend>
               {apiPaths.map((path, pathIndex) => (
-                <div key={`api-path-${pathIndex}`} className="flex items-center gap-2">
+                <div key={`api-path-${pathIndex}-${path}`} className="flex items-center gap-2">
                   <label htmlFor={`api-path-input-${pathIndex}`} className="sr-only">API 경로 {pathIndex + 1}</label>
                   <input
                     id={`api-path-input-${pathIndex}`}

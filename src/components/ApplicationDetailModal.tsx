@@ -129,9 +129,9 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
           <KeyGroup>
-            {formData.frontendItems.map((f, index) => (
+            {formData.frontendItems.map((f) => (
               <KeyValue
-                key={`frontend-${f.id || index}`}
+                key={`frontend-${f.id}-${f.framework}`}
                 label={`Frontend`}
                 value={formatValue(`${formatName(f.framework)} ${f.version}`)}
               />
@@ -142,9 +142,9 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
           <KeyGroup>
-            {formData.backendItems.map((b, index) => (
+            {formData.backendItems.map((b) => (
               <KeyValue
-                key={`backend-${b.id || index}`}
+                key={`backend-${b.id}-${b.language}-${b.framework}`}
                 label={`Backend`}
                 value={formatValue(
                   `${formatName(b.language)} ${b.languageVersion} / ${formatName(b.framework)} ${b.frameworkVersion}`
@@ -152,9 +152,9 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
               />
             ))}
             <KeyValue label="API 도메인" value={formatValue(formData.apiDomain)} />
-            {formData.apiPaths?.map((p, index) => (
+            {formData.apiPaths?.map((p, pathIndex) => (
               <KeyValue
-                key={`api-path-${index}`}
+                key={`api-path-${pathIndex}-${p}`}
                 label="경로"
                 value={formatValue(p)}
               />
@@ -164,9 +164,9 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
           <KeyGroup>
-            {formData.webServerItems.map((w, index) => (
+            {formData.webServerItems.map((w) => (
               <KeyValue
-                key={`webserver-${w.id || index}`}
+                key={`webserver-${w.id}-${w.server}`}
                 label="Web Server"
                 value={formatValue(`${formatName(w.server)} ${w.version}`)}
               />
@@ -176,9 +176,9 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
           <KeyGroup>
-            {formData.dbItems.map((d, index) => (
+            {formData.dbItems.map((d) => (
               <KeyValue
-                key={`db-${d.id || index}`}
+                key={`db-${d.id}-${d.name}`}
                 label="DB"
                 value={formatValue(
                   `${formatName(d.type)} / ${formatName(d.name)} ${d.version} (${d.size} GB)`
