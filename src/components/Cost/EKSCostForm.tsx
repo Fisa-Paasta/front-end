@@ -94,8 +94,12 @@ export default function EKSCostForm() {
           <div className="bg-panel-light dark:bg-panel-dark p-6 rounded-lg shadow transition-colors duration-500">
             <h3 className="text-lg font-semibold mb-3">워커 노드</h3>
             
-            <label className="block text-sm font-medium mb-1">EC2 인스턴스 타입</label>
+            {/* ✅ htmlFor 속성 추가 */}
+            <label htmlFor="node-type-select" className="block text-sm font-medium mb-1">
+              EC2 인스턴스 타입
+            </label>
             <select
+              id="node-type-select"
               value={nodeType}
               onChange={(e) => setNodeType(e.target.value as EC2InstanceType)}
               className="w-full p-2 rounded border bg-input-light dark:bg-input-dark border-border-light dark:border-border-dark mb-4"
@@ -105,8 +109,12 @@ export default function EKSCostForm() {
               <option value="m5.large">m5.large ($0.096/hr)</option>
             </select>
             
-            <label className="block text-sm font-medium mb-1">노드 수</label>
+            {/* ✅ htmlFor 속성 추가 */}
+            <label htmlFor="node-count-input" className="block text-sm font-medium mb-1">
+              노드 수
+            </label>
             <input
+              id="node-count-input"
               type="number"
               min="1"
               value={nodeCount}
@@ -119,8 +127,12 @@ export default function EKSCostForm() {
           <div className="bg-panel-light dark:bg-panel-dark p-6 rounded-lg shadow transition-colors duration-500">
             <h3 className="text-lg font-semibold mb-3">EBS 볼륨</h3>
             
-            <label className="block text-sm font-medium mb-1">볼륨 타입</label>
+            {/* ✅ htmlFor 속성 추가 */}
+            <label htmlFor="volume-type-select" className="block text-sm font-medium mb-1">
+              볼륨 타입
+            </label>
             <select
+              id="volume-type-select"
               value={volumeType}
               onChange={(e) => setVolumeType(e.target.value as EBSVolumeType)}
               className="w-full p-2 rounded border bg-input-light dark:bg-input-dark border-border-light dark:border-border-dark mb-4"
@@ -135,8 +147,12 @@ export default function EKSCostForm() {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">볼륨 크기 (GB)</label>
+                {/* ✅ htmlFor 속성 추가 */}
+                <label htmlFor="volume-size-input" className="block text-sm font-medium mb-1">
+                  볼륨 크기 (GB)
+                </label>
                 <input
+                  id="volume-size-input"
                   type="number"
                   min="1"
                   value={volumeSize}
@@ -145,8 +161,12 @@ export default function EKSCostForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">볼륨 수</label>
+                {/* ✅ htmlFor 속성 추가 */}
+                <label htmlFor="volume-count-input" className="block text-sm font-medium mb-1">
+                  볼륨 수
+                </label>
                 <input
+                  id="volume-count-input"
                   type="number"
                   min="1"
                   value={volumeCount}
@@ -161,8 +181,12 @@ export default function EKSCostForm() {
           <div className="bg-panel-light dark:bg-panel-dark p-6 rounded-lg shadow transition-colors duration-500">
             <h3 className="text-lg font-semibold mb-3">데이터 전송</h3>
             
-            <label className="block text-sm font-medium mb-1">월간 데이터 전송량 (GB)</label>
+            {/* ✅ htmlFor 속성 추가 */}
+            <label htmlFor="data-transfer-input" className="block text-sm font-medium mb-1">
+              월간 데이터 전송량 (GB)
+            </label>
             <input
+              id="data-transfer-input"
               type="number"
               min="0"
               value={dataTransfer}
