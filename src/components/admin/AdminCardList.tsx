@@ -44,11 +44,11 @@ export default function AdminCardList({
           const isSelected = selectedIds.has(item.id);
 
           return (
-            <div
+            <button
               key={item.id}
-              className={`relative bg-panel-light dark:bg-panel-dark rounded-xl p-4 border cursor-pointer transition focus-within:ring-2 focus-within:ring-primary
+              type="button"
+              className={`relative bg-panel-light dark:bg-panel-dark rounded-xl p-4 border cursor-pointer transition focus-within:ring-2 focus-within:ring-primary text-left w-full
                 ${isSelected ? 'border-primary ring-2 ring-primary' : 'border-border-light dark:border-border-dark'}`}
-              tabIndex={0}
               onClick={(e) => handleCardClick(item, e)}
               onKeyDown={(e) => handleCardKeyDown(item, e)}
               aria-label={`신청서 카드: ${item.title}, 사번: ${item.userId ?? '미입력'}, 상태: ${item.status}`}
@@ -107,7 +107,7 @@ export default function AdminCardList({
                   </button>
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

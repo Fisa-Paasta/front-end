@@ -75,14 +75,13 @@ const hasError = (errors: Record<string, Record<string, boolean>>, id: number, f
   return errors[id?.toString()]?.[field] === true;
 };
 
-// DB 타입 섹션 렌더링 함수 분리
-const DBTypeSection = ({ 
-  item, 
-  onTypeChange 
-}: { 
-  item: DBItem; 
-  onTypeChange: (id: number, value: string) => void; 
-}) => (
+// DB 타입 섹션 컴포넌트
+interface DBTypeSectionProps {
+  item: DBItem;
+  onTypeChange: (id: number, value: string) => void;
+}
+
+const DBTypeSection = ({ item, onTypeChange }: DBTypeSectionProps) => (
   <div className="space-y-2">
     <fieldset>
       <legend className="text-sm font-medium mb-2">데이터베이스 타입 선택</legend>
@@ -115,14 +114,13 @@ const DBTypeSection = ({
   </div>
 );
 
-// DB 선택 섹션 렌더링 함수 분리
-const DBSelectionSection = ({ 
-  item, 
-  onNameChange 
-}: { 
-  item: DBItem; 
-  onNameChange: (id: number, value: string) => void; 
-}) => {
+// DB 선택 섹션 컴포넌트
+interface DBSelectionSectionProps {
+  item: DBItem;
+  onNameChange: (id: number, value: string) => void;
+}
+
+const DBSelectionSection = ({ item, onNameChange }: DBSelectionSectionProps) => {
   if (!item.type) return null;
   
   const availableDBs = dbOptions[item.type as ValidDBType] ?? [];
@@ -166,16 +164,14 @@ const DBSelectionSection = ({
   );
 };
 
-// 버전 및 크기 섹션 렌더링 함수 분리
-const VersionAndSizeSection = ({ 
-  item, 
-  errors, 
-  onChange 
-}: { 
-  item: DBItem; 
-  errors: Record<string, Record<string, boolean>>; 
-  onChange: (id: number, field: keyof DBItem, value: string) => void; 
-}) => {
+// 버전 및 크기 섹션 컴포넌트
+interface VersionAndSizeSectionProps {
+  item: DBItem;
+  errors: Record<string, Record<string, boolean>>;
+  onChange: (id: number, field: keyof DBItem, value: string) => void;
+}
+
+const VersionAndSizeSection = ({ item, errors, onChange }: VersionAndSizeSectionProps) => {
   if (!item.name) return null;
   
   const versions = dbVersions[item.name as DBName] ?? [];

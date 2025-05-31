@@ -70,7 +70,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error('삭제 실패');
   
       deleteCard(id, comment);
-      refreshCards();
+      await refreshCards();
       setSelectedItem(null);
   
     } catch (err) {
@@ -131,7 +131,7 @@ export default function AdminPage() {
       await Promise.all(promises);
       alert(`✅ ${selectedIds.size}개 항목이 ${bulkStatus}로 변경되었습니다.`);
       setSelectedIds(new Set());
-      refreshCards();
+      await refreshCards();
     } catch (err) {
       console.error('❌ 일괄 상태 변경 실패:', err);
       alert('❌ 일괄 상태 변경 중 오류가 발생했습니다.');
@@ -162,11 +162,7 @@ export default function AdminPage() {
       statusMatch = card.status === filterStatus;
     } else {
       const isDeletedView = activeSidebar === '삭제된 요청';
-      if (isDeletedView) {
-        statusMatch = card.status === '삭제됨';
-      } else {
-        statusMatch = card.status !== '삭제됨';
-      }
+      statusMatch = isDeletedView ? card.status === '삭제됨' : card.status !== '삭제됨';
     }
     
     return userIdMatch && dateMatch && statusMatch;

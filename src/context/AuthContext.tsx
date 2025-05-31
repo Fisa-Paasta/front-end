@@ -1,4 +1,3 @@
-// AuthContext.tsx - Key fixes
 import React, {
   createContext,
   useContext,
@@ -58,64 +57,71 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (user) startInactivityTimer();
   }, [user, startInactivityTimer]);
 
+  // 토큰 검증 로직 분리
+  const verifyTokenWithServer = useCallback(async (token: string): Promise<boolean> => {
+    try {
+      const res = await fetch('http://localhost:8080/api/verify-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.ok;
+    } catch {
+      console.warn('⚠️ 서버 연결 실패, 임시로 로컬 상태 유지');
+      return true; // 서버 연결 실패 시에도 로컬 상태 유지 (오프라인 대응)
+    }
+  }, []);
+
+  // 인증 상태 복원 로직 분리
+  const restoreAuthState = useCallback(async () => {
+    const storedToken = localStorage.getItem('token');
+    const storedUserId = localStorage.getItem('userId');
+    const storedUserName = localStorage.getItem('userName');
+    const storedRole = localStorage.getItem('role') as Role | null;
+
+    if (!storedToken || !storedUserId || !storedUserName || !storedRole) {
+      return;
+    }
+
+    console.log('🔄 로그인 상태 복원 중...');
+    
+    // 임시 토큰은 검증 없이 바로 복원
+    if (storedToken === 'test-user-token' || 
+        storedToken === 'test-admin-token' || 
+        storedToken.startsWith('mock-jwt-token-')) {
+      setUser({
+        userId: storedUserId,
+        userName: storedUserName,
+        role: storedRole,
+      });
+      startInactivityTimer();
+      console.log('✅ 임시 토큰으로 로그인 상태 복원 완료');
+      return;
+    }
+
+    // 실제 토큰은 서버 검증
+    const isValid = await verifyTokenWithServer(storedToken);
+    if (isValid) {
+      setUser({
+        userId: storedUserId,
+        userName: storedUserName,
+        role: storedRole,
+      });
+      startInactivityTimer();
+      console.log('✅ 서버 검증 후 로그인 상태 복원 완료');
+    } else {
+      console.warn('⚠️ 토큰 검증 실패, 로그아웃 처리');
+      localStorage.clear();
+    }
+  }, [startInactivityTimer, verifyTokenWithServer]);
+
   // 초기 인증 상태 복구 (새로고침 대응)
   useEffect(() => {
-    const restoreAuthState = async () => {
+    const initializeAuth = async () => {
       try {
-        const storedToken = localStorage.getItem('token');
-        const storedUserId = localStorage.getItem('userId');
-        const storedUserName = localStorage.getItem('userName');
-        const storedRole = localStorage.getItem('role') as Role | null;
-
-        // 로컬 스토리지에 정보가 있으면 일단 복원
-        if (storedToken && storedUserId && storedUserName && storedRole) {
-          console.log('🔄 로그인 상태 복원 중...');
-          
-          // 임시 토큰은 검증 없이 바로 복원
-          if (storedToken === 'test-user-token' || storedToken === 'test-admin-token' || storedToken.startsWith('mock-jwt-token-')) {
-            setUser({
-              userId: storedUserId,
-              userName: storedUserName,
-              role: storedRole,
-            });
-            startInactivityTimer();
-            console.log('✅ 임시 토큰으로 로그인 상태 복원 완료');
-            return;
-          }
-
-          // 실제 토큰은 서버 검증
-          try {
-            const res = await fetch('http://localhost:8080/api/verify-token', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${storedToken}`,
-              },
-            });
-
-            if (res.ok) {
-              setUser({
-                userId: storedUserId,
-                userName: storedUserName,
-                role: storedRole,
-              });
-              startInactivityTimer();
-              console.log('✅ 서버 검증 후 로그인 상태 복원 완료');
-            } else {
-              console.warn('⚠️ 토큰 검증 실패, 로그아웃 처리');
-              localStorage.clear();
-            }
-          } catch (err) {
-            console.warn('⚠️ 서버 연결 실패, 임시로 로컬 상태 유지');
-            // 서버 연결 실패 시에도 로컬 상태 유지 (오프라인 대응)
-            setUser({
-              userId: storedUserId,
-              userName: storedUserName,
-              role: storedRole,
-            });
-            startInactivityTimer();
-          }
-        }
+        await restoreAuthState();
       } catch (err) {
         console.error('❌ 인증 상태 복원 실패:', err);
       } finally {
@@ -123,8 +129,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
 
-    restoreAuthState();
-  }, [startInactivityTimer]);
+    void initializeAuth();
+  }, [restoreAuthState]);
 
   // 비활동 이벤트 감지
   useEffect(() => {

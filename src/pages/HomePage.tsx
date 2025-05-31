@@ -93,12 +93,12 @@ export default function HomePage() {
   };
 
   const renderCard = (item: AdminCardData) => (
-    <div
+    <button
       key={item.id}
-      tabIndex={0}
+      type="button"
       onClick={() => handleCardClick(item)}
       onKeyDown={(e) => handleCardKeyDown(item, e)}
-      className={`bg-panel-light dark:bg-panel-dark hover:bg-panel-light/90 dark:hover:bg-panel-dark/90 transition rounded-xl p-5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary ${
+      className={`bg-panel-light dark:bg-panel-dark hover:bg-panel-light/90 dark:hover:bg-panel-dark/90 transition rounded-xl p-5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary text-left w-full ${
         item.status === '삭제됨' ? 'opacity-60 border-2 border-red-300' : ''
       }`}
       aria-label={`신청서: ${item.title}, 상태: ${item.status}, 즐겨찾기 ${item.starred ? '활성화' : '비활성화'}`}
@@ -126,7 +126,7 @@ export default function HomePage() {
           {item.starred ? <Star size={14} fill="gold" strokeWidth={1.5} /> : <StarOff size={14} strokeWidth={1.5} />}
         </button>
       </div>
-    </div>
+    </button>
   );
 
   // 로딩 중 표시
@@ -197,15 +197,15 @@ export default function HomePage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {normalDashboards.map(renderCard)}
-            <div
-              tabIndex={0}
+            <button
+              type="button"
               onClick={handleNewApplicationClick}
               onKeyDown={handleNewApplicationKeyDown}
               className="min-h-[160px] bg-panel-light dark:bg-panel-dark rounded-xl flex items-center justify-center text-4xl text-gray-500 hover:bg-panel-light/90 dark:hover:bg-panel-dark/80 transition cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="새 신청서 작성하기"
             >
               +
-            </div>
+            </button>
           </div>
         )}
       </section>

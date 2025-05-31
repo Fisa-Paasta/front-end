@@ -112,7 +112,7 @@ const isDuplicateHistory = (existingHistory: any[], newHistoryItem: any): boolea
   );
 };
 
-// 카드 변환 함수 분리 (중첩 레벨 감소)
+// 카드 변환 함수 분리
 const transformApplicationToCard = (app: any, existingCard?: SubmittedCard): SubmittedCard => {
   const id = app.id.toString();
   const status = convertStatusToKorean(app.status);
@@ -136,43 +136,42 @@ const transformApplicationToCard = (app: any, existingCard?: SubmittedCard): Sub
   };
 };
 
+// 서버 요청 로직 분리
+const fetchApplicationsFromServer = async (isAdmin: boolean, userId?: string): Promise<any[]> => {
+  const url = isAdmin
+    ? `http://localhost:8080/api/admin/applications`
+    : `http://localhost:8080/api/applications/employee/${userId}`;
+
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  });
+
+  if (!res.ok) {
+    if (res.status === 404) {
+      return [];
+    }
+    throw new Error(`서버 오류: ${res.status}`);
+  }
+
+  return res.json();
+};
+
+// 카드 처리 로직 분리
+const processApplicationsToCards = (applications: any[], prevCards: SubmittedCard[]): SubmittedCard[] => {
+  return applications.map((app: any) => {
+    const existingCard = prevCards.find(c => c.id === app.id.toString());
+    return transformApplicationToCard(app, existingCard);
+  });
+};
+
 export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [submittedCards, setSubmittedCards] = useState<SubmittedCard[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
 
-  // 서버에서 카드 목록 불러오기 함수 분리
-  const fetchCardsFromServer = useCallback(async (): Promise<SubmittedCard[]> => {
-    const isAdmin = localStorage.getItem('role') === 'admin';
-    const url = isAdmin
-      ? `http://localhost:8080/api/admin/applications`
-      : `http://localhost:8080/api/applications/employee/${user?.userId}`;
-
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
-
-    if (!res.ok) {
-      if (res.status === 404) {
-        return [];
-      }
-      throw new Error(`서버 오류: ${res.status}`);
-    }
-
-    return res.json();
-  }, [user?.userId]);
-
-  // 카드 변환 로직 분리
-  const processApplicationsToCards = useCallback((applications: any[], prevCards: SubmittedCard[]): SubmittedCard[] => {
-    return applications.map((app: any) => {
-      const existingCard = prevCards.find(c => c.id === app.id.toString());
-      return transformApplicationToCard(app, existingCard);
-    });
-  }, []);
-
-  // refreshCards 함수 최적화 (중첩 레벨 감소)
+  // refreshCards 함수 최적화
   const refreshCards = useCallback(async (): Promise<void> => {
     if (!user?.userId || authLoading) return;
 
@@ -180,7 +179,8 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setIsLoading(true);
       console.log('🔄 신청서 목록 새로고침 시작...');
       
-      const applications = await fetchCardsFromServer();
+      const isAdmin = localStorage.getItem('role') === 'admin';
+      const applications = await fetchApplicationsFromServer(isAdmin, user.userId);
       console.log(`📋 신청서 ${applications.length}개 로드됨`);
 
       setSubmittedCards(prevCards => {
@@ -193,13 +193,13 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } finally {
       setIsLoading(false);
     }
-  }, [user?.userId, authLoading, fetchCardsFromServer, processApplicationsToCards]);
+  }, [user?.userId, authLoading]);
 
   // user 변경 시 자동 로드
   useEffect(() => {
     if (!authLoading && user) {
       console.log('👤 사용자 변경 감지, 신청서 로드 시작');
-      refreshCards().catch(console.error);
+      void refreshCards();
     }
   }, [user, authLoading, refreshCards]);
 
