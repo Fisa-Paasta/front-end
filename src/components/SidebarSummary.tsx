@@ -191,7 +191,7 @@ export default function SidebarSummary() {
           <SummaryItem label="5. 프론트엔드">
             {formData.frontendItems.length > 0 && formData.frontendItems.some(item => item.framework ?? item.version) ? (
               formData.frontendItems.map((item) => (
-                <div key={item.id}>
+                <div key={`frontend-summary-${item.id}`}>
                   {formatName(item.framework)} {item.version}
                 </div>
               ))
@@ -208,7 +208,7 @@ export default function SidebarSummary() {
           <SummaryItem label="6. 백엔드">
             {formData.backendItems.length > 0 && formData.backendItems.some(item => item.language ?? item.framework) ? (
               formData.backendItems.map((item) => (
-                <div key={item.id}>
+                <div key={`backend-summary-${item.id}`}>
                   {formatName(item.language)} {item.languageVersion}
                   {item.framework ? ` / ${formatName(item.framework)} ${item.frameworkVersion}` : ''}
                 </div>
@@ -223,8 +223,8 @@ export default function SidebarSummary() {
               <div>
                 API 경로:
                 <ul className="list-disc ml-5">
-                  {formData.apiPaths.filter((path) => path.trim() !== '').map((path, i) => (
-                    <li key={i}>{path}</li>
+                  {formData.apiPaths.filter((path) => path.trim() !== '').map((path, pathIndex) => (
+                    <li key={`api-path-summary-${pathIndex}`}>{path}</li>
                   ))}
                 </ul>
               </div>
@@ -236,7 +236,7 @@ export default function SidebarSummary() {
           <SummaryItem label="7. 웹 서버/WAS">
             {formData.webServerItems.length > 0 && formData.webServerItems.some(item => item.server ?? item.version) ? (
               formData.webServerItems.map((item) => (
-                <div key={item.id}>
+                <div key={`webserver-summary-${item.id}`}>
                   {formatName(item.server)} {item.version}
                 </div>
               ))
@@ -250,7 +250,7 @@ export default function SidebarSummary() {
           <SummaryItem label="8. DB">
             {formData.dbItems.length > 0 && formData.dbItems.some(item => item.name ?? item.version) ? (
               formData.dbItems.map((item) => (
-                <div key={item.id}>
+                <div key={`db-summary-${item.id}`}>
                   {formatName(item.type)} / {formatName(item.name)} {item.version} ({item.size} GB)
                 </div>
               ))

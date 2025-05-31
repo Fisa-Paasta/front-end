@@ -18,7 +18,7 @@ interface AuthContextType {
   user: AuthUser | null;
   setUser: (user: AuthUser | null) => void;
   logout: () => void;
-  isLoading: boolean; // ✅ 로딩 상태 추가
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,8 +27,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 let logoutTimer: ReturnType<typeof setTimeout>;
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUserState] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // ✅ 초기 로딩 상태
+  const [userState, setUserState] = useState<AuthUser | null>(null);
+  const [loadingState, setLoadingState] = useState(true);
 
   const logout = () => {
     console.log('⏱️ 자동 로그아웃 또는 수동 로그아웃');
@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const resetInactivityTimer = () => {
-    if (user) startInactivityTimer();
+    if (userState) startInactivityTimer();
   };
 
   // ✅ 초기 인증 상태 복구 (새로고침 대응)
@@ -116,7 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch (err) {
         console.error('❌ 인증 상태 복원 실패:', err);
       } finally {
-        setIsLoading(false); // ✅ 로딩 완료
+        setLoadingState(false);
       }
     };
 
@@ -132,10 +132,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       events.forEach((e) => window.removeEventListener(e, resetInactivityTimer));
       if (logoutTimer) clearTimeout(logoutTimer);
     };
-  }, [user]);
+  }, [userState]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>
+    <AuthContext.Provider value={{ user: userState, setUser, logout, isLoading: loadingState }}>
       {children}
     </AuthContext.Provider>
   );

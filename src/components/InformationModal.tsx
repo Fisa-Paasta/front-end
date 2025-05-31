@@ -49,15 +49,6 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
     if (dialog) {
       dialog.showModal();
       
-      // ESC 키로 닫기 처리
-      const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === 'Escape') {
-          onClose();
-        }
-      };
-      
-      dialog.addEventListener('keydown', handleKeyDown);
-      
       // 포커스 관리
       const firstButton = dialog.querySelector('button');
       if (firstButton) {
@@ -65,7 +56,6 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
       }
       
       return () => {
-        dialog.removeEventListener('keydown', handleKeyDown);
         if (dialog.open) {
           dialog.close();
         }
@@ -80,12 +70,19 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDialogElement>) => {
+    if (event.key === 'Escape') {
+      onClose();
+    }
+  };
+
   return (
     <dialog 
       ref={dialogRef}
       className="backdrop:bg-black/60 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white rounded-2xl p-6 w-full max-w-3xl shadow-2xl overflow-y-auto max-h-[90vh] space-y-6"
       aria-labelledby="modal-title"
       onClick={handleBackdropClick}
+      onKeyDown={handleKeyDown}
     >
       <div onClick={(e) => e.stopPropagation()}>
         <h2 id="modal-title" className="text-xl font-bold flex items-center gap-2">

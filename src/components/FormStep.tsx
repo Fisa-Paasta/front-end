@@ -154,12 +154,17 @@ export default function FormStep() {
     paas: [Step1_Env, Step2_K8s, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB]
   };
 
-  // ✅ 중첩 삼항 연산자를 독립적인 문장으로 분리
+  // ✅ 중첩 삼항 연산자를 독립적인 함수로 분리
   const getStepComponent = () => {
     if (formData.env === 'iaas') {
       return stepsByEnv.iaas[currentStep];
     }
-    return stepsByEnv.paas[currentStep] ?? Step1_Env;
+    
+    if (formData.env === 'paas') {
+      return stepsByEnv.paas[currentStep];
+    }
+    
+    return Step1_Env;
   };
 
   const StepComponent = getStepComponent();
@@ -227,6 +232,7 @@ export default function FormStep() {
 
       <div className="flex justify-between items-center mt-8 px-4">
         <button
+          type="button"
           onClick={goToPrevStep}
           disabled={currentStep === 0}
           className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${currentStep === 0
@@ -238,6 +244,7 @@ export default function FormStep() {
         </button>
 
         <button
+          type="button"
           onClick={handleNext}
           disabled={!isCurrentStepValid() || isSubmitting}
           className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 ${!isCurrentStepValid() || isSubmitting

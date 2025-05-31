@@ -24,14 +24,14 @@ export default function Step3_Resources() {
       ...formData.resources,
       ...localResources
     });
-  }, [localResources]);
+  }, [localResources, formData.resources, updateFormData]);
 
   useEffect(() => {
     updateFormData('vm', {
       ...formData.vm,
       ...localVM
     });
-  }, [localVM]);
+  }, [localVM, formData.vm, updateFormData]);
 
   const handleResourceChange = (field: 'cpu' | 'ram' | 'disk', value: string) => {
     setLocalResources(prev => ({ ...prev, [field]: value }));
@@ -40,6 +40,8 @@ export default function Step3_Resources() {
   const handleVmChange = (field: 'ec2Type' | 'ebsType' | 'ebsSize', value: string) => {
     setLocalVM(prev => ({ ...prev, [field]: value }));
   };
+
+  const isEksEnvironment = initialK8s.type === 'amazon_eks';
 
   return (
     <div className="space-y-4">
@@ -56,7 +58,8 @@ export default function Step3_Resources() {
             placeholder="예: 3"
           />
         </div>
-        {initialK8s.type === 'amazon_eks' ? (
+        
+        {isEksEnvironment ? (
           <>
             <div>
               <label htmlFor="ec2-instance-select" className="block mb-1 text-sm font-medium">EC2 인스턴스 타입</label>
@@ -99,7 +102,7 @@ export default function Step3_Resources() {
                 id="ebs-size-input"
                 type="number"
                 min="1"
-                value={localVM.ebsSize || ''}
+                value={localVM.ebsSize}
                 onChange={(e) => handleVmChange('ebsSize', e.target.value)}
                 className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
                 placeholder="예: 50"

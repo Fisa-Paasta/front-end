@@ -61,9 +61,9 @@ export default function Step6_Backend() {
     updateFormData('apiPaths', apiPaths);
   }, [items, apiDomain, apiPaths, updateFormData]);
 
-  const handleItemChange = (i: number, field: keyof BackendItem, value: string) => {
+  const handleItemChange = (index: number, field: keyof BackendItem, value: string) => {
     const updated = [...items];
-    const item = { ...updated[i] };
+    const item = { ...updated[index] };
 
     if (field === 'language') {
       item.language = value as BackendLanguage;
@@ -77,7 +77,7 @@ export default function Step6_Backend() {
       (item as any)[field] = value;
     }
 
-    updated[i] = item;
+    updated[index] = item;
     setItems(updated);
   };
 
@@ -88,9 +88,9 @@ export default function Step6_Backend() {
     ]);
   };
 
-  const handleRemove = (i: number) => {
+  const handleRemove = (index: number) => {
     const updated = [...items];
-    updated.splice(i, 1);
+    updated.splice(index, 1);
     setItems(updated);
   };
 
@@ -99,31 +99,32 @@ export default function Step6_Backend() {
     setDomainError(value !== '' && !/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value));
   };
 
-  const handlePathChange = (i: number, value: string) => {
+  const handlePathChange = (index: number, value: string) => {
     const updated = [...apiPaths];
-    updated[i] = value;
+    updated[index] = value;
     setApiPaths(updated);
   };
 
   const handleAddPath = () => setApiPaths([...apiPaths, '']);
-  const handleRemovePath = (i: number) => {
+  
+  const handleRemovePath = (index: number) => {
     const updated = [...apiPaths];
-    updated.splice(i, 1);
+    updated.splice(index, 1);
     setApiPaths(updated);
   };
 
   return (
     <div className="space-y-4">
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
-        {items.map((item, i) => (
-          <div key={item.id} className="space-y-4">
+        {items.map((item, index) => (
+          <div key={`backend-item-${item.id}`} className="space-y-4">
             {/* 언어 선택 라디오 그룹 */}
             <fieldset>
-              <legend className="text-sm font-medium mb-3">백엔드 언어 선택 {i + 1}</legend>
+              <legend className="text-sm font-medium mb-3">백엔드 언어 선택 {index + 1}</legend>
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
                 {languageCards.map((lang) => (
                   <label
-                    key={lang.name}
+                    key={`lang-${item.id}-${lang.name}`}
                     className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
                       ${item.language === lang.name
                         ? 'border-violet-500 bg-violet-600 text-white'
@@ -135,7 +136,7 @@ export default function Step6_Backend() {
                       name={`backend-language-${item.id}`}
                       value={lang.name}
                       checked={item.language === lang.name}
-                      onChange={(e) => handleItemChange(i, 'language', e.target.value)}
+                      onChange={(e) => handleItemChange(index, 'language', e.target.value)}
                       className="sr-only"
                     />
                     <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
@@ -152,13 +153,13 @@ export default function Step6_Backend() {
                 <select
                   id={`language-version-select-${item.id}`}
                   value={item.languageVersion}
-                  onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
+                  onChange={(e) => handleItemChange(index, 'languageVersion', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   aria-label={`${item.language} 버전 선택`}
                 >
                   <option value="">언어 버전 선택</option>
-                  {(languageOptions[item.language] || []).map((v) => (
-                    <option key={v} value={v}>{v}</option>
+                  {(languageOptions[item.language] || []).map((version) => (
+                    <option key={`version-${item.id}-${version}`} value={version}>{version}</option>
                   ))}
                 </select>
               </div>
@@ -171,7 +172,7 @@ export default function Step6_Backend() {
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                   {(frameworkCards[item.language] || []).map((fw) => (
                     <label
-                      key={fw.name}
+                      key={`fw-${item.id}-${fw.name}`}
                       className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
                         ${item.framework === fw.name
                           ? 'border-violet-500 bg-violet-600 text-white'
@@ -183,7 +184,7 @@ export default function Step6_Backend() {
                         name={`backend-framework-${item.id}`}
                         value={fw.name}
                         checked={item.framework === fw.name}
-                        onChange={(e) => handleItemChange(i, 'framework', e.target.value)}
+                        onChange={(e) => handleItemChange(index, 'framework', e.target.value)}
                         className="sr-only"
                       />
                       <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
@@ -201,13 +202,13 @@ export default function Step6_Backend() {
                 <select
                   id={`framework-version-select-${item.id}`}
                   value={item.frameworkVersion}
-                  onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
+                  onChange={(e) => handleItemChange(index, 'frameworkVersion', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   aria-label={`${item.framework} 버전 선택`}
                 >
                   <option value="">프레임워크 버전 선택</option>
-                  {(frameworkOptions[item.framework] || []).map((v) => (
-                    <option key={v} value={v}>{v}</option>
+                  {(frameworkOptions[item.framework] || []).map((fwVersion) => (
+                    <option key={`fw-version-${item.id}-${fwVersion}`} value={fwVersion}>{fwVersion}</option>
                   ))}
                 </select>
               </div>
@@ -216,9 +217,9 @@ export default function Step6_Backend() {
             {items.length > 1 && (
               <button
                 type="button"
-                onClick={() => handleRemove(i)}
+                onClick={() => handleRemove(index)}
                 className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
-                aria-label={`백엔드 항목 ${i + 1} 삭제`}
+                aria-label={`백엔드 항목 ${index + 1} 삭제`}
               >
                 ✕
               </button>
@@ -260,23 +261,23 @@ export default function Step6_Backend() {
 
             <div className="mt-6 space-y-2">
               <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</label>
-              {apiPaths.map((path, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <label htmlFor={`api-path-input-${i}`} className="sr-only">API 경로 {i + 1}</label>
+              {apiPaths.map((path, pathIndex) => (
+                <div key={`api-path-${pathIndex}`} className="flex items-center gap-2">
+                  <label htmlFor={`api-path-input-${pathIndex}`} className="sr-only">API 경로 {pathIndex + 1}</label>
                   <input
-                    id={`api-path-input-${i}`}
+                    id={`api-path-input-${pathIndex}`}
                     type="text"
                     value={path}
-                    onChange={(e) => handlePathChange(i, e.target.value)}
+                    onChange={(e) => handlePathChange(pathIndex, e.target.value)}
                     placeholder="/api"
                     className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                   {apiPaths.length > 1 && (
                     <button
                       type="button"
-                      onClick={() => handleRemovePath(i)}
+                      onClick={() => handleRemovePath(pathIndex)}
                       className="text-red-500 text-xl hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
-                      aria-label={`API 경로 ${i + 1} 삭제`}
+                      aria-label={`API 경로 ${pathIndex + 1} 삭제`}
                     >
                       ✕
                     </button>
