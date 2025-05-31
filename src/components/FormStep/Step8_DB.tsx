@@ -115,6 +115,14 @@ export default function Step8_DB() {
     updateItemField(id, field, value);
   };
 
+  const handleTypeChange = (id: number, value: string) => {
+    handleChange(id, 'type', value);
+  };
+
+  const handleNameChange = (id: number, value: string) => {
+    handleChange(id, 'name', value);
+  };
+
   const hasError = (id: number, field: keyof DBItem) =>
     errors[id?.toString()]?.[field] === true;
 
@@ -124,24 +132,27 @@ export default function Step8_DB() {
         <legend className="text-sm font-medium mb-2">데이터베이스 타입 선택</legend>
         <div className="grid grid-cols-2 gap-4">
           {dbTypeCards.map((type) => (
-            <label
-              key={type.value}
-              className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
-                ${item.type === type.value
-                  ? 'border-violet-500 bg-violet-600 text-white'
-                  : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-              `}
-            >
+            <div key={type.value}>
               <input
                 type="radio"
+                id={`db-type-${item.id}-${type.value}`}
                 name={`db-type-${item.id}`}
                 value={type.value}
                 checked={item.type === type.value}
-                onChange={(e) => handleChange(item.id, 'type', e.target.value)}
+                onChange={(e) => handleTypeChange(item.id, e.target.value)}
                 className="sr-only"
               />
-              <span className="text-sm font-semibold">{type.label}</span>
-            </label>
+              <label
+                htmlFor={`db-type-${item.id}-${type.value}`}
+                className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
+                  ${item.type === type.value
+                    ? 'border-violet-500 bg-violet-600 text-white'
+                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                `}
+              >
+                <span className="text-sm font-semibold">{type.label}</span>
+              </label>
+            </div>
           ))}
         </div>
       </fieldset>
@@ -159,29 +170,32 @@ export default function Step8_DB() {
           <legend className="text-sm font-medium mb-2">{item.type} 데이터베이스 선택</legend>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {availableDBs.map((db) => (
-              <label
-                key={db}
-                className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
-                  ${item.name === db
-                    ? 'border-violet-500 bg-violet-600 text-white'
-                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                `}
-              >
+              <div key={db}>
                 <input
                   type="radio"
+                  id={`db-name-${item.id}-${db}`}
                   name={`db-name-${item.id}`}
                   value={db}
                   checked={item.name === db}
-                  onChange={(e) => handleChange(item.id, 'name', e.target.value)}
+                  onChange={(e) => handleNameChange(item.id, e.target.value)}
                   className="sr-only"
                 />
-                <img
-                  src={dbImages[db]}
-                  alt=""
-                  className="h-14 mx-auto object-contain mb-2"
-                />
-                <span className="text-sm font-semibold">{dbLabels[db]}</span>
-              </label>
+                <label
+                  htmlFor={`db-name-${item.id}-${db}`}
+                  className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
+                    ${item.name === db
+                      ? 'border-violet-500 bg-violet-600 text-white'
+                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                  `}
+                >
+                  <img
+                    src={dbImages[db]}
+                    alt={`${dbLabels[db]} 로고`}
+                    className="h-14 mx-auto object-contain mb-2"
+                  />
+                  <span className="text-sm font-semibold">{dbLabels[db]}</span>
+                </label>
+              </div>
             ))}
           </div>
         </fieldset>
@@ -251,7 +265,7 @@ export default function Step8_DB() {
     <div className="space-y-4">
       {dbItems.map((item) => (
         <div
-          key={item.id}
+          key={`db-item-${item.id}`}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
           {renderDBTypeSection(item)}

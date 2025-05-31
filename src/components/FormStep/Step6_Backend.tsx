@@ -259,8 +259,8 @@ export default function Step6_Backend() {
               )}
             </div>
 
-            <div className="mt-6 space-y-2">
-              <label className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</label>
+            <fieldset className="mt-6 space-y-2">
+              <legend className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</legend>
               {apiPaths.map((path, pathIndex) => (
                 <div key={`api-path-${pathIndex}`} className="flex items-center gap-2">
                   <label htmlFor={`api-path-input-${pathIndex}`} className="sr-only">API 경로 {pathIndex + 1}</label>
@@ -292,7 +292,7 @@ export default function Step6_Backend() {
               >
                 + 경로 추가
               </button>
-            </div>
+            </fieldset>
           </>
         )}
       </div>

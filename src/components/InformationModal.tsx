@@ -61,7 +61,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
         }
       };
     }
-  }, [onClose]);
+  }, []);
 
   const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
     const dialog = dialogRef.current;
@@ -84,7 +84,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
     >
-      <div onClick={(e) => e.stopPropagation()}>
+      <div>
         <h2 id="modal-title" className="text-xl font-bold flex items-center gap-2">
           <FileText className="w-5 h-5" />
           신청서 상세 내역
@@ -196,14 +196,14 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+              className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
             >
               닫기
             </button>
             <button
               type="button"
               onClick={onSubmit}
-              className="px-4 py-2 text-sm rounded-md bg-[#5A3EBA] text-white hover:bg-[#4932A0]"
+              className="px-4 py-2 text-sm rounded-md bg-[#5A3EBA] text-white hover:bg-[#4932A0] focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               다음
             </button>

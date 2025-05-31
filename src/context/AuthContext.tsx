@@ -1,9 +1,11 @@
+// AuthContext.tsx - Key fixes
 import React, {
   createContext,
   useContext,
   useEffect,
   useState,
   ReactNode,
+  useMemo,
 } from 'react';
 
 type Role = 'admin' | 'user';
@@ -27,20 +29,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 let logoutTimer: ReturnType<typeof setTimeout>;
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [userState, setUserState] = useState<AuthUser | null>(null);
-  const [loadingState, setLoadingState] = useState(true);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const logout = () => {
     console.log('⏱️ 자동 로그아웃 또는 수동 로그아웃');
     localStorage.clear();
-    setUserState(null);
+    setUser(null);
     if (logoutTimer) clearTimeout(logoutTimer);
     window.location.href = '/init';
   };
 
-  const setUser = (user: AuthUser | null) => {
-    setUserState(user);
-    if (user) startInactivityTimer();
+  const handleSetUser = (newUser: AuthUser | null) => {
+    setUser(newUser);
+    if (newUser) startInactivityTimer();
   };
 
   const startInactivityTimer = () => {
@@ -52,10 +54,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const resetInactivityTimer = () => {
-    if (userState) startInactivityTimer();
+    if (user) startInactivityTimer();
   };
 
-  // ✅ 초기 인증 상태 복구 (새로고침 대응)
+  // 초기 인증 상태 복구 (새로고침 대응)
   useEffect(() => {
     const restoreAuthState = async () => {
       try {
@@ -64,13 +66,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const storedUserName = localStorage.getItem('userName');
         const storedRole = localStorage.getItem('role') as Role | null;
 
-        // ✅ 로컬 스토리지에 정보가 있으면 일단 복원
+        // 로컬 스토리지에 정보가 있으면 일단 복원
         if (storedToken && storedUserId && storedUserName && storedRole) {
           console.log('🔄 로그인 상태 복원 중...');
           
-          // ✅ 임시 토큰은 검증 없이 바로 복원
+          // 임시 토큰은 검증 없이 바로 복원
           if (storedToken === 'test-user-token' || storedToken === 'test-admin-token' || storedToken.startsWith('mock-jwt-token-')) {
-            setUserState({
+            setUser({
               userId: storedUserId,
               userName: storedUserName,
               role: storedRole,
@@ -80,7 +82,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return;
           }
 
-          // ✅ 실제 토큰은 서버 검증
+          // 실제 토큰은 서버 검증
           try {
             const res = await fetch('http://localhost:8080/api/verify-token', {
               method: 'POST',
@@ -91,7 +93,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
 
             if (res.ok) {
-              setUserState({
+              setUser({
                 userId: storedUserId,
                 userName: storedUserName,
                 role: storedRole,
@@ -104,8 +106,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
           } catch (err) {
             console.warn('⚠️ 서버 연결 실패, 임시로 로컬 상태 유지');
-            // ✅ 서버 연결 실패 시에도 로컬 상태 유지 (오프라인 대응)
-            setUserState({
+            // 서버 연결 실패 시에도 로컬 상태 유지 (오프라인 대응)
+            setUser({
               userId: storedUserId,
               userName: storedUserName,
               role: storedRole,
@@ -116,14 +118,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch (err) {
         console.error('❌ 인증 상태 복원 실패:', err);
       } finally {
-        setLoadingState(false);
+        setIsLoading(false);
       }
     };
 
     restoreAuthState();
   }, []);
 
-  // ✅ 비활동 이벤트 감지
+  // 비활동 이벤트 감지
   useEffect(() => {
     const events = ['mousemove', 'keydown', 'click'];
     events.forEach((e) => window.addEventListener(e, resetInactivityTimer));
@@ -132,10 +134,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       events.forEach((e) => window.removeEventListener(e, resetInactivityTimer));
       if (logoutTimer) clearTimeout(logoutTimer);
     };
-  }, [userState]);
+  }, [user]);
+
+  const contextValue = useMemo(() => ({
+    user,
+    setUser: handleSetUser,
+    logout,
+    isLoading,
+  }), [user, isLoading]);
 
   return (
-    <AuthContext.Provider value={{ user: userState, setUser, logout, isLoading: loadingState }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

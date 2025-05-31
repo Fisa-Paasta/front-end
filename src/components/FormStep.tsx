@@ -16,7 +16,7 @@ import { useSubmitted } from '@/context/SubmittedContext';
 import { SurveyContextType } from '@/types/survey';
 import { useNavigate } from 'react-router-dom';
 
-// ✅ 검증 로직을 별도 함수들로 분리
+// 검증 로직을 별도 함수들로 분리
 const validateStep0 = (formData: any): boolean => {
   return !!formData.env;
 };
@@ -154,7 +154,7 @@ export default function FormStep() {
     paas: [Step1_Env, Step2_K8s, Step3_Resources, Step4_OS, Step5_Frontend, Step6_Backend, Step7_WebServer, Step8_DB]
   };
 
-  // ✅ 중첩 삼항 연산자를 독립적인 함수로 분리
+  // 중첩 삼항 연산자를 독립적인 함수로 분리
   const getStepComponent = () => {
     if (formData.env === 'iaas') {
       return stepsByEnv.iaas[currentStep];
@@ -209,7 +209,7 @@ export default function FormStep() {
     }
   };
 
-  // ✅ 단순화된 메인 검증 함수
+  // 단순화된 메인 검증 함수
   const isCurrentStepValid = (): boolean => {
     const validators = [
       validateStep0,
@@ -224,6 +224,12 @@ export default function FormStep() {
 
     const validator = validators[currentStep];
     return validator ? validator(formData) : true;
+  };
+
+  const nextButtonText = () => {
+    if (isSubmitting) return '제출 중...';
+    if (currentStep === TOTAL_STEPS - 1) return '확인 ✓';
+    return '다음 →';
   };
 
   return (
@@ -252,7 +258,7 @@ export default function FormStep() {
             : 'bg-primary hover:bg-primary-hover text-white shadow-sm'
             }`}
         >
-          {isSubmitting ? '제출 중...' : (currentStep === TOTAL_STEPS - 1 ? '확인 ✓' : '다음 →')}
+          {nextButtonText()}
         </button>
       </div>
 

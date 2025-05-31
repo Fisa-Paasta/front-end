@@ -8,7 +8,7 @@ import LogView from '@/components/admin/LogView';
 import AdminFilterBar from '@/components/admin/AdminFilterBar';
 
 import { StatusType, STATUS_ENUM } from '@/types/admin';
-import { useSubmitted, SubmittedCard } from '@/context/SubmittedContext';
+import { useSubmitted } from '@/context/SubmittedContext';
 
 const STATUS_BADGE_COLORS: Record<StatusType, string> = {
   접수중: 'bg-yellow-500 text-black',
@@ -31,7 +31,7 @@ export default function AdminPage() {
     isLoading,
   } = useSubmitted();
 
-  const [selectedItem, setSelectedItem] = useState<SubmittedCard | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [filterStatus, setFilterStatus] = useState('');
   const [filterUserId, setFilterUserId] = useState('');
   const [filterDate, setFilterDate] = useState('');
@@ -70,16 +70,14 @@ export default function AdminPage() {
       if (!res.ok) throw new Error('삭제 실패');
   
       deleteCard(id, comment);
-      await refreshCards(); // 상태 동기화
-      setSelectedItem(null); // ✅ 명확한 선택 해제 (최신 카드 다시 선택 권장 시점)
+      refreshCards();
+      setSelectedItem(null);
   
     } catch (err) {
       console.error('❌ 삭제 실패:', err);
       alert('❌ 삭제 중 오류가 발생했습니다.');
     }
   };
-  
-  
   
   const handleEdit = (id: string, newTitle: string, newDesc: string) => {
     updateCardContent(id, newTitle, newDesc);
@@ -133,7 +131,7 @@ export default function AdminPage() {
       await Promise.all(promises);
       alert(`✅ ${selectedIds.size}개 항목이 ${bulkStatus}로 변경되었습니다.`);
       setSelectedIds(new Set());
-      await refreshCards();
+      refreshCards();
     } catch (err) {
       console.error('❌ 일괄 상태 변경 실패:', err);
       alert('❌ 일괄 상태 변경 중 오류가 발생했습니다.');
@@ -143,7 +141,11 @@ export default function AdminPage() {
   const toggleCardSelection = (id: string) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -160,14 +162,15 @@ export default function AdminPage() {
       statusMatch = card.status === filterStatus;
     } else {
       const isDeletedView = activeSidebar === '삭제된 요청';
-      statusMatch = isDeletedView
-        ? card.status === '삭제됨'
-        : card.status !== '삭제됨';
+      if (isDeletedView) {
+        statusMatch = card.status === '삭제됨';
+      } else {
+        statusMatch = card.status !== '삭제됨';
+      }
     }
     
     return userIdMatch && dateMatch && statusMatch;
   });
-  
 
   if (isLoading) {
     return (

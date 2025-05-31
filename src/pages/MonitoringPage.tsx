@@ -35,7 +35,7 @@ export default function MonitoringPage() {
             <div className="space-y-3">
               {submittedCards.map((card) => (
                 <button
-                  key={`card-${card.id}`}
+                  key={`monitoring-card-${card.id}`}
                   type="button"
                   onClick={() => setSelectedCard(card)}
                   className={`w-full text-left p-4 rounded-lg border cursor-pointer transition shadow-sm ${

@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react'; // ⬅️ useMemo 추가
+import { useState, useMemo } from 'react';
 import ApplicationDetailModal from '../components/ApplicationDetailModal';
 import ConfirmModal from '../components/ConfirmModal';
-import { useSubmitted, SubmittedCard } from '@/context/SubmittedContext'; // ⬅️ submittedCards 가져오기
+import { useSubmitted, SubmittedCard } from '@/context/SubmittedContext';
 
 import {
   Hourglass, CheckCircle, RefreshCcw, ShieldCheck, Hammer,
@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 
 interface DashboardDetailProps {
-  item: SubmittedCard;
-  onClose: () => void;
+  readonly item: SubmittedCard;
+  readonly onClose: () => void;
 }
 
 interface HistoryEntry {
@@ -24,23 +24,35 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState<SubmittedCard | null>(null);
 
-  const { submittedCards } = useSubmitted(); // ⬅️ 최신 상태 카드 배열
+  const { submittedCards } = useSubmitted();
   const latestItem = useMemo(
     () => submittedCards.find((card) => card.id === item.id) ?? item,
     [submittedCards, item.id]
   );
 
-
   if (!latestItem) return null;
 
   const statusMeta = getStatusMeta(latestItem.status);
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
 
   const renderAction = () => {
     switch (item.status) {
       case '승인처리중':
         return (
           <button
-            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition"
+            type="button"
+            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition focus:outline-none focus:ring-2 focus:ring-blue-500"
             onClick={() => setShowHistory(true)}
           >
             승인 이력 보기
@@ -50,11 +62,12 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
       case '삭제됨':
         return (
           <button
+            type="button"
             className={`px-4 py-2 rounded-md ${
               item.status === '삭제됨'
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-blue-600 hover:bg-blue-700'
-            } text-white transition`}
+                ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+            } text-white transition focus:outline-none focus:ring-2`}
             onClick={() => {
               setSelectedCard(latestItem);
               setShowDetailModal(true);
@@ -65,9 +78,18 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
         );
       case '구축중':
         return (
-          <progress className="w-full h-2" value={70} max={100}>
-            70%
-          </progress>
+          <div>
+            <label htmlFor="progress-bar" className="sr-only">구축 진행률</label>
+            <progress 
+              id="progress-bar"
+              className="w-full h-2" 
+              value={70} 
+              max={100}
+              aria-label="구축 진행률 70%"
+            >
+              70%
+            </progress>
+          </div>
         );
       case '구축완료':
         return (
@@ -75,7 +97,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
             href="http://your-dashboard-url"
             target="_blank"
             rel="noreferrer"
-            className="text-blue-400 underline hover:text-blue-300 transition"
+            className="text-blue-400 underline hover:text-blue-300 transition focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
           >
             대시보드 접속
           </a>
@@ -86,9 +108,12 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
   };
 
   return (
-    <div
+    <dialog
+      open
       className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center"
-      onClick={onClose}
+      aria-labelledby="dashboard-detail-title"
+      onClick={handleBackdropClick}
+      onKeyDown={handleKeyDown}
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -96,17 +121,19 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
       >
         {/* 닫기 버튼 */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute -top-4 -right-4 z-10 bg-white dark:bg-panel-dark text-gray-500 hover:text-gray-800 dark:hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center text-xl"
+          className="absolute -top-4 -right-4 z-10 bg-white dark:bg-panel-dark text-gray-500 hover:text-gray-800 dark:hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center text-xl focus:outline-none focus:ring-2 focus:ring-primary"
+          aria-label="모달 닫기"
         >
           ✕
         </button>
 
         {/* 상태 블럭 */}
         <div className={`${statusMeta.color} flex items-start gap-3 rounded-lg px-4 py-3 mb-6`}>
-          <div className="w-6 h-6">{statusMeta.icon}</div>
+          <div className="w-6 h-6" aria-hidden="true">{statusMeta.icon}</div>
           <div className="flex-1">
-            <p className="text-base font-bold leading-tight">{statusMeta.title}</p>
+            <p id="dashboard-detail-title" className="text-base font-bold leading-tight">{statusMeta.title}</p>
             <p className="text-sm mt-1">{statusMeta.description}</p>
           </div>
         </div>
@@ -114,17 +141,17 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
         {/* 상세 정보 */}
         <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
           <div className="flex items-center gap-2">
-            <Pin className="w-4 h-4 text-foreground-light dark:text-white" />
+            <Pin className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
             <span className="font-medium text-foreground-light dark:text-white">제목:</span>
             <span className="truncate">{latestItem.title}</span>
           </div>
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-foreground-light dark:text-white" />
+            <FileText className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
             <span className="font-medium text-foreground-light dark:text-white">요청사항:</span>
             <span>{latestItem.desc}</span>
           </div>
           <div className="flex items-center gap-2">
-            <CalendarDays className="w-4 h-4 text-foreground-light dark:text-white" />
+            <CalendarDays className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
             <span className="font-medium text-foreground-light dark:text-white">날짜:</span>
             <span>{latestItem.date}</span>
           </div>
@@ -149,7 +176,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
         )}
 
         {/* 신청서 상세 모달 */}
-        {showDetailModal && selectedCard && selectedCard.formDataSnapshot ? (
+        {showDetailModal && selectedCard?.formDataSnapshot ? (
           <ApplicationDetailModal
             item={selectedCard}
             onClose={() => setShowDetailModal(false)}
@@ -164,7 +191,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
           />
         )}
       </div>
-    </div>
+    </dialog>
   );
 }
 

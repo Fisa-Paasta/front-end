@@ -27,44 +27,51 @@ export default function Step4_OS() {
     updateFormData('os', localOS);
   }, [localOS, updateFormData]);
 
-  const handleChange = (field: keyof OSConfig, value: string) => {
-    const updated = { ...localOS, [field]: value };
-    if (field === 'name') updated.version = '';
+  const handleOSChange = (value: string) => {
+    const updated = { ...localOS, name: value as OSName, version: '' };
+    setLocalOS(updated);
+  };
+
+  const handleVersionChange = (value: string) => {
+    const updated = { ...localOS, version: value };
     setLocalOS(updated);
   };
 
   return (
     <div className="space-y-6">
       <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
-        {/* OS 선택 라디오 그룹 */}
+        {/* OS 선택 */}
         <fieldset>
           <legend className="text-sm font-medium mb-3">운영 체제 선택</legend>
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
             {osImages.map((os) => (
-              <label
-                key={os.name}
-                className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
-                  ${localOS.name === os.name
-                    ? 'border-violet-500 bg-violet-600 text-white'
-                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'
-                  }
-                `}
-              >
+              <div key={os.name}>
                 <input
                   type="radio"
+                  id={`os-${os.name}`}
                   name="os-selection"
                   value={os.name}
                   checked={localOS.name === os.name}
-                  onChange={(e) => handleChange('name', e.target.value)}
+                  onChange={(e) => handleOSChange(e.target.value)}
                   className="sr-only"
                 />
-                <img
-                  src={os.src}
-                  alt=""
-                  className="w-full h-16 object-contain mb-2"
-                />
-                <span className="text-sm font-semibold">{os.label}</span>
-              </label>
+                <label
+                  htmlFor={`os-${os.name}`}
+                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                    ${localOS.name === os.name
+                      ? 'border-violet-500 bg-violet-600 text-white'
+                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'
+                    }
+                  `}
+                >
+                  <img
+                    src={os.src}
+                    alt={`${os.label} 로고`}
+                    className="w-full h-16 object-contain mb-2"
+                  />
+                  <span className="text-sm font-semibold">{os.label}</span>
+                </label>
+              </div>
             ))}
           </div>
         </fieldset>
@@ -79,7 +86,7 @@ export default function Step4_OS() {
               id="os-version-select"
               className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
               value={localOS.version}
-              onChange={(e) => handleChange('version', e.target.value)}
+              onChange={(e) => handleVersionChange(e.target.value)}
               aria-label={`${localOS.name} 버전 선택`}
             >
               <option value="">버전 선택</option>

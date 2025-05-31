@@ -39,62 +39,25 @@ export default function ConfirmModal({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
-      <div
-        className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl transition-colors text-gray-900 dark:text-white"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-          <FileText className="w-5 h-5" />
-          <span>{title}</span>
-        </h2>
-
-        {/* ✅ 입력 폼 */}
-        {!readOnly && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold mb-1">제목</label>
-              <input
-                type="text"
-                value={inputTitle}
-                onChange={(e) => setInputTitle(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
-                placeholder="예: 백엔드 클러스터 요청"
-              />
-            </div>
-            <div>
-              <label htmlFor="description-input" className="block text-sm font-semibold mb-1">
-                요청사항
-              </label>
-              <input
-                id="description-input"
-                type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
-                placeholder="요청 또는 세부사항"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* ✅ 신청서 상세 보기 */}
-        {readOnly && viewType === 'application' && item && (
+  const renderContent = () => {
+    if (readOnly) {
+      if (viewType === 'application' && item) {
+        return (
           <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300 mt-4">
             <div><span className="font-semibold">제목:</span> {item.title}</div>
             <div><span className="font-semibold">설명:</span> {item.desc}</div>
             <div><span className="font-semibold">신청일:</span> {item.date}</div>
             <div><span className="font-semibold">상태:</span> {item.status}</div>
           </div>
-        )}
+        );
+      }
 
-        {/* ✅ 승인 이력 보기 */}
-        {readOnly && viewType === 'history' && historyList.length > 0 && (
+      if (viewType === 'history' && historyList.length > 0) {
+        return (
           <ul className="mt-6 space-y-2 text-sm">
             {historyList.map((entry, index) => (
               <li
-                key={index}
+                key={`history-entry-${index}`}
                 className="flex flex-col bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600"
               >
                 <div><strong>작성자:</strong> {entry.by ?? '미지정'}</div>
@@ -108,9 +71,55 @@ export default function ConfirmModal({
               </li>
             ))}
           </ul>
-        )}
+        );
+      }
 
-        {/* ✅ 버튼 */}
+      return null;
+    }
+
+    return (
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="title-input" className="block text-sm font-semibold mb-1">제목</label>
+          <input
+            id="title-input"
+            type="text"
+            value={inputTitle}
+            onChange={(e) => setInputTitle(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
+            placeholder="예: 백엔드 클러스터 요청"
+          />
+        </div>
+        <div>
+          <label htmlFor="description-input" className="block text-sm font-semibold mb-1">
+            요청사항
+          </label>
+          <input
+            id="description-input"
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:text-white"
+            placeholder="요청 또는 세부사항"
+          />
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
+      <div
+        className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl transition-colors text-gray-900 dark:text-white"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5" />
+          <span>{title}</span>
+        </h2>
+
+        {renderContent()}
+
         <div className="mt-6 flex justify-end space-x-2">
           {!readOnly && onBack && (
             <button

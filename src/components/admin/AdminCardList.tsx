@@ -26,6 +26,17 @@ export default function AdminCardList({
   const [editTitle, setEditTitle] = useState('');
   const [editDesc, setEditDesc] = useState('');
 
+  const handleCardClick = (item: AdminCardData, e: React.MouseEvent) => {
+    onSelect(item, e);
+  };
+
+  const handleCardKeyDown = (item: AdminCardData, e: React.KeyboardEvent) => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) {
+      e.preventDefault();
+      onSelect(item, e as any);
+    }
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -35,19 +46,25 @@ export default function AdminCardList({
           return (
             <div
               key={item.id}
-              className={`relative bg-panel-light dark:bg-panel-dark rounded-xl p-4 border cursor-pointer transition
+              className={`relative bg-panel-light dark:bg-panel-dark rounded-xl p-4 border cursor-pointer transition focus-within:ring-2 focus-within:ring-primary
                 ${isSelected ? 'border-primary ring-2 ring-primary' : 'border-border-light dark:border-border-dark'}`}
-              onClick={(e) => onSelect(item, e)}
+              tabIndex={0}
+              onClick={(e) => handleCardClick(item, e)}
+              onKeyDown={(e) => handleCardKeyDown(item, e)}
+              aria-label={`신청서 카드: ${item.title}, 사번: ${item.userId ?? '미입력'}, 상태: ${item.status}`}
             >
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  onToggleSelect(item.id);
-                }}
-                className="absolute top-2 right-2 w-5 h-5 accent-primary"
-              />
+              <label className="absolute top-2 right-2 cursor-pointer">
+                <span className="sr-only">{`${item.title} 선택`}</span>
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    onToggleSelect(item.id);
+                  }}
+                  className="w-5 h-5 accent-primary focus:ring-2 focus:ring-primary"
+                />
+              </label>
 
               <div className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-1">
                 👤 사번: {item.userId ?? '미입력'}
@@ -65,22 +82,26 @@ export default function AdminCardList({
                 </div>
                 <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditTarget(item);
                       setEditTitle(item.title);
                       setEditDesc(item.desc);
                     }}
-                    className="text-xs text-blue-500 hover:underline"
+                    className="text-xs text-blue-500 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-1"
+                    aria-label={`${item.title} 요청사항 수정`}
                   >
                     요청사항
                   </button>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       setModalOpenId(item.id);
                     }}
-                    className="text-xs text-red-500 hover:underline"
+                    className="text-xs text-red-500 hover:underline focus:outline-none focus:ring-2 focus:ring-red-500 rounded px-1"
+                    aria-label={`${item.title} 삭제`}
                   >
                     삭제
                   </button>
@@ -91,84 +112,101 @@ export default function AdminCardList({
         })}
       </div>
 
-      {/* ✅ 삭제 확인 모달 */}
+      {/* 삭제 확인 모달 */}
       {modalOpenId && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl w-96 shadow-lg">
-      <h3 className="text-lg font-semibold mb-3 text-center text-zinc-800 dark:text-white">
-        해당 요청을 삭제하시겠습니까?
-      </h3>
-      <textarea
-        value={deleteComment}
-        onChange={(e) => setDeleteComment(e.target.value)}
-        placeholder="삭제 사유를 입력하세요 (선택)"
-        className="w-full mb-4 px-3 py-2 rounded border dark:bg-zinc-700 dark:text-white"
-      />
-      <div className="flex justify-end gap-2">
-        <button
-          onClick={() => {
-            setModalOpenId(null);
-            setDeleteComment('');
-          }}
-          className="px-4 py-2 text-sm rounded-md bg-gray-300 hover:bg-gray-400 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600"
+        <dialog 
+          open
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          aria-labelledby="delete-modal-title"
         >
-          취소
-        </button>
-        <button
-          onClick={() => {
-            onDelete(modalOpenId, deleteComment);
-            setModalOpenId(null);
-            setDeleteComment('');
-          }}
-          className="px-4 py-2 text-sm rounded-md bg-red-600 text-white hover:bg-red-700"
-        >
-          삭제
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
-      {/* ✅ 수정 모달 */}
-      {editTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl w-96 shadow-lg">
-            <h3 className="text-lg font-semibold mb-4 text-center text-zinc-800 dark:text-white">
-              요청 수정
+            <h3 id="delete-modal-title" className="text-lg font-semibold mb-3 text-center text-zinc-800 dark:text-white">
+              해당 요청을 삭제하시겠습니까?
             </h3>
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full mb-3 px-3 py-2 rounded border dark:bg-zinc-700 dark:text-white"
-              placeholder="제목"
-            />
+            <label htmlFor="delete-comment" className="sr-only">삭제 사유</label>
             <textarea
-              value={editDesc}
-              onChange={(e) => setEditDesc(e.target.value)}
-              className="w-full mb-3 px-3 py-2 rounded border dark:bg-zinc-700 dark:text-white"
-              placeholder="설명"
+              id="delete-comment"
+              value={deleteComment}
+              onChange={(e) => setDeleteComment(e.target.value)}
+              placeholder="삭제 사유를 입력하세요 (선택)"
+              className="w-full mb-4 px-3 py-2 rounded border dark:bg-zinc-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <div className="flex justify-end gap-2">
               <button
-                onClick={() => setEditTarget(null)}
-                className="px-4 py-2 text-sm rounded-md bg-gray-300 dark:bg-zinc-700 dark:text-white"
+                type="button"
+                onClick={() => {
+                  setModalOpenId(null);
+                  setDeleteComment('');
+                }}
+                className="px-4 py-2 text-sm rounded-md bg-gray-300 hover:bg-gray-400 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
               >
                 취소
               </button>
               <button
+                type="button"
+                onClick={() => {
+                  onDelete(modalOpenId, deleteComment);
+                  setModalOpenId(null);
+                  setDeleteComment('');
+                }}
+                className="px-4 py-2 text-sm rounded-md bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
+
+      {/* 수정 모달 */}
+      {editTarget && (
+        <dialog 
+          open
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          aria-labelledby="edit-modal-title"
+        >
+          <div className="bg-white dark:bg-zinc-800 p-6 rounded-xl w-96 shadow-lg">
+            <h3 id="edit-modal-title" className="text-lg font-semibold mb-4 text-center text-zinc-800 dark:text-white">
+              요청 수정
+            </h3>
+            <label htmlFor="edit-title" className="sr-only">제목</label>
+            <input
+              id="edit-title"
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="w-full mb-3 px-3 py-2 rounded border dark:bg-zinc-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="제목"
+            />
+            <label htmlFor="edit-desc" className="sr-only">설명</label>
+            <textarea
+              id="edit-desc"
+              value={editDesc}
+              onChange={(e) => setEditDesc(e.target.value)}
+              className="w-full mb-3 px-3 py-2 rounded border dark:bg-zinc-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="설명"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setEditTarget(null)}
+                className="px-4 py-2 text-sm rounded-md bg-gray-300 dark:bg-zinc-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                취소
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   onEdit(editTarget.id, editTitle, editDesc);
                   setEditTarget(null);
                 }}
-                className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 저장
               </button>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
     </>
   );

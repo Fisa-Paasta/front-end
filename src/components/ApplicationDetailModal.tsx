@@ -18,7 +18,7 @@ const formatName = (key?: string) => {
     mongodb: 'MongoDB', redis: 'Redis', elasticsearch: 'Elasticsearch', cassandra: 'Cassandra',
     relational: 'Relational DB', nosql: 'NoSQL DB'
   };
-  return mappings[key] || key;
+  return mappings[key] ?? key;
 };
 
 const formatValue = (value?: string | number | null): React.ReactNode =>
@@ -128,66 +128,65 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
         </div>
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
-  <KeyGroup>
-    {formData.frontendItems.map((f) => (
-      <KeyValue
-        key={`${f.framework}-${f.version}`}
-        label={`Frontend`}
-        value={formatValue(`${formatName(f.framework)} ${f.version}`)}
-      />
-    ))}
-    <KeyValue label="도메인" value={formatValue(formData.frontendDomain)} />
-  </KeyGroup>
-</div>
+          <KeyGroup>
+            {formData.frontendItems.map((f, index) => (
+              <KeyValue
+                key={`frontend-${f.id || index}`}
+                label={`Frontend`}
+                value={formatValue(`${formatName(f.framework)} ${f.version}`)}
+              />
+            ))}
+            <KeyValue label="도메인" value={formatValue(formData.frontendDomain)} />
+          </KeyGroup>
+        </div>
 
-<div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
-  <KeyGroup>
-    {formData.backendItems.map((b) => (
-      <KeyValue
-        key={`${b.language}-${b.languageVersion}-${b.framework}-${b.frameworkVersion}`}
-        label={`Backend`}
-        value={formatValue(
-          `${formatName(b.language)} ${b.languageVersion} / ${formatName(b.framework)} ${b.frameworkVersion}`
-        )}
-      />
-    ))}
-    <KeyValue label="API 도메인" value={formatValue(formData.apiDomain)} />
-    {formData.apiPaths?.map((p) => (
-      <KeyValue
-        key={p}
-        label="경로"
-        value={formatValue(p)}
-      />
-    ))}
-  </KeyGroup>
-</div>
+        <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
+          <KeyGroup>
+            {formData.backendItems.map((b, index) => (
+              <KeyValue
+                key={`backend-${b.id || index}`}
+                label={`Backend`}
+                value={formatValue(
+                  `${formatName(b.language)} ${b.languageVersion} / ${formatName(b.framework)} ${b.frameworkVersion}`
+                )}
+              />
+            ))}
+            <KeyValue label="API 도메인" value={formatValue(formData.apiDomain)} />
+            {formData.apiPaths?.map((p, index) => (
+              <KeyValue
+                key={`api-path-${index}`}
+                label="경로"
+                value={formatValue(p)}
+              />
+            ))}
+          </KeyGroup>
+        </div>
 
-<div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
-  <KeyGroup>
-    {formData.webServerItems.map((w) => (
-      <KeyValue
-        key={`${w.server}-${w.version}`}
-        label="Web Server"
-        value={formatValue(`${formatName(w.server)} ${w.version}`)}
-      />
-    ))}
-  </KeyGroup>
-</div>
+        <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
+          <KeyGroup>
+            {formData.webServerItems.map((w, index) => (
+              <KeyValue
+                key={`webserver-${w.id || index}`}
+                label="Web Server"
+                value={formatValue(`${formatName(w.server)} ${w.version}`)}
+              />
+            ))}
+          </KeyGroup>
+        </div>
 
-<div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
-  <KeyGroup>
-    {formData.dbItems.map((d) => (
-      <KeyValue
-        key={`${d.name}-${d.version}-${d.size}`}
-        label="DB"
-        value={formatValue(
-          `${formatName(d.type)} / ${formatName(d.name)} ${d.version} (${d.size} GB)`
-        )}
-      />
-    ))}
-  </KeyGroup>
-</div>
-
+        <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
+          <KeyGroup>
+            {formData.dbItems.map((d, index) => (
+              <KeyValue
+                key={`db-${d.id || index}`}
+                label="DB"
+                value={formatValue(
+                  `${formatName(d.type)} / ${formatName(d.name)} ${d.version} (${d.size} GB)`
+                )}
+              />
+            ))}
+          </KeyGroup>
+        </div>
 
         <div className="flex justify-end gap-2 pt-4 border-t border-zinc-300 dark:border-zinc-700">
           <button

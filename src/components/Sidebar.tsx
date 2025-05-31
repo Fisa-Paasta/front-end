@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import {
@@ -24,6 +23,42 @@ interface MenuItemProps {
   readonly onClick?: () => void;
 }
 
+function MenuItem({ icon: Icon, text, to, onClick }: MenuItemProps) {
+  if (to) {
+    return (
+      <Link 
+        to={to}
+        className="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+        title={text}
+      >
+        <Icon size={18} />
+        <span className="sr-only">{text}</span>
+      </Link>
+    );
+  }
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="w-full flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition focus:outline-none focus:ring-2 focus:ring-blue-500 text-left"
+        title={text}
+      >
+        <Icon size={18} />
+        <span className="sr-only">{text}</span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center space-x-3 p-2" title={text}>
+      <Icon size={18} />
+      <span className="sr-only">{text}</span>
+    </div>
+  );
+}
+
 export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const [userId, setUserId] = useState<string | null>(null);
   const { theme, toggleTheme } = useTheme();
@@ -32,45 +67,6 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     const id = localStorage.getItem('userId');
     setUserId(id);
   }, []);
-
-  const MenuItem = ({ icon: Icon, text, to, onClick }: MenuItemProps) => {
-    if (to) {
-      // Link 요소인 경우
-      return (
-        <Link 
-          to={to}
-          className="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition focus:outline-none focus:ring-2 focus:ring-blue-500"
-          title={text}
-        >
-          <Icon size={18} />
-          {!collapsed && <span>{text}</span>}
-        </Link>
-      );
-    }
-
-    if (onClick) {
-      // 버튼인 경우
-      return (
-        <button
-          type="button"
-          onClick={onClick}
-          className="w-full flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition focus:outline-none focus:ring-2 focus:ring-blue-500 text-left"
-          title={text}
-        >
-          <Icon size={18} />
-          {!collapsed && <span>{text}</span>}
-        </button>
-      );
-    }
-
-    // 기본 div (상호작용 없음)
-    return (
-      <div className="flex items-center space-x-3 p-2" title={text}>
-        <Icon size={18} />
-        {!collapsed && <span>{text}</span>}
-      </div>
-    );
-  };
 
   return (
     <nav
