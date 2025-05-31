@@ -33,32 +33,53 @@ export default function Step4_OS() {
     setLocalOS(updated);
   };
 
+  const handleOSClick = (osName: string) => {
+    const newValue = localOS.name === osName ? '' : osName;
+    handleChange('name', newValue);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, osName: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleOSClick(osName);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg shadow-md space-y-4">
-        {/* 카드 목록 */}
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-          {osImages.map((os) => (
-            <div
-              key={os.name}
-              className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
-                ${
-                  localOS.name === os.name
+        {/* 카드 목록 - 접근성 개선 */}
+        <fieldset className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+          <legend className="sr-only">운영 체제 선택</legend>
+          {osImages.map((os) => {
+            const isSelected = localOS.name === os.name;
+            return (
+              <button
+                key={os.name}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                aria-label={`${os.label} 선택`}
+                className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
+                  ${isSelected
                     ? 'border-violet-500 bg-violet-600 text-white'
                     : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'
-                }
-              `}
-              onClick={() => handleChange('name', localOS.name === os.name ? '' : os.name)}
-            >
-              <img
-                src={os.src}
-                alt={os.label}
-                className="w-full h-16 object-contain mb-2"
-              />
-              <p className="text-sm font-semibold">{os.label}</p>
-            </div>
-          ))}
-        </div>
+                  }
+                `}
+                onClick={() => handleOSClick(os.name)}
+                onKeyDown={(e) => handleKeyDown(e, os.name)}
+                tabIndex={0}
+              >
+                <img
+                  src={os.src}
+                  alt=""
+                  className="w-full h-16 object-contain mb-2"
+                />
+                <p className="text-sm font-semibold">{os.label}</p>
+              </button>
+            );
+          })}
+        </fieldset>
 
         {/* 버전 선택 */}
         {localOS.name && (
@@ -68,9 +89,10 @@ export default function Step4_OS() {
             </label>
             <select
               id="os-version-select"
-              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+              className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
               value={localOS.version}
               onChange={(e) => handleChange('version', e.target.value)}
+              aria-label={`${localOS.name} 버전 선택`}
             >
               <option value="">버전 선택</option>
               {(osOptions[localOS.name as Exclude<OSName, ''>] || []).map((v) => (

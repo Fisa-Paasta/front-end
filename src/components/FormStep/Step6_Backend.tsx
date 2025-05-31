@@ -128,6 +128,15 @@ export default function Step6_Backend() {
                       : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
                   onClick={() => handleItemChange(i, 'language', item.language === lang.name ? '' : lang.name)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleItemChange(i, 'language', item.language === lang.name ? '' : lang.name);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`${lang.label} 선택`}
                 >
                   <img src={lang.src} alt={lang.label} className="h-14 mx-auto object-contain mb-2" />
                   <p className="text-sm font-semibold">{lang.label}</p>
@@ -138,9 +147,9 @@ export default function Step6_Backend() {
             {/* 언어 버전 선택 */}
             {item.language && (
               <div>
-                <label htmlFor={`language-version-select-${i}`} className="block mb-1 text-sm font-medium">언어 버전 선택</label>
+                <label htmlFor={`language-version-select-${item.id}`} className="block mb-1 text-sm font-medium">언어 버전 선택</label>
                 <select
-                  id={`language-version-select-${i}`}
+                  id={`language-version-select-${item.id}`}
                   value={item.languageVersion}
                   onChange={(e) => handleItemChange(i, 'languageVersion', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
@@ -165,6 +174,15 @@ export default function Step6_Backend() {
                         : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                     `}
                     onClick={() => handleItemChange(i, 'framework', item.framework === fw.name ? '' : fw.name)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleItemChange(i, 'framework', item.framework === fw.name ? '' : fw.name);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${fw.label} 선택`}
                   >
                     <img src={fw.src} alt={fw.label} className="h-14 mx-auto object-contain mb-2" />
                     <p className="text-sm font-semibold">{fw.label}</p>
@@ -176,9 +194,9 @@ export default function Step6_Backend() {
             {/* 프레임워크 버전 선택 */}
             {item.framework && (
               <div>
-                <label htmlFor={`framework-version-select-${i}`} className="block mb-1 text-sm font-medium">프레임워크 버전 선택</label>
+                <label htmlFor={`framework-version-select-${item.id}`} className="block mb-1 text-sm font-medium">프레임워크 버전 선택</label>
                 <select
-                  id={`framework-version-select-${i}`}
+                  id={`framework-version-select-${item.id}`}
                   value={item.frameworkVersion}
                   onChange={(e) => handleItemChange(i, 'frameworkVersion', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"

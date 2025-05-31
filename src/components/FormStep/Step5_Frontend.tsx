@@ -57,52 +57,83 @@ export default function Step5_Frontend() {
     setDomainError(value !== '' && !/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value));
   };
 
+  const handleFrameworkClick = (itemIndex: number, frameworkName: string) => {
+    const newValue = items[itemIndex].framework === frameworkName ? '' : frameworkName;
+    handleChange(itemIndex, 'framework', newValue);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, itemIndex: number, frameworkName: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleFrameworkClick(itemIndex, frameworkName);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
         {items.map((item, i) => (
           <div key={item.id} className="space-y-2">
-            {/* 프레임워크 선택 카드 */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-              {frontendFrameworks.map((fw) => (
-                <div
-                  key={fw.name}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm
-                    ${item.framework === fw.name
-                      ? 'border-violet-500 bg-violet-600 text-white'
-                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                  `}
-                  onClick={() => handleChange(i, 'framework', item.framework === fw.name ? '' : fw.name)}
-                >
-                  <img
-                    src={fw.src}
-                    alt={fw.label}
-                    className="w-full h-16 object-contain mb-2"
-                  />
-                  <p className="text-sm font-semibold">{fw.label}</p>
-                </div>
-              ))}
-            </div>
+            {/* 프레임워크 선택 카드 - 접근성 개선 */}
+            <fieldset className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+              <legend className="sr-only">프론트엔드 프레임워크 선택 {i + 1}</legend>
+              {frontendFrameworks.map((fw) => {
+                const isSelected = item.framework === fw.name;
+                return (
+                  <button
+                    key={fw.name}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={`${fw.label} 선택`}
+                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
+                      ${isSelected
+                        ? 'border-violet-500 bg-violet-600 text-white'
+                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                    `}
+                    onClick={() => handleFrameworkClick(i, fw.name)}
+                    onKeyDown={(e) => handleKeyDown(e, i, fw.name)}
+                    tabIndex={0}
+                  >
+                    <img
+                      src={fw.src}
+                      alt=""
+                      className="w-full h-16 object-contain mb-2"
+                    />
+                    <p className="text-sm font-semibold">{fw.label}</p>
+                  </button>
+                );
+              })}
+            </fieldset>
 
             {/* 버전 선택 + 삭제 */}
             {item.framework && (
               <div className="grid grid-cols-[1fr_40px] gap-2 items-center">
-                <select
-                  value={item.version}
-                  onChange={(e) => handleChange(i, 'version', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
-                >
-                  <option value="">버전 선택</option>
-                  {(frontendOptions[item.framework] || []).map((v) => (
-                    <option key={v} value={v}>{v}</option>
-                  ))}
-                </select>
+                <div>
+                  <label htmlFor={`version-select-${item.id}`} className="sr-only">
+                    {item.framework} 버전 선택
+                  </label>
+                  <select
+                    id={`version-select-${item.id}`}
+                    value={item.version}
+                    onChange={(e) => handleChange(i, 'version', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    aria-label={`${item.framework} 버전 선택`}
+                  >
+                    <option value="">버전 선택</option>
+                    {(frontendOptions[item.framework] || []).map((v) => (
+                      <option key={v} value={v}>{v}</option>
+                    ))}
+                  </select>
+                </div>
 
                 {items.length > 1 && (
                   <button
                     type="button"
                     onClick={() => handleRemove(i)}
-                    className="text-red-600 font-bold text-xl text-center"
+                    className="text-red-600 font-bold text-xl text-center hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                    aria-label={`프론트엔드 항목 ${i + 1} 삭제`}
+                    tabIndex={0}
                   >
                     ✕
                   </button>
@@ -115,7 +146,8 @@ export default function Step5_Frontend() {
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md"
+          className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          aria-label="새 프론트엔드 항목 추가"
         >
           + 프론트엔드 추가
         </button>
@@ -123,20 +155,24 @@ export default function Step5_Frontend() {
         {/* 도메인 입력 */}
         {formData.env === 'paas' && (
           <div>
-            <label className="block mt-6 mb-1 text-sm font-medium text-gray-900 dark:text-white">
+            <label htmlFor="frontend-domain-input" className="block mt-6 mb-1 text-sm font-medium text-gray-900 dark:text-white">
               프론트 도메인 (필수 항목 X)
             </label>
             <input
+              id="frontend-domain-input"
               type="text"
               value={frontendDomain}
               onChange={(e) => handleDomainChange(e.target.value)}
               placeholder="예: www.example.com"
-              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${
+              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
                 domainError ? 'border-red-500' : ''
               }`}
+              aria-describedby={domainError ? 'domain-error' : undefined}
             />
             {domainError && (
-              <p className="text-red-500 text-xs mt-1">도메인 형식이 올바르지 않습니다.</p>
+              <p id="domain-error" className="text-red-500 text-xs mt-1" role="alert">
+                도메인 형식이 올바르지 않습니다.
+              </p>
             )}
           </div>
         )}

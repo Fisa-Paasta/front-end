@@ -111,6 +111,25 @@ export default function Step8_DB() {
     );
   };
 
+  const handleTypeClick = (itemId: number, dbType: string) => {
+    const item = dbItems.find(item => item.id === itemId);
+    const newValue = item?.type === dbType ? '' : dbType;
+    handleChange(itemId, 'type', newValue);
+  };
+
+  const handleDBClick = (itemId: number, dbName: string) => {
+    const item = dbItems.find(item => item.id === itemId);
+    const newValue = item?.name === dbName ? '' : dbName;
+    handleChange(itemId, 'name', newValue);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      callback();
+    }
+  };
+
   const hasError = (id: number, field: keyof DBItem) =>
     errors[id?.toString()]?.[field] === true;
 
@@ -121,72 +140,117 @@ export default function Step8_DB() {
           key={item.id}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          {/* DB 타입 선택 카드 */}
-          <div className="grid grid-cols-2 gap-4">
-            {dbTypeCards.map((type) => (
-              <div
-                key={type.value}
-                className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm
-                  ${item.type === type.value
-                    ? 'border-violet-500 bg-violet-600 text-white'
-                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                `}
-                onClick={() => handleChange(item.id, 'type', item.type === type.value ? '' : type.value)}
-              >
-                <p className="text-sm font-semibold">{type.label}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* DB 종류 선택 카드 */}
-          {item.type && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {dbOptions[item.type as ValidDBType].map((db) => (
-                <div
-                  key={db}
-                  className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm
-                    ${item.name === db
+          {/* DB 타입 선택 카드 - 접근성 개선 */}
+          <fieldset className="grid grid-cols-2 gap-4">
+            <legend className="sr-only">데이터베이스 타입 선택</legend>
+            {dbTypeCards.map((type) => {
+              const isSelected = item.type === type.value;
+              return (
+                <button
+                  key={type.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={`${type.label} 선택`}
+                  className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
+                    ${isSelected
                       ? 'border-violet-500 bg-violet-600 text-white'
                       : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
-                  onClick={() => handleChange(item.id, 'name', item.name === db ? '' : db)}
+                  onClick={() => handleTypeClick(item.id, type.value)}
+                  onKeyDown={(e) => handleKeyDown(e, () => handleTypeClick(item.id, type.value))}
+                  tabIndex={0}
                 >
-                  <img
-                    src={dbImages[db]}
-                    alt={dbLabels[db]}
-                    className="h-14 mx-auto object-contain mb-2"
-                  />
-                  <p className="text-sm font-semibold">{dbLabels[db]}</p>
-                </div>
-              ))}
-            </div>
+                  <p className="text-sm font-semibold">{type.label}</p>
+                </button>
+              );
+            })}
+          </fieldset>
+
+          {/* DB 종류 선택 카드 - 접근성 개선 */}
+          {item.type && (
+            <fieldset className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <legend className="sr-only">{item.type} 데이터베이스 선택</legend>
+              {dbOptions[item.type as ValidDBType].map((db) => {
+                const isSelected = item.name === db;
+                return (
+                  <button
+                    key={db}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    aria-label={`${dbLabels[db]} 선택`}
+                    className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2
+                      ${isSelected
+                        ? 'border-violet-500 bg-violet-600 text-white'
+                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                    `}
+                    onClick={() => handleDBClick(item.id, db)}
+                    onKeyDown={(e) => handleKeyDown(e, () => handleDBClick(item.id, db))}
+                    tabIndex={0}
+                  >
+                    <img
+                      src={dbImages[db]}
+                      alt=""
+                      className="h-14 mx-auto object-contain mb-2"
+                    />
+                    <p className="text-sm font-semibold">{dbLabels[db]}</p>
+                  </button>
+                );
+              })}
+            </fieldset>
           )}
 
           {/* 버전 & 사이즈 입력 */}
           {item.name && (
             <div className="space-y-2">
-              <select
-                value={item.version}
-                onChange={(e) => handleChange(item.id, 'version', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${
-                  hasError(item.id, 'version') ? 'border-red-500' : ''
-                }`}
-              >
-                <option value="">버전 선택</option>
-                {dbVersions[item.name as DBName].map((v) => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
+              <div>
+                <label htmlFor={`db-version-select-${item.id}`} className="block mb-1 text-sm font-medium">
+                  {dbLabels[item.name as DBName]} 버전 선택
+                </label>
+                <select
+                  id={`db-version-select-${item.id}`}
+                  value={item.version}
+                  onChange={(e) => handleChange(item.id, 'version', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
+                    hasError(item.id, 'version') ? 'border-red-500' : ''
+                  }`}
+                  aria-describedby={hasError(item.id, 'version') ? `version-error-${item.id}` : undefined}
+                >
+                  <option value="">버전 선택</option>
+                  {dbVersions[item.name as DBName].map((v) => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+                {hasError(item.id, 'version') && (
+                  <p id={`version-error-${item.id}`} className="text-red-500 text-xs mt-1" role="alert">
+                    버전을 선택해주세요.
+                  </p>
+                )}
+              </div>
 
-              <input
-                type="number"
-                value={item.size}
-                onChange={(e) => handleChange(item.id, 'size', e.target.value)}
-                placeholder="DB Size (GB)"
-                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white ${
-                  hasError(item.id, 'size') ? 'border-red-500' : ''
-                }`}
-              />
+              <div>
+                <label htmlFor={`db-size-input-${item.id}`} className="block mb-1 text-sm font-medium">
+                  DB 크기 (GB)
+                </label>
+                <input
+                  id={`db-size-input-${item.id}`}
+                  type="number"
+                  min="1"
+                  value={item.size}
+                  onChange={(e) => handleChange(item.id, 'size', e.target.value)}
+                  placeholder="DB Size (GB)"
+                  className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
+                    hasError(item.id, 'size') ? 'border-red-500' : ''
+                  }`}
+                  aria-describedby={hasError(item.id, 'size') ? `size-error-${item.id}` : undefined}
+                />
+                {hasError(item.id, 'size') && (
+                  <p id={`size-error-${item.id}`} className="text-red-500 text-xs mt-1" role="alert">
+                    유효한 크기를 입력해주세요.
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
@@ -195,7 +259,8 @@ export default function Step8_DB() {
             <button
               type="button"
               onClick={() => removeDbItem(item.id)}
-              className="text-red-600 text-xl hover:text-red-700"
+              className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+              aria-label="데이터베이스 항목 삭제"
             >
               ×
             </button>
@@ -207,7 +272,8 @@ export default function Step8_DB() {
       <button
         type="button"
         onClick={addDbItem}
-        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition"
+        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition focus:outline-none focus:ring-2 focus:ring-purple-500"
+        aria-label="새 데이터베이스 항목 추가"
       >
         + 데이터베이스 추가
       </button>
