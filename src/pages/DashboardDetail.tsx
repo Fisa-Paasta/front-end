@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import ApplicationDetailModal from '../components/ApplicationDetailModal';
 import ConfirmModal from '../components/ConfirmModal';
 import { useSubmitted, SubmittedCard } from '@/context/SubmittedContext';
@@ -23,6 +23,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
   const [showHistory, setShowHistory] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState<SubmittedCard | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   const { submittedCards } = useSubmitted();
   const latestItem = useMemo(
@@ -30,21 +31,41 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
     [submittedCards, item.id]
   );
 
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (dialog) {
+      dialog.showModal();
+      
+      // 포커스 관리 - 첫 번째 버튼에 포커스
+      const firstButton = dialog.querySelector('button');
+      if (firstButton) {
+        firstButton.focus();
+      }
+    }
+
+    return () => {
+      if (dialog) {
+        dialog.close();
+      }
+    };
+  }, []);
+
   if (!latestItem) return null;
 
   const statusMeta = getStatusMeta(latestItem.status);
 
-  // ✅ backdrop click과 keyboard 이벤트를 dialog 요소에서 직접 처리
-  const handleDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
+  const handleClose = () => {
+    const dialog = dialogRef.current;
+    if (dialog) {
+      dialog.close();
     }
+    onClose();
   };
 
-  // ✅ keyboard 이벤트를 dialog 요소에서 직접 처리
-  const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
-      onClose();
+      e.preventDefault();
+      handleClose();
     }
   };
 
@@ -81,7 +102,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
       case '구축중':
         return (
           <div>
-            <label htmlFor="progress-bar" className="sr-only">구축 진행률</label>
+            <label htmlFor="progress-bar" className="block text-sm font-medium mb-2">구축 진행률</label>
             <progress 
               id="progress-bar"
               className="w-full h-2" 
@@ -91,6 +112,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
             >
               70%
             </progress>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">현재 70% 완료</p>
           </div>
         );
       case '구축완료':
@@ -99,7 +121,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
             href="http://your-dashboard-url"
             target="_blank"
             rel="noreferrer"
-            className="text-blue-400 underline hover:text-blue-300 transition focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+            className="inline-block px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             대시보드 접속
           </a>
@@ -110,90 +132,95 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
   };
 
   return (
-    <dialog
-      open
-      className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center"
-      aria-labelledby="dashboard-detail-title"
-      onClick={handleDialogClick}
-      onKeyDown={handleDialogKeyDown}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-md shadow-2xl text-foreground-light dark:text-foreground-dark transition-colors duration-500"
+    <>
+      <dialog
+        ref={dialogRef}
+        className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
+        aria-labelledby="dashboard-detail-title"
+        aria-describedby="dashboard-detail-description"
+        onKeyDown={handleKeyDown}
       >
-        {/* 닫기 버튼 */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute -top-4 -right-4 z-10 bg-white dark:bg-panel-dark text-gray-500 hover:text-gray-800 dark:hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center text-xl focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-label="모달 닫기"
-        >
-          ✕
-        </button>
+        <div className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-md shadow-2xl text-foreground-light dark:text-foreground-dark transition-colors duration-500">
+          {/* 닫기 버튼 */}
+          <button
+            type="button"
+            onClick={handleClose}
+            className="absolute -top-4 -right-4 z-10 bg-white dark:bg-panel-dark text-gray-500 hover:text-gray-800 dark:hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center text-xl focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="대시보드 상세 정보 모달 닫기"
+          >
+            ✕
+          </button>
 
-        {/* 상태 블럭 */}
-        <div className={`${statusMeta.color} flex items-start gap-3 rounded-lg px-4 py-3 mb-6`}>
-          <div className="w-6 h-6" aria-hidden="true">{statusMeta.icon}</div>
-          <div className="flex-1">
-            <p id="dashboard-detail-title" className="text-base font-bold leading-tight">{statusMeta.title}</p>
-            <p className="text-sm mt-1">{statusMeta.description}</p>
-          </div>
+          <header>
+            {/* 상태 블럭 */}
+            <div className={`${statusMeta.color} flex items-start gap-3 rounded-lg px-4 py-3 mb-6`}>
+              <div className="w-6 h-6" aria-hidden="true">{statusMeta.icon}</div>
+              <div className="flex-1">
+                <p id="dashboard-detail-title" className="text-base font-bold leading-tight">{statusMeta.title}</p>
+                <p id="dashboard-detail-description" className="text-sm mt-1">{statusMeta.description}</p>
+              </div>
+            </div>
+          </header>
+
+          <main>
+            {/* 상세 정보 */}
+            <section className="space-y-3 text-sm text-gray-600 dark:text-gray-300" aria-labelledby="detail-info-heading">
+              <h2 id="detail-info-heading" className="sr-only">신청서 상세 정보</h2>
+              <div className="flex items-center gap-2">
+                <Pin className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
+                <span className="font-medium text-foreground-light dark:text-white">제목:</span>
+                <span className="truncate">{latestItem.title}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
+                <span className="font-medium text-foreground-light dark:text-white">요청사항:</span>
+                <span>{latestItem.desc}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CalendarDays className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
+                <span className="font-medium text-foreground-light dark:text-white">날짜:</span>
+                <span>{latestItem.date}</span>
+              </div>
+            </section>
+
+            {/* 액션 버튼 */}
+            {renderAction() && (
+              <section className="mt-6 border-t border-gray-700 pt-4" aria-labelledby="action-section-heading">
+                <h2 id="action-section-heading" className="sr-only">사용 가능한 액션</h2>
+                {renderAction()}
+              </section>
+            )}
+          </main>
         </div>
+      </dialog>
 
-        {/* 상세 정보 */}
-        <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-          <div className="flex items-center gap-2">
-            <Pin className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
-            <span className="font-medium text-foreground-light dark:text-white">제목:</span>
-            <span className="truncate">{latestItem.title}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
-            <span className="font-medium text-foreground-light dark:text-white">요청사항:</span>
-            <span>{latestItem.desc}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CalendarDays className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
-            <span className="font-medium text-foreground-light dark:text-white">날짜:</span>
-            <span>{latestItem.date}</span>
-          </div>
-        </div>
+      {/* 승인 이력 모달 */}
+      {showHistory && (
+        <ConfirmModal
+          title="승인 이력"
+          onClose={() => setShowHistory(false)}
+          viewType="history"
+          readOnly
+          historyList={latestItem.historyList as HistoryEntry[]}
+        />
+      )}
 
-        {/* 액션 버튼 */}
-        {renderAction() && (
-          <div className="mt-6 border-t border-gray-700 pt-4">
-            {renderAction()}
-          </div>
-        )}
-
-        {/* 승인 이력 모달 */}
-        {showHistory && (
-          <ConfirmModal
-            title="승인 이력"
-            onClose={() => setShowHistory(false)}
-            viewType="history"
-            readOnly
-            historyList={latestItem.historyList as HistoryEntry[]}
-          />
-        )}
-
-        {/* 신청서 상세 모달 */}
-        {showDetailModal && selectedCard?.formDataSnapshot ? (
-          <ApplicationDetailModal
-            item={selectedCard}
-            onClose={() => setShowDetailModal(false)}
-          />
-        ) : showDetailModal && (
-          <ConfirmModal
-            title="신청서 상세 정보 없음"
-            readOnly
-            onClose={() => setShowDetailModal(false)}
-            viewType="application"
-            item={selectedCard}
-          />
-        )}
-      </div>
-    </dialog>
+      {/* 신청서 상세 모달 */}
+      {showDetailModal && selectedCard?.formDataSnapshot ? (
+        <ApplicationDetailModal
+          item={selectedCard}
+          onClose={() => setShowDetailModal(false)}
+        />
+      ) : showDetailModal && (
+        <ConfirmModal
+          title="신청서 상세 정보 없음"
+          readOnly
+          onClose={() => setShowDetailModal(false)}
+          viewType="application"
+          item={selectedCard}
+        />
+      )}
+    </>
   );
 }
 

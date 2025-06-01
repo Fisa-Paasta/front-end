@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { AdminCardData, StatusType } from '../../types/admin';
 
 interface AdminCardDetailProps {
@@ -33,10 +33,30 @@ export default function AdminCardDetail({
   onStatusChange
 }: AdminCardDetailProps) {
   const [status, setStatus] = useState<StatusType>(item.status);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     setStatus(item.status);
   }, [item.status]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (dialog) {
+      dialog.showModal();
+      
+      // 포커스 관리
+      const firstButton = dialog.querySelector('button, select');
+      if (firstButton) {
+        (firstButton as HTMLElement).focus();
+      }
+    }
+
+    return () => {
+      if (dialog) {
+        dialog.close();
+      }
+    };
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as StatusType;
@@ -44,17 +64,18 @@ export default function AdminCardDetail({
     onStatusChange(item.id, newStatus);
   };
 
-  // ✅ keyboard 이벤트를 dialog 요소에서 직접 처리
-  const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
-    if (e.key === 'Escape') {
-      onClose();
+  const handleClose = () => {
+    const dialog = dialogRef.current;
+    if (dialog) {
+      dialog.close();
     }
+    onClose();
   };
 
-  // ✅ backdrop click을 dialog 요소에서 직접 처리
-  const handleDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      handleClose();
     }
   };
 
@@ -62,34 +83,36 @@ export default function AdminCardDetail({
 
   return (
     <dialog 
-      open
-      className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center" 
-      onKeyDown={handleDialogKeyDown}
-      onClick={handleDialogClick}
+      ref={dialogRef}
+      className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
       aria-labelledby="card-detail-title"
+      aria-describedby="card-detail-description"
+      onKeyDown={handleKeyDown}
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-lg shadow-2xl text-foreground-light dark:text-foreground-dark"
-      >
+      <div className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-lg shadow-2xl text-foreground-light dark:text-foreground-dark">
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute -top-4 -right-4 z-10 bg-white dark:bg-panel-dark text-gray-500 hover:text-gray-800 dark:hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center text-xl focus:outline-none focus:ring-2 focus:ring-primary"
           aria-label="모달 닫기"
         >
           ✕
         </button>
 
-        <h2 id="card-detail-title" className="text-xl font-bold mb-4">📋 요청 상세</h2>
+        <header>
+          <h2 id="card-detail-title" className="text-xl font-bold mb-4">📋 요청 상세</h2>
+          <p id="card-detail-description" className="sr-only">
+            요청의 상세 정보를 확인하고 상태를 변경할 수 있습니다.
+          </p>
+        </header>
         
-        <div className="space-y-3 mb-6">
+        <main className="space-y-3 mb-6">
           <div><span className="font-semibold">제목:</span> {item.title}</div>
           <div><span className="font-semibold">요청사항:</span> {item.desc}</div>
           <div><span className="font-semibold">날짜:</span> {item.date}</div>
-        </div>
+        </main>
 
-        <div className="w-full mb-4">
+        <section className="w-full mb-4">
           <label htmlFor="status-select" className="block font-semibold mb-1 text-left">
             상태 변경
           </label>
@@ -98,22 +121,22 @@ export default function AdminCardDetail({
             className="w-full px-4 py-2 rounded-md bg-[#2c323d] text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-primary shadow-sm appearance-none"
             value={status}
             onChange={handleChange}
-            aria-label="상태 변경 선택"
+            aria-label={`현재 상태: ${status}. 새로운 상태를 선택하세요.`}
           >
             {STATUS_OPTIONS.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-        </div>
+        </section>
 
-        <div className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]} block`}>
+        <div className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]} block`} role="status" aria-live="polite">
           현재 상태: {status}
         </div>
 
         {item.historyList && item.historyList.length > 0 && (
-          <div className="mt-6">
-            <h3 className="text-sm font-semibold mb-2">📜 상태 변경 이력</h3>
-            <ul className="text-sm space-y-1">
+          <section className="mt-6" aria-labelledby="history-heading">
+            <h3 id="history-heading" className="text-sm font-semibold mb-2">📜 상태 변경 이력</h3>
+            <ul className="text-sm space-y-1" role="log" aria-label="상태 변경 이력">
               {item.historyList.map((entry, idx) => (
                 <li key={`history-${item.id}-${entry.timestamp ?? Date.now()}-${idx}`} className="text-gray-500 dark:text-gray-400">
                   <time dateTime={entry.timestamp}>{entry.timestamp}</time> - {entry.by ?? '시스템'}
@@ -123,7 +146,7 @@ export default function AdminCardDetail({
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         )}
       </div>
     </dialog>
