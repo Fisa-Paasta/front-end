@@ -63,14 +63,15 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
     }
   }, []);
 
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDialogElement>) => {
+  // ✅ backdrop click과 keyboard 이벤트를 dialog 요소에서 직접 처리
+  const handleDialogClick = (event: React.MouseEvent<HTMLDialogElement>) => {
     const dialog = dialogRef.current;
     if (dialog && event.target === dialog) {
       onClose();
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDialogElement>) => {
+  const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDialogElement>) => {
     if (event.key === 'Escape') {
       onClose();
     }
@@ -81,8 +82,8 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
       ref={dialogRef}
       className="backdrop:bg-black/60 bg-white dark:bg-zinc-900 text-gray-900 dark:text-white rounded-2xl p-6 w-full max-w-3xl shadow-2xl overflow-y-auto max-h-[90vh] space-y-6"
       aria-labelledby="modal-title"
-      onClick={handleBackdropClick}
-      onKeyDown={handleKeyDown}
+      onClick={handleDialogClick}
+      onKeyDown={handleDialogKeyDown}
     >
       <div>
         <h2 id="modal-title" className="text-xl font-bold flex items-center gap-2">

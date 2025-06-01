@@ -34,13 +34,15 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
 
   const statusMeta = getStatusMeta(latestItem.status);
 
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+  // ✅ backdrop click과 keyboard 이벤트를 dialog 요소에서 직접 처리
+  const handleDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // ✅ keyboard 이벤트를 dialog 요소에서 직접 처리
+  const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
     if (e.key === 'Escape') {
       onClose();
     }
@@ -112,8 +114,8 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
       open
       className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center"
       aria-labelledby="dashboard-detail-title"
-      onClick={handleBackdropClick}
-      onKeyDown={handleKeyDown}
+      onClick={handleDialogClick}
+      onKeyDown={handleDialogKeyDown}
     >
       <div
         onClick={(e) => e.stopPropagation()}

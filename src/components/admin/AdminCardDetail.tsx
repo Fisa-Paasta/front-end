@@ -44,8 +44,16 @@ export default function AdminCardDetail({
     onStatusChange(item.id, newStatus);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  // ✅ keyboard 이벤트를 dialog 요소에서 직접 처리
+  const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLDialogElement>) => {
     if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  // ✅ backdrop click을 dialog 요소에서 직접 처리
+  const handleDialogClick = (e: React.MouseEvent<HTMLDialogElement>) => {
+    if (e.target === e.currentTarget) {
       onClose();
     }
   };
@@ -56,7 +64,8 @@ export default function AdminCardDetail({
     <dialog 
       open
       className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center" 
-      onKeyDown={handleKeyDown}
+      onKeyDown={handleDialogKeyDown}
+      onClick={handleDialogClick}
       aria-labelledby="card-detail-title"
     >
       <div
@@ -97,9 +106,9 @@ export default function AdminCardDetail({
           </select>
         </div>
 
-        <output className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]} block`}>
+        <div className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]} block`}>
           현재 상태: {status}
-        </output>
+        </div>
 
         {item.historyList && item.historyList.length > 0 && (
           <div className="mt-6">

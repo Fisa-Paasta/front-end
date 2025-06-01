@@ -33,12 +33,14 @@ export default function AdminFilterBar({
         value={filterUserId}
         onChange={(e) => setFilterUserId(e.target.value)}
         className="px-3 py-2 border rounded text-sm min-w-[160px]"
+        aria-label="사번으로 검색"
       />
 
       <select
         value={filterStatus}
         onChange={(e) => setFilterStatus(e.target.value as StatusType | '')}
         className="px-3 py-2 border rounded text-sm min-w-[160px]"
+        aria-label="상태별 필터링"
       >
         <option value="">전체 상태</option>
         {statusOptions.map((status) => (
@@ -53,12 +55,14 @@ export default function AdminFilterBar({
         value={filterDate}
         onChange={(e) => setFilterDate(e.target.value)}
         className="px-3 py-2 border rounded text-sm min-w-[160px]"
+        aria-label="날짜별 필터링"
       />
 
       <select
         value={bulkStatus}
         onChange={(e) => setBulkStatus(e.target.value as StatusType)}
         className="px-3 py-2 border rounded text-sm min-w-[180px]"
+        aria-label="일괄 변경할 상태 선택"
       >
         {statusOptions.map((status) => (
           <option key={status} value={status}>
@@ -68,8 +72,10 @@ export default function AdminFilterBar({
       </select>
 
       <button
+        type="button"
         onClick={onBulkApply}
-        className="px-4 py-2 bg-primary text-white rounded-md text-sm font-semibold hover:bg-primary-hover whitespace-nowrap"
+        className="px-4 py-2 bg-primary text-white rounded-md text-sm font-semibold hover:bg-primary-hover whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-primary"
+        aria-label="선택된 항목들을 일괄 상태 변경"
       >
         ✅ 선택 항목 일괄 변경
       </button>
