@@ -2,6 +2,11 @@ import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
 import { OSConfig, OSName } from '@/types/survey';
 
+// ✅ 타입 가드 함수로 type assertion 대체
+const isValidOSName = (name: string): name is Exclude<OSName, ''> => {
+  return ['ubuntu', 'rhel', 'suse', 'debian', 'amazon_linux'].includes(name);
+};
+
 export default function Step4_OS() {
   const { formData, updateFormData } = useSurvey();
 
@@ -21,14 +26,16 @@ export default function Step4_OS() {
     { name: 'amazon_linux', label: 'Amazon Linux', src: '/img/os/amazon.png' },
   ];
 
-  const [localOS, setLocalOS] = useState<OSConfig>(formData.os || { name: '', version: '' });
+  const [localOS, setLocalOS] = useState<OSConfig>(formData.os ?? { name: '', version: '' });
 
   useEffect(() => {
     updateFormData('os', localOS);
   }, [localOS, updateFormData]);
 
   const handleOSChange = (value: string) => {
-    const updated = { ...localOS, name: value as OSName, version: '' };
+    // ✅ type assertion 대신 타입 가드 사용
+    const osName: OSName = isValidOSName(value) ? value : '';
+    const updated = { ...localOS, name: osName, version: '' };
     setLocalOS(updated);
   };
 
@@ -77,7 +84,7 @@ export default function Step4_OS() {
         </fieldset>
 
         {/* 버전 선택 */}
-        {localOS.name && (
+        {localOS.name && isValidOSName(localOS.name) && (
           <div>
             <label htmlFor="os-version-select" className="block mb-1 text-sm font-semibold text-gray-900 dark:text-white">
               버전 선택
@@ -90,7 +97,7 @@ export default function Step4_OS() {
               aria-label={`${localOS.name} 버전 선택`}
             >
               <option value="">버전 선택</option>
-              {(osOptions[localOS.name as Exclude<OSName, ''>] || []).map((v) => (
+              {osOptions[localOS.name].map((v) => (
                 <option key={v} value={v}>
                   {v}
                 </option>

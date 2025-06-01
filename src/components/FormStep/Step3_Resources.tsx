@@ -3,20 +3,20 @@ import { useState, useEffect } from 'react';
 
 export default function Step3_Resources() {
   const { formData, updateFormData } = useSurvey();
-  const initialK8s = formData.k8s || {};
-  const initialRes = formData.resources || {};
-  const initialVM = formData.vm || {};
+  const initialK8s = formData.k8s ?? {};
+  const initialRes = formData.resources ?? {};
+  const initialVM = formData.vm ?? {};
 
   const [localResources, setLocalResources] = useState({
-    cpu: initialRes.cpu || '',
-    ram: initialRes.ram || '',
-    disk: initialRes.disk || ''
+    cpu: initialRes.cpu ?? '',
+    ram: initialRes.ram ?? '',
+    disk: initialRes.disk ?? ''
   });
 
   const [localVM, setLocalVM] = useState({
-    ec2Type: initialVM.ec2Type || '',
-    ebsType: initialVM.ebsType || '',
-    ebsSize: initialVM.ebsSize || ''
+    ec2Type: initialVM.ec2Type ?? '',
+    ebsType: initialVM.ebsType ?? '',
+    ebsSize: initialVM.ebsSize ?? ''
   });
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function Step3_Resources() {
             id="worker-nodes-input"
             type="number"
             min="1"
-            value={formData.k8s?.node || ''}
+            value={formData.k8s?.node ?? ''}
             onChange={(e) => updateFormData('k8s', { ...formData.k8s, node: e.target.value })}
             className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
             placeholder="예: 3"

@@ -174,13 +174,13 @@ interface VersionAndSizeSectionProps {
 const VersionAndSizeSection = ({ item, errors, onChange }: VersionAndSizeSectionProps) => {
   if (!item.name) return null;
   
-  const versions = dbVersions[item.name as DBName] ?? [];
+  const versions = dbVersions[item.name] ?? [];
   
   return (
     <div className="space-y-4">
       <div>
         <label htmlFor={`db-version-select-${item.id}`} className="block mb-1 text-sm font-medium">
-          {dbLabels[item.name as DBName]} 버전 선택
+          {dbLabels[item.name] ?? ''} 버전 선택
         </label>
         <select
           id={`db-version-select-${item.id}`}
