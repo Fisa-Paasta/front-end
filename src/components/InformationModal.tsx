@@ -29,8 +29,8 @@ const formatValue = (value?: string | number | null): React.ReactNode =>
 
 const KeyValue = ({ label, value }: { label: string; value?: React.ReactNode }) => (
   <div className="flex items-center gap-3">
-    <div className="text-xs text-gray-500 dark:text-gray-400 w-28">{label}</div>
-    <div className="text-sm font-medium">{value}</div>
+    <span className="text-xs text-gray-500 dark:text-gray-400 w-28">{label}</span>
+    <span className="text-sm font-medium">{value}</span>
   </div>
 );
 
@@ -56,7 +56,18 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
       }
     }
 
+    // ESC 키 핸들링을 위한 document 레벨 이벤트
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
     return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
       if (dialog) {
         dialog.close();
       }
@@ -79,20 +90,12 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
     onSubmit();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      handleClose();
-    }
-  };
-
   return (
     <dialog 
       ref={dialogRef}
       className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center backdrop:bg-black/60"
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
-      onKeyDown={handleKeyDown}
     >
       <div className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white rounded-2xl p-6 w-full max-w-3xl shadow-2xl overflow-y-auto max-h-[90vh] space-y-6">
         <header>

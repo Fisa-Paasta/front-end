@@ -43,7 +43,18 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
       }
     }
 
+    // ESC 키 핸들링을 위한 document 레벨 이벤트
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
     return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
       if (dialog) {
         dialog.close();
       }
@@ -60,13 +71,6 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
       dialog.close();
     }
     onClose();
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      handleClose();
-    }
   };
 
   const renderAction = () => {
@@ -138,7 +142,6 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
         className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
         aria-labelledby="dashboard-detail-title"
         aria-describedby="dashboard-detail-description"
-        onKeyDown={handleKeyDown}
       >
         <div className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-md shadow-2xl text-foreground-light dark:text-foreground-dark transition-colors duration-500">
           {/* 닫기 버튼 */}

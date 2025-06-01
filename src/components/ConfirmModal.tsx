@@ -41,7 +41,18 @@ export default function ConfirmModal({
       }
     }
 
+    // ESC 키 핸들링을 위한 document 레벨 이벤트
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
     return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
       if (dialog) {
         dialog.close();
       }
@@ -55,14 +66,7 @@ export default function ConfirmModal({
     }
   };
   
-  const handleReadOnlyConfirm = () => {
-    const dialog = dialogRef.current;
-    if (dialog) {
-      dialog.close();
-    }
-    onClose();
-  };
-
+  // ✅ 수정: 중복된 함수를 하나로 통합
   const handleClose = () => {
     const dialog = dialogRef.current;
     if (dialog) {
@@ -71,6 +75,7 @@ export default function ConfirmModal({
     onClose();
   };
 
+  // ✅ 수정: handleBack 함수를 handleClose와 다르게 구현
   const handleBack = () => {
     if (onBack) {
       const dialog = dialogRef.current;
@@ -78,13 +83,6 @@ export default function ConfirmModal({
         dialog.close();
       }
       onBack();
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      handleClose();
     }
   };
 
@@ -112,7 +110,12 @@ export default function ConfirmModal({
                   className="flex flex-col bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600"
                 >
                   <div><strong>작성자:</strong> {entry.by ?? '미지정'}</div>
-                  <div><strong>일시:</strong> <time dateTime={entry.timestamp}>{entry.timestamp?.split('T')[0] ?? '알 수 없음'}</time></div>
+                  <div>
+                    <strong>일시:</strong> 
+                    <time dateTime={entry.timestamp}>
+                      {entry.timestamp?.split('T')[0] ?? '알 수 없음'}
+                    </time>
+                  </div>
                   {entry.note && (
                     <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                       <Pencil className="w-3 h-3" aria-hidden="true" />
@@ -180,7 +183,6 @@ export default function ConfirmModal({
       className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
-      onKeyDown={handleKeyDown}
     >
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl transition-colors text-gray-900 dark:text-white">
         <header>
@@ -209,7 +211,7 @@ export default function ConfirmModal({
           )}
           <button
             type="button"
-            onClick={readOnly ? handleReadOnlyConfirm : handleSubmit}
+            onClick={readOnly ? handleClose : handleSubmit}
             disabled={!readOnly && (!inputTitle.trim() || !description.trim())}
             className="px-4 py-2 text-sm rounded-md bg-[#5A3EBA] text-white hover:bg-[#4932A0] disabled:bg-gray-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-purple-500"
           >

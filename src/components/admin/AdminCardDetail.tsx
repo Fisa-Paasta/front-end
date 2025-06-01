@@ -51,7 +51,18 @@ export default function AdminCardDetail({
       }
     }
 
+    // ESC 키 핸들링을 위한 document 레벨 이벤트
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscapeKey);
+
     return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
       if (dialog) {
         dialog.close();
       }
@@ -72,13 +83,6 @@ export default function AdminCardDetail({
     onClose();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      handleClose();
-    }
-  };
-
   if (!item) return null;
 
   return (
@@ -87,7 +91,6 @@ export default function AdminCardDetail({
       className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
       aria-labelledby="card-detail-title"
       aria-describedby="card-detail-description"
-      onKeyDown={handleKeyDown}
     >
       <div className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-lg shadow-2xl text-foreground-light dark:text-foreground-dark">
         <button
@@ -129,9 +132,10 @@ export default function AdminCardDetail({
           </select>
         </section>
 
-        <div className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]} block`} role="status" aria-live="polite">
+        {/* ✅ 수정: role="status" 대신 <output> 요소 사용 */}
+        <output className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]} block`} aria-live="polite">
           현재 상태: {status}
-        </div>
+        </output>
 
         {item.historyList && item.historyList.length > 0 && (
           <section className="mt-6" aria-labelledby="history-heading">

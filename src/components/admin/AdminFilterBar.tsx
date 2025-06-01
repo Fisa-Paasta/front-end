@@ -1,10 +1,12 @@
+// src/components/admin/AdminFilterBar.tsx
 import { StatusType } from '@/types/admin';
 
 interface AdminFilterBarProps {
   filterUserId: string;
   setFilterUserId: (value: string) => void;
-  filterStatus: StatusType | string;
-  setFilterStatus: (value: StatusType | '') => void;
+  // ✅ 수정: string으로 변경 (빈 문자열 포함)
+  filterStatus: string;
+  setFilterStatus: (value: string) => void;
   filterDate: string;
   setFilterDate: (value: string) => void;
   bulkStatus: StatusType;
@@ -30,7 +32,7 @@ export default function AdminFilterBar({
   };
 
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilterStatus(e.target.value as StatusType | '');
+    setFilterStatus(e.target.value); // ✅ 단순 string으로 처리
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
