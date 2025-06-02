@@ -61,23 +61,57 @@ export default function Step6_Backend() {
     updateFormData('apiPaths', apiPaths);
   }, [items, apiDomain, apiPaths, updateFormData]);
 
-  const handleItemChange = (index: number, field: keyof BackendItem, value: string) => {
+  // ✅ 개선된 언어 클릭 핸들러
+  const handleLanguageClick = (index: number, languageName: string) => {
     const updated = [...items];
     const item = { ...updated[index] };
+    const currentLanguage = item.language;
 
-    if (field === 'language') {
-      item.language = value as BackendLanguage;
+    // 이미 선택된 언어를 다시 클릭하면 선택 해제
+    if (currentLanguage === languageName) {
+      item.language = '';
       item.languageVersion = '';
       item.framework = '';
       item.frameworkVersion = '';
-    } else if (field === 'framework') {
-      item.framework = value as BackendFramework;
-      item.frameworkVersion = '';
+      console.log(`🔄 ${languageName} 선택 해제됨`);
     } else {
-      (item as any)[field] = value;
+      // 새로운 언어 선택
+      item.language = languageName as BackendLanguage;
+      item.languageVersion = '';
+      item.framework = '';
+      item.frameworkVersion = '';
+      console.log(`✅ ${languageName} 선택됨`);
     }
 
     updated[index] = item;
+    setItems(updated);
+  };
+
+  // ✅ 개선된 프레임워크 클릭 핸들러
+  const handleFrameworkClick = (index: number, frameworkName: string) => {
+    const updated = [...items];
+    const item = { ...updated[index] };
+    const currentFramework = item.framework;
+
+    // 이미 선택된 프레임워크를 다시 클릭하면 선택 해제
+    if (currentFramework === frameworkName) {
+      item.framework = '';
+      item.frameworkVersion = '';
+      console.log(`🔄 ${frameworkName} 선택 해제됨`);
+    } else {
+      // 새로운 프레임워크 선택
+      item.framework = frameworkName as BackendFramework;
+      item.frameworkVersion = '';
+      console.log(`✅ ${frameworkName} 선택됨`);
+    }
+
+    updated[index] = item;
+    setItems(updated);
+  };
+
+  const handleChange = (index: number, field: keyof BackendItem, value: string) => {
+    const updated = [...items];
+    (updated[index] as any)[field] = value;
     setItems(updated);
   };
 
@@ -118,33 +152,29 @@ export default function Step6_Backend() {
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
         {items.map((item, index) => (
           <div key={`backend-item-${item.id}`} className="space-y-4">
-            {/* 언어 선택 라디오 그룹 */}
+            {/* 언어 선택 */}
             <fieldset>
-              <legend className="text-sm font-medium mb-3">백엔드 언어 선택 {index + 1}</legend>
+              <legend className="text-sm font-medium mb-3">
+                백엔드 언어 선택 {index + 1}
+                <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+              </legend>
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
                 {languageCards.map((lang) => (
-                  <div key={`lang-${item.id}-${lang.name}`}>
-                    <input
-                      type="radio"
-                      id={`backend-language-${item.id}-${lang.name}`}
-                      name={`backend-language-${item.id}`}
-                      value={lang.name}
-                      checked={item.language === lang.name}
-                      onChange={(e) => handleItemChange(index, 'language', e.target.value)}
-                      className="sr-only"
-                    />
-                    <label
-                      htmlFor={`backend-language-${item.id}-${lang.name}`}
-                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
-                        ${item.language === lang.name
-                          ? 'border-violet-500 bg-violet-600 text-white'
-                          : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                      `}
-                    >
-                      <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
-                      <span className="text-sm font-semibold">{lang.label}</span>
-                    </label>
-                  </div>
+                  <button
+                    key={`lang-${item.id}-${lang.name}`}
+                    type="button"
+                    onClick={() => handleLanguageClick(index, lang.name)}
+                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
+                      ${item.language === lang.name
+                        ? 'border-violet-500 bg-violet-600 text-white'
+                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                    `}
+                    aria-pressed={item.language === lang.name}
+                    aria-label={`${lang.label} ${item.language === lang.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                  >
+                    <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                    <span className="text-sm font-semibold">{lang.label}</span>
+                  </button>
                 ))}
               </div>
             </fieldset>
@@ -156,7 +186,7 @@ export default function Step6_Backend() {
                 <select
                   id={`language-version-select-${item.id}`}
                   value={item.languageVersion}
-                  onChange={(e) => handleItemChange(index, 'languageVersion', e.target.value)}
+                  onChange={(e) => handleChange(index, 'languageVersion', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   aria-label={`${item.language} 버전 선택`}
                 >
@@ -168,34 +198,30 @@ export default function Step6_Backend() {
               </div>
             )}
 
-            {/* 프레임워크 선택 라디오 그룹 */}
+            {/* 프레임워크 선택 */}
             {item.language && (
               <fieldset>
-                <legend className="text-sm font-medium mb-3">{item.language} 프레임워크 선택</legend>
+                <legend className="text-sm font-medium mb-3">
+                  {item.language} 프레임워크 선택
+                  <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+                </legend>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                   {(frameworkCards[item.language] || []).map((fw) => (
-                    <div key={`fw-${item.id}-${fw.name}`}>
-                      <input
-                        type="radio"
-                        id={`backend-framework-${item.id}-${fw.name}`}
-                        name={`backend-framework-${item.id}`}
-                        value={fw.name}
-                        checked={item.framework === fw.name}
-                        onChange={(e) => handleItemChange(index, 'framework', e.target.value)}
-                        className="sr-only"
-                      />
-                      <label
-                        htmlFor={`backend-framework-${item.id}-${fw.name}`}
-                        className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
-                          ${item.framework === fw.name
-                            ? 'border-violet-500 bg-violet-600 text-white'
-                            : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                        `}
-                      >
-                        <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
-                        <span className="text-sm font-semibold">{fw.label}</span>
-                      </label>
-                    </div>
+                    <button
+                      key={`fw-${item.id}-${fw.name}`}
+                      type="button"
+                      onClick={() => handleFrameworkClick(index, fw.name)}
+                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
+                        ${item.framework === fw.name
+                          ? 'border-violet-500 bg-violet-600 text-white'
+                          : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                      `}
+                      aria-pressed={item.framework === fw.name}
+                      aria-label={`${fw.label} ${item.framework === fw.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                    >
+                      <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                      <span className="text-sm font-semibold">{fw.label}</span>
+                    </button>
                   ))}
                 </div>
               </fieldset>
@@ -208,7 +234,7 @@ export default function Step6_Backend() {
                 <select
                   id={`framework-version-select-${item.id}`}
                   value={item.frameworkVersion}
-                  onChange={(e) => handleItemChange(index, 'frameworkVersion', e.target.value)}
+                  onChange={(e) => handleChange(index, 'frameworkVersion', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   aria-label={`${item.framework} 버전 선택`}
                 >

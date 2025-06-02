@@ -44,7 +44,7 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
 
   if (!formData) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+      <div className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center">
         <div className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white p-6 rounded-xl shadow-xl">
           <p className="mb-4">❌ 신청서 세부 구성이 존재하지 않습니다.</p>
           <button
@@ -59,7 +59,7 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+    <div className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center">
       <div className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white rounded-2xl p-6 w-full max-w-4xl shadow-2xl overflow-y-auto max-h-[90vh] space-y-6">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <FileText className="w-5 h-5" />
@@ -132,7 +132,7 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
             {formData.frontendItems.map((f) => (
               <KeyValue
                 key={`frontend-${f.id}-${f.framework}`}
-                label={`Frontend`}
+                label="Frontend"
                 value={formatValue(`${formatName(f.framework)} ${f.version}`)}
               />
             ))}
@@ -145,7 +145,7 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
             {formData.backendItems.map((b) => (
               <KeyValue
                 key={`backend-${b.id}-${b.language}-${b.framework}`}
-                label={`Backend`}
+                label="Backend"
                 value={formatValue(
                   `${formatName(b.language)} ${b.languageVersion} / ${formatName(b.framework)} ${b.frameworkVersion}`
                 )}

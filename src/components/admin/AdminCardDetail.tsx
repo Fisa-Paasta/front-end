@@ -4,7 +4,7 @@ import { AdminCardData, StatusType } from '../../types/admin';
 interface AdminCardDetailProps {
   item: AdminCardData;
   onClose: () => void;
-  onStatusChange: (id: string, newStatus: StatusType) => void;
+  onStatusChange: (id: string, newStatus: StatusType) => Promise<void>;
 }
 
 const STATUS_OPTIONS: StatusType[] = [
@@ -33,8 +33,10 @@ export default function AdminCardDetail({
   onStatusChange
 }: AdminCardDetailProps) {
   const [status, setStatus] = useState<StatusType>(item.status);
+  const [isLoading, setIsLoading] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
+  // ✅ item.status가 변경될 때마다 로컬 상태도 업데이트
   useEffect(() => {
     setStatus(item.status);
   }, [item.status]);
@@ -69,10 +71,35 @@ export default function AdminCardDetail({
     };
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as StatusType;
-    setStatus(newStatus);
-    onStatusChange(item.id, newStatus);
+    
+    if (newStatus === status) return; // 같은 상태면 무시
+    
+    console.log(`🎯 모달에서 상태 변경 시도: ${item.id} ${status} → ${newStatus}`);
+    
+    setIsLoading(true);
+    
+    try {
+      // ✅ 먼저 UI 상태 업데이트 (즉시 반영)
+      setStatus(newStatus);
+      
+      // ✅ 부모 컴포넌트에 변경사항 전달 (서버 요청)
+      await onStatusChange(item.id, newStatus);
+      
+      console.log(`✅ 모달 상태 변경 성공: ${item.id} → ${newStatus}`);
+      
+    } catch (error) {
+      console.error('❌ 모달 상태 변경 실패:', error);
+      
+      // ✅ 실패 시 원래 상태로 롤백
+      setStatus(item.status);
+      
+      // 사용자에게 에러 메시지 표시
+      alert(`상태 변경에 실패했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -88,68 +115,121 @@ export default function AdminCardDetail({
   return (
     <dialog 
       ref={dialogRef}
-      className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
+      className="fixed inset-0 z-50 w-full h-full bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
       aria-labelledby="card-detail-title"
       aria-describedby="card-detail-description"
+      style={{ 
+        padding: 0, 
+        margin: 0, 
+        maxWidth: '100vw', 
+        maxHeight: '100vh',
+        border: 'none',
+        background: 'rgba(0, 0, 0, 0.6)'
+      }}
     >
-      <div className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-lg shadow-2xl text-foreground-light dark:text-foreground-dark">
+      <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl text-gray-900 dark:text-white">
+        {/* 닫기 버튼 */}
         <button
           type="button"
           onClick={handleClose}
-          className="absolute -top-4 -right-4 z-10 bg-white dark:bg-panel-dark text-gray-500 hover:text-gray-800 dark:hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center text-xl focus:outline-none focus:ring-2 focus:ring-primary"
+          className="absolute -top-2 -right-2 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400"
           aria-label="모달 닫기"
+          disabled={isLoading}
         >
-          ✕
+          ×
         </button>
 
-        <header>
-          <h2 id="card-detail-title" className="text-xl font-bold mb-4">📋 요청 상세</h2>
+        <header className="mb-6">
+          <h2 id="card-detail-title" className="text-xl font-bold mb-2 flex items-center gap-2">
+            📋 요청 상세
+          </h2>
           <p id="card-detail-description" className="sr-only">
             요청의 상세 정보를 확인하고 상태를 변경할 수 있습니다.
           </p>
         </header>
         
-        <main className="space-y-3 mb-6">
-          <div><span className="font-semibold">제목:</span> {item.title}</div>
-          <div><span className="font-semibold">요청사항:</span> {item.desc}</div>
-          <div><span className="font-semibold">날짜:</span> {item.date}</div>
+        <main className="space-y-4 mb-6">
+          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <span className="font-semibold text-gray-700 dark:text-gray-300">제목:</span>
+            <p className="mt-1 text-gray-900 dark:text-white">{item.title}</p>
+          </div>
+          
+          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <span className="font-semibold text-gray-700 dark:text-gray-300">요청사항:</span>
+            <p className="mt-1 text-gray-900 dark:text-white">{item.desc}</p>
+          </div>
+          
+          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <span className="font-semibold text-gray-700 dark:text-gray-300">날짜:</span>
+            <p className="mt-1 text-gray-900 dark:text-white">{item.date}</p>
+          </div>
         </main>
 
-        <section className="w-full mb-4">
-          <label htmlFor="status-select" className="block font-semibold mb-1 text-left">
+        {/* 상태 변경 섹션 */}
+        <section className="mb-6">
+          <label htmlFor="status-select" className="block font-semibold mb-3 text-gray-900 dark:text-white">
             상태 변경
           </label>
           <select
             id="status-select"
-            className="w-full px-4 py-2 rounded-md bg-[#2c323d] text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-primary shadow-sm appearance-none"
+            className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-2 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-base"
             value={status}
             onChange={handleChange}
+            disabled={isLoading}
             aria-label={`현재 상태: ${status}. 새로운 상태를 선택하세요.`}
           >
             {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>{s}</option>
+              <option key={s} value={s} className="py-2">
+                {s}
+              </option>
             ))}
           </select>
+          
+          {isLoading && (
+            <p className="mt-2 text-sm text-blue-600 dark:text-blue-400 flex items-center gap-2">
+              <span className="inline-block w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+              {/* ✅ 소나큐브 수정: span 태그 사이 공백 제거 */}
+              상태를 변경하는 중...
+            </p>
+          )}
         </section>
 
-        {/* ✅ 수정: role="status" 대신 <output> 요소 사용 */}
-        <output className={`mt-4 px-4 py-2 rounded-lg ${STATUS_COLORS[status]} block`} aria-live="polite">
+        {/* 현재 상태 표시 */}
+        <div className={`mb-6 px-4 py-3 rounded-lg text-center font-semibold ${STATUS_COLORS[status]}`}>
           현재 상태: {status}
-        </output>
+        </div>
 
+        {/* 상태 변경 이력 */}
         {item.historyList && item.historyList.length > 0 && (
-          <section className="mt-6" aria-labelledby="history-heading">
-            <h3 id="history-heading" className="text-sm font-semibold mb-2">📜 상태 변경 이력</h3>
-            <ul className="text-sm space-y-1" role="log" aria-label="상태 변경 이력">
+          <section className="mt-6 max-h-48 overflow-y-auto" aria-labelledby="history-heading">
+            <h3 id="history-heading" className="text-sm font-semibold mb-3 text-gray-900 dark:text-white">
+              📜 상태 변경 이력
+            </h3>
+            <div className="space-y-2" role="log" aria-label="상태 변경 이력">
               {item.historyList.map((entry, idx) => (
-                <li key={`history-${item.id}-${entry.timestamp ?? Date.now()}-${idx}`} className="text-gray-500 dark:text-gray-400">
-                  <time dateTime={entry.timestamp}>{entry.timestamp}</time> - {entry.by ?? '시스템'}
+                <div 
+                  key={`history-${item.id}-${entry.timestamp ?? Date.now()}-${idx}`} 
+                  className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm"
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      {entry.by ?? '시스템'}
+                    </span>
+                    <time 
+                      dateTime={entry.timestamp}
+                      className="text-xs text-gray-500 dark:text-gray-400"
+                    >
+                      {entry.timestamp ? new Date(entry.timestamp).toLocaleDateString() : ''}
+                    </time>
+                  </div>
                   {entry.note && (
-                    <span className="text-xs text-gray-400 ml-2">({entry.note})</span>
+                    <p className="text-gray-600 dark:text-gray-300 mt-1">
+                      {entry.note}
+                    </p>
                   )}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           </section>
         )}
       </div>

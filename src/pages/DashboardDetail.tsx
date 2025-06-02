@@ -1,10 +1,9 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import ApplicationDetailModal from '../components/ApplicationDetailModal';
-import ConfirmModal from '../components/ConfirmModal';
 import { useSubmitted, SubmittedCard } from '@/context/SubmittedContext';
 
 import {
-  Hourglass, CheckCircle, RefreshCcw, ShieldCheck, Hammer,
+  Hourglass, CheckCircle, RefreshCw, ShieldCheck, Hammer,
   PartyPopper, HelpCircle, Pin, FileText, CalendarDays
 } from 'lucide-react';
 
@@ -137,91 +136,116 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
 
   return (
     <>
-      <dialog
-        ref={dialogRef}
-        className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
-        aria-labelledby="dashboard-detail-title"
-        aria-describedby="dashboard-detail-description"
-      >
-        <div className="relative bg-panel-light dark:bg-panel-dark rounded-2xl p-6 w-full max-w-md shadow-2xl text-foreground-light dark:text-foreground-dark transition-colors duration-500">
+      {/* ✅ 문제 1 해결: 메인 모달 - AdminCardDetail.tsx 스타일 참고 */}
+      <div className="fixed inset-0 z-50 w-full h-full bg-black bg-opacity-60 flex items-center justify-center" style={{ 
+        padding: 0, 
+        margin: 0, 
+        maxWidth: '100vw', 
+        maxHeight: '100vh',
+        border: 'none',
+        background: 'rgba(0, 0, 0, 0.6)'
+      }}>
+        <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl text-gray-900 dark:text-white">
           {/* 닫기 버튼 */}
           <button
             type="button"
             onClick={handleClose}
-            className="absolute -top-4 -right-4 z-10 bg-white dark:bg-panel-dark text-gray-500 hover:text-gray-800 dark:hover:text-white rounded-full shadow-md w-9 h-9 flex items-center justify-center text-xl focus:outline-none focus:ring-2 focus:ring-primary"
-            aria-label="대시보드 상세 정보 모달 닫기"
+            className="absolute -top-2 -right-2 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+            aria-label="모달 닫기"
           >
-            ✕
+            ×
           </button>
 
-          <header>
-            {/* 상태 블럭 */}
-            <div className={`${statusMeta.color} flex items-start gap-3 rounded-lg px-4 py-3 mb-6`}>
-              <div className="w-6 h-6" aria-hidden="true">{statusMeta.icon}</div>
-              <div className="flex-1">
-                <p id="dashboard-detail-title" className="text-base font-bold leading-tight">{statusMeta.title}</p>
-                <p id="dashboard-detail-description" className="text-sm mt-1">{statusMeta.description}</p>
-              </div>
-            </div>
+          <header className="mb-6">
+            <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+              📋 신청서 상세
+            </h2>
           </header>
 
-          <main>
-            {/* 상세 정보 */}
-            <section className="space-y-3 text-sm text-gray-600 dark:text-gray-300" aria-labelledby="detail-info-heading">
-              <h2 id="detail-info-heading" className="sr-only">신청서 상세 정보</h2>
-              <div className="flex items-center gap-2">
-                <Pin className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
-                <span className="font-medium text-foreground-light dark:text-white">제목:</span>
-                <span className="truncate">{latestItem.title}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
-                <span className="font-medium text-foreground-light dark:text-white">요청사항:</span>
-                <span>{latestItem.desc}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="w-4 h-4 text-foreground-light dark:text-white" aria-hidden="true" />
-                <span className="font-medium text-foreground-light dark:text-white">날짜:</span>
-                <span>{latestItem.date}</span>
-              </div>
-            </section>
+          {/* 상태 블럭 */}
+          <div className={`${statusMeta.color} flex items-start gap-3 rounded-lg px-4 py-4 mb-6`}>
+            <div className="w-6 h-6" aria-hidden="true">{statusMeta.icon}</div>
+            <div className="flex-1">
+              <p className="text-lg font-bold leading-tight">{statusMeta.title}</p>
+              <p className="text-sm mt-2">{statusMeta.description}</p>
+            </div>
+          </div>
 
-            {/* 액션 버튼 */}
-            {renderAction() && (
-              <section className="mt-6 border-t border-gray-700 pt-4" aria-labelledby="action-section-heading">
-                <h2 id="action-section-heading" className="sr-only">사용 가능한 액션</h2>
-                {renderAction()}
-              </section>
-            )}
+          <main className="space-y-4 mb-6">
+            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <span className="font-semibold text-gray-700 dark:text-gray-300">제목:</span>
+              <p className="mt-1 text-gray-900 dark:text-white">{latestItem.title}</p>
+            </div>
+            
+            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <span className="font-semibold text-gray-700 dark:text-gray-300">요청사항:</span>
+              <p className="mt-1 text-gray-900 dark:text-white">{latestItem.desc}</p>
+            </div>
+            
+            <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <span className="font-semibold text-gray-700 dark:text-gray-300">날짜:</span>
+              <p className="mt-1 text-gray-900 dark:text-white">{latestItem.date}</p>
+            </div>
           </main>
-        </div>
-      </dialog>
 
-      {/* 승인 이력 모달 */}
-      {showHistory && (
-        <ConfirmModal
-          title="승인 이력"
-          onClose={() => setShowHistory(false)}
-          viewType="history"
-          readOnly
-          historyList={latestItem.historyList as HistoryEntry[]}
-        />
+          {/* 액션 버튼 */}
+          {renderAction() && (
+            <section className="mb-6" aria-labelledby="action-section-heading">
+              <h2 id="action-section-heading" className="sr-only">사용 가능한 액션</h2>
+              {renderAction()}
+            </section>
+          )}
+        </div>
+      </div>
+
+      {/* ✅ 문제 2 해결: 신청서 상세 모달 - z-70 (승인 이력보다 위) */}
+      {showDetailModal && selectedCard?.formDataSnapshot && (
+        <div className="fixed inset-0 z-[70] bg-black bg-opacity-80 flex items-center justify-center p-4">
+          <ApplicationDetailModal
+            item={selectedCard}
+            onClose={() => setShowDetailModal(false)}
+          />
+        </div>
       )}
 
-      {/* 신청서 상세 모달 */}
-      {showDetailModal && selectedCard?.formDataSnapshot ? (
-        <ApplicationDetailModal
-          item={selectedCard}
-          onClose={() => setShowDetailModal(false)}
-        />
-      ) : showDetailModal && (
-        <ConfirmModal
-          title="신청서 상세 정보 없음"
-          readOnly
-          onClose={() => setShowDetailModal(false)}
-          viewType="application"
-          item={selectedCard}
-        />
+      {/* 승인 이력 모달 - z-60 (신청서 상세 모달보다 아래) */}
+      {showHistory && (
+        <div className="fixed inset-0 z-[60] bg-black bg-opacity-70 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-xl transition-colors text-gray-900 dark:text-white">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">📜 승인 이력</h2>
+              <button
+                type="button"
+                onClick={() => setShowHistory(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-white text-xl focus:outline-none focus:ring-2 focus:ring-primary rounded p-1"
+                aria-label="승인 이력 모달 닫기"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="space-y-3 max-h-80 overflow-y-auto">
+              {(latestItem.historyList as HistoryEntry[] || []).length > 0 ? (
+                (latestItem.historyList as HistoryEntry[] || []).map((entry, index) => (
+                  <div key={`history-${index}`} className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="font-medium">{entry.by ?? '시스템'}</span>
+                      <span className="text-xs text-gray-500">
+                        {entry.timestamp ? new Date(entry.timestamp).toLocaleDateString() : ''}
+                      </span>
+                    </div>
+                    {entry.note && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{entry.note}</p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  📭 아직 승인 이력이 없습니다.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
@@ -242,7 +266,7 @@ const getStatusMeta = (status: string) => {
       description: '신청이 정상적으로 접수되었습니다.',
     },
     '승인처리중': {
-      icon: <RefreshCcw className="w-5 h-5" />,
+      icon: <RefreshCw className="w-5 h-5" />,
       color: 'bg-blue-500 text-white',
       title: '승인 처리 중',
       description: '관리자가 요청을 검토 중입니다.',

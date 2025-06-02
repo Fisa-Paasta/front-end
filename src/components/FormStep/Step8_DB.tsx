@@ -56,20 +56,6 @@ const validateField = (field: keyof DBItem, value: string): boolean => {
   return !!value;
 };
 
-// 아이템 업데이트 함수 분리
-const createUpdatedItem = (item: DBItem, field: keyof DBItem, value: string): DBItem => {
-  const updated = { ...item, [field]: value };
-  
-  if (field === 'type') {
-    updated.name = '';
-    updated.version = '';
-  } else if (field === 'name') {
-    updated.version = '';
-  }
-  
-  return updated;
-};
-
 // 에러 체크 함수 분리
 const hasError = (errors: Record<string, Record<string, boolean>>, id: number, field: keyof DBItem): boolean => {
   return errors[id?.toString()]?.[field] === true;
@@ -78,36 +64,32 @@ const hasError = (errors: Record<string, Record<string, boolean>>, id: number, f
 // DB 타입 섹션 컴포넌트
 interface DBTypeSectionProps {
   item: DBItem;
-  onTypeChange: (id: number, value: string) => void;
+  onTypeClick: (id: number, value: string) => void;
 }
 
-const DBTypeSection = ({ item, onTypeChange }: DBTypeSectionProps) => (
+const DBTypeSection = ({ item, onTypeClick }: DBTypeSectionProps) => (
   <div className="space-y-2">
     <fieldset>
-      <legend className="text-sm font-medium mb-2">데이터베이스 타입 선택</legend>
+      <legend className="text-sm font-medium mb-2">
+        데이터베이스 타입 선택
+        <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+      </legend>
       <div className="grid grid-cols-2 gap-4">
         {dbTypeCards.map((type) => (
-          <div key={type.value}>
-            <input
-              type="radio"
-              id={`db-type-${item.id}-${type.value}`}
-              name={`db-type-${item.id}`}
-              value={type.value}
-              checked={item.type === type.value}
-              onChange={(e) => onTypeChange(item.id, e.target.value)}
-              className="sr-only"
-            />
-            <label
-              htmlFor={`db-type-${item.id}-${type.value}`}
-              className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
-                ${item.type === type.value
-                  ? 'border-violet-500 bg-violet-600 text-white'
-                  : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-              `}
-            >
-              <span className="text-sm font-semibold">{type.label}</span>
-            </label>
-          </div>
+          <button
+            key={type.value}
+            type="button"
+            onClick={() => onTypeClick(item.id, type.value)}
+            className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block w-full
+              ${item.type === type.value
+                ? 'border-violet-500 bg-violet-600 text-white'
+                : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+            `}
+            aria-pressed={item.type === type.value}
+            aria-label={`${type.label} ${item.type === type.value ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+          >
+            <span className="text-sm font-semibold">{type.label}</span>
+          </button>
         ))}
       </div>
     </fieldset>
@@ -117,10 +99,10 @@ const DBTypeSection = ({ item, onTypeChange }: DBTypeSectionProps) => (
 // DB 선택 섹션 컴포넌트
 interface DBSelectionSectionProps {
   item: DBItem;
-  onNameChange: (id: number, value: string) => void;
+  onNameClick: (id: number, value: string) => void;
 }
 
-const DBSelectionSection = ({ item, onNameChange }: DBSelectionSectionProps) => {
+const DBSelectionSection = ({ item, onNameClick }: DBSelectionSectionProps) => {
   if (!item.type) return null;
   
   const availableDBs = dbOptions[item.type as ValidDBType] ?? [];
@@ -128,35 +110,31 @@ const DBSelectionSection = ({ item, onNameChange }: DBSelectionSectionProps) => 
   return (
     <div className="space-y-2">
       <fieldset>
-        <legend className="text-sm font-medium mb-2">{item.type} 데이터베이스 선택</legend>
+        <legend className="text-sm font-medium mb-2">
+          {item.type} 데이터베이스 선택
+          <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+        </legend>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {availableDBs.map((db) => (
-            <div key={db}>
-              <input
-                type="radio"
-                id={`db-name-${item.id}-${db}`}
-                name={`db-name-${item.id}`}
-                value={db}
-                checked={item.name === db}
-                onChange={(e) => onNameChange(item.id, e.target.value)}
-                className="sr-only"
+            <button
+              key={db}
+              type="button"
+              onClick={() => onNameClick(item.id, db)}
+              className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block w-full
+                ${item.name === db
+                  ? 'border-violet-500 bg-violet-600 text-white'
+                  : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+              `}
+              aria-pressed={item.name === db}
+              aria-label={`${dbLabels[db]} ${item.name === db ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+            >
+              <img
+                src={dbImages[db]}
+                alt={`${dbLabels[db]} 로고`}
+                className="h-14 mx-auto object-contain mb-2"
               />
-              <label
-                htmlFor={`db-name-${item.id}-${db}`}
-                className={`p-3 rounded-md border-2 text-center cursor-pointer transition shadow-sm block
-                  ${item.name === db
-                    ? 'border-violet-500 bg-violet-600 text-white'
-                    : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                `}
-              >
-                <img
-                  src={dbImages[db]}
-                  alt={`${dbLabels[db]} 로고`}
-                  className="h-14 mx-auto object-contain mb-2"
-                />
-                <span className="text-sm font-semibold">{dbLabels[db]}</span>
-              </label>
-            </div>
+              <span className="text-sm font-semibold">{dbLabels[db]}</span>
+            </button>
           ))}
         </div>
       </fieldset>
@@ -244,6 +222,50 @@ export default function Step8_DB() {
     updateFormData('dbItems', dbItems);
   }, [dbItems, updateFormData]);
 
+  // ✅ 개선된 타입 클릭 핸들러
+  const handleTypeClick = (id: number, typeValue: string) => {
+    setDbItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const currentType = item.type;
+          
+          // 이미 선택된 타입을 다시 클릭하면 선택 해제
+          if (currentType === typeValue) {
+            console.log(`🔄 ${typeValue} 선택 해제됨`);
+            return { ...item, type: '' as DBType, name: '' as DBName, version: '', size: '' };
+          } else {
+            // 새로운 타입 선택
+            console.log(`✅ ${typeValue} 선택됨`);
+            return { ...item, type: typeValue as DBType, name: '' as DBName, version: '', size: '' };
+          }
+        }
+        return item;
+      })
+    );
+  };
+
+  // ✅ 개선된 이름 클릭 핸들러
+  const handleNameClick = (id: number, nameValue: string) => {
+    setDbItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const currentName = item.name;
+          
+          // 이미 선택된 이름을 다시 클릭하면 선택 해제
+          if (currentName === nameValue) {
+            console.log(`🔄 ${nameValue} 선택 해제됨`);
+            return { ...item, name: '' as DBName, version: '', size: '' };
+          } else {
+            // 새로운 이름 선택
+            console.log(`✅ ${nameValue} 선택됨`);
+            return { ...item, name: nameValue as DBName, version: '', size: '' };
+          }
+        }
+        return item;
+      })
+    );
+  };
+
   const addDbItem = () => {
     setDbItems((prev) => [
       ...prev,
@@ -261,15 +283,6 @@ export default function Step8_DB() {
     });
   };
 
-  const updateItemField = (id: number, field: keyof DBItem, value: string) => {
-    setDbItems((prev) =>
-      prev.map((item) => {
-        if (item.id !== id) return item;
-        return createUpdatedItem(item, field, value);
-      })
-    );
-  };
-
   const handleChange = (id: number, field: keyof DBItem, value: string) => {
     const idStr = id.toString();
     const isValid = validateField(field, value);
@@ -279,15 +292,14 @@ export default function Step8_DB() {
       [idStr]: { ...prev[idStr], [field]: !isValid }
     }));
 
-    updateItemField(id, field, value);
-  };
-
-  const handleTypeChange = (id: number, value: string) => {
-    handleChange(id, 'type', value);
-  };
-
-  const handleNameChange = (id: number, value: string) => {
-    handleChange(id, 'name', value);
+    setDbItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          return { ...item, [field]: value };
+        }
+        return item;
+      })
+    );
   };
 
   return (
@@ -297,8 +309,8 @@ export default function Step8_DB() {
           key={`db-item-${item.id}`}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          <DBTypeSection item={item} onTypeChange={handleTypeChange} />
-          <DBSelectionSection item={item} onNameChange={handleNameChange} />
+          <DBTypeSection item={item} onTypeClick={handleTypeClick} />
+          <DBSelectionSection item={item} onNameClick={handleNameClick} />
           <VersionAndSizeSection item={item} errors={errors} onChange={handleChange} />
 
           {dbItems.length > 1 && (

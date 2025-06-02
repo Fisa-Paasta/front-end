@@ -35,15 +35,31 @@ export default function Step5_Frontend() {
     updateFormData('frontendDomain', frontendDomain);
   }, [items, frontendDomain, updateFormData]);
 
+  // ✅ 개선된 프레임워크 클릭 핸들러
+  const handleFrameworkClick = (index: number, frameworkName: string) => {
+    const updated = [...items];
+    const currentFramework = updated[index].framework;
+    
+    // 이미 선택된 프레임워크를 다시 클릭하면 선택 해제
+    if (currentFramework === frameworkName) {
+      updated[index].framework = '';
+      updated[index].version = '';
+      console.log(`🔄 ${frameworkName} 선택 해제됨`);
+    } else {
+      // 새로운 프레임워크 선택
+      updated[index].framework = frameworkName;
+      updated[index].version = '';
+      console.log(`✅ ${frameworkName} 선택됨`);
+    }
+    
+    setItems(updated);
+  };
+
   const handleChange = (index: number, field: 'framework' | 'version', value: string) => {
     const updated = [...items];
     updated[index][field] = value;
     if (field === 'framework') updated[index].version = '';
     setItems(updated);
-  };
-
-  const handleFrameworkChange = (index: number, value: string) => {
-    handleChange(index, 'framework', value);
   };
 
   const handleAdd = () => {
@@ -68,35 +84,31 @@ export default function Step5_Frontend() {
           <div key={item.id} className="space-y-4">
             {/* 프레임워크 선택 */}
             <fieldset>
-              <legend className="text-sm font-medium mb-3">프론트엔드 프레임워크 선택 {i + 1}</legend>
+              <legend className="text-sm font-medium mb-3">
+                프론트엔드 프레임워크 선택 {i + 1}
+                <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+              </legend>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
                 {frontendFrameworks.map((fw) => (
-                  <div key={fw.name}>
-                    <input
-                      type="radio"
-                      id={`frontend-framework-${item.id}-${fw.name}`}
-                      name={`frontend-framework-${item.id}`}
-                      value={fw.name}
-                      checked={item.framework === fw.name}
-                      onChange={(e) => handleFrameworkChange(i, e.target.value)}
-                      className="sr-only"
+                  <button
+                    key={fw.name}
+                    type="button"
+                    onClick={() => handleFrameworkClick(i, fw.name)}
+                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
+                      ${item.framework === fw.name
+                        ? 'border-violet-500 bg-violet-600 text-white'
+                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                    `}
+                    aria-pressed={item.framework === fw.name}
+                    aria-label={`${fw.label} ${item.framework === fw.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                  >
+                    <img
+                      src={fw.src}
+                      alt={`${fw.label} 로고`}
+                      className="w-full h-16 object-contain mb-2"
                     />
-                    <label
-                      htmlFor={`frontend-framework-${item.id}-${fw.name}`}
-                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
-                        ${item.framework === fw.name
-                          ? 'border-violet-500 bg-violet-600 text-white'
-                          : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                      `}
-                    >
-                      <img
-                        src={fw.src}
-                        alt={`${fw.label} 로고`}
-                        className="w-full h-16 object-contain mb-2"
-                      />
-                      <span className="text-sm font-semibold">{fw.label}</span>
-                    </label>
-                  </div>
+                    <span className="text-sm font-semibold">{fw.label}</span>
+                  </button>
                 ))}
               </div>
             </fieldset>

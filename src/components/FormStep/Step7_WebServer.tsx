@@ -29,6 +29,28 @@ export default function Step7_WebServer() {
     updateFormData('webServerItems', webServerItems);
   }, [webServerItems, updateFormData]);
 
+  // ✅ 개선된 서버 클릭 핸들러
+  const handleServerClick = (id: number, serverName: string) => {
+    setWebServerItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const currentServer = item.server;
+          
+          // 이미 선택된 서버를 다시 클릭하면 선택 해제
+          if (currentServer === serverName) {
+            console.log(`🔄 ${serverName} 선택 해제됨`);
+            return { ...item, server: '' as WebServerType, version: '' };
+          } else {
+            // 새로운 서버 선택
+            console.log(`✅ ${serverName} 선택됨`);
+            return { ...item, server: serverName as WebServerType, version: '' };
+          }
+        }
+        return item;
+      })
+    );
+  };
+
   const addWebServerItem = () => {
     setWebServerItems((prev) => [
       ...prev,
@@ -41,20 +63,11 @@ export default function Step7_WebServer() {
     setWebServerItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleChange = (
-    id: number,
-    field: keyof WebServerItem,
-    value: string
-  ) => {
+  const handleVersionChange = (id: number, value: string) => {
     setWebServerItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const updated = { ...item, [field]: value };
-          if (field === 'server') updated.version = '';
-          return updated;
-        }
-        return item;
-      })
+      prev.map((item) =>
+        item.id === id ? { ...item, version: value } : item
+      )
     );
   };
 
@@ -65,34 +78,33 @@ export default function Step7_WebServer() {
           key={item.id}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          {/* 서버 선택 라디오 그룹 */}
+          {/* 서버 선택 */}
           <fieldset>
-            <legend className="text-sm font-medium mb-3">웹서버 선택</legend>
+            <legend className="text-sm font-medium mb-3">
+              웹서버 선택
+              <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+            </legend>
             <div className="grid grid-cols-3 gap-4">
               {serverCards.map((server) => (
-                <label
+                <button
                   key={server.name}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block
+                  type="button"
+                  onClick={() => handleServerClick(item.id, server.name)}
+                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
                     ${item.server === server.name
                       ? 'border-violet-500 bg-violet-600 text-white'
                       : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                   `}
+                  aria-pressed={item.server === server.name}
+                  aria-label={`${server.label} ${item.server === server.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
                 >
-                  <input
-                    type="radio"
-                    name={`webserver-${item.id}`}
-                    value={server.name}
-                    checked={item.server === server.name}
-                    onChange={(e) => handleChange(item.id, 'server', e.target.value)}
-                    className="sr-only"
-                  />
                   <img
                     src={server.src}
                     alt=""
                     className="h-14 mx-auto object-contain mb-2"
                   />
                   <span className="text-sm font-semibold">{server.label}</span>
-                </label>
+                </button>
               ))}
             </div>
           </fieldset>
@@ -106,7 +118,7 @@ export default function Step7_WebServer() {
               <select
                 id={`version-select-${item.id}`}
                 value={item.version}
-                onChange={(e) => handleChange(item.id, 'version', e.target.value)}
+                onChange={(e) => handleVersionChange(item.id, e.target.value)}
                 className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                 aria-label={`${item.server} 버전 선택`}
               >

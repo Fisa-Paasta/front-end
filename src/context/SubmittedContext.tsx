@@ -248,21 +248,31 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const updateCardStatus = useCallback((id: string, newStatus: StatusType, note?: string) => {
     const userId = user?.userId ?? 'unknown';
-    setSubmittedCards(prev =>
-      prev.map(card => {
+    
+    console.log(`🔄 로컬 상태 업데이트: ${id} → ${newStatus}`);
+    
+    setSubmittedCards(prev => {
+      const updated = prev.map(card => {
         if (card.id !== id) return card;
+        
         const newHistory = {
           by: userId,
           timestamp: new Date().toISOString(),
           note: note ?? `상태를 '${newStatus}'로 변경함`,
         };
+        
+        console.log(`✅ 카드 상태 업데이트: ${card.title} ${card.status} → ${newStatus}`);
+        
         return {
           ...card,
           status: newStatus,
           historyList: [...(card.historyList ?? []), newHistory],
         };
-      })
-    );
+      });
+      
+      console.log('📋 전체 카드 상태 업데이트 완료');
+      return updated;
+    });
   }, [user?.userId]);
 
   const updateCardContent = useCallback(async (id: string, newTitle: string, newDesc: string): Promise<void> => {

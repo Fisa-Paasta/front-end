@@ -66,7 +66,6 @@ export default function ConfirmModal({
     }
   };
   
-  // ✅ 수정: 중복된 함수를 하나로 통합
   const handleClose = () => {
     const dialog = dialogRef.current;
     if (dialog) {
@@ -75,7 +74,6 @@ export default function ConfirmModal({
     onClose();
   };
 
-  // ✅ 수정: handleBack 함수를 handleClose와 다르게 구현
   const handleBack = () => {
     if (onBack) {
       const dialog = dialogRef.current;
@@ -180,11 +178,19 @@ export default function ConfirmModal({
   return (
     <dialog 
       ref={dialogRef}
-      className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
+      className="fixed inset-0 z-50 w-full h-full bg-black bg-opacity-60 flex items-center justify-center backdrop:bg-black/60"
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
+      style={{ 
+        padding: 0, 
+        margin: 0, 
+        maxWidth: '100vw', 
+        maxHeight: '100vh',
+        border: 'none',
+        background: 'rgba(0, 0, 0, 0.6)'
+      }}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl transition-colors text-gray-900 dark:text-white">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-lg mx-4 shadow-xl transition-colors text-gray-900 dark:text-white">
         <header>
           <h2 id="modal-title" className="text-lg font-bold mb-4 flex items-center gap-2">
             <FileText className="w-5 h-5" aria-hidden="true" />
