@@ -273,12 +273,13 @@ export default function Step8_DB() {
     ]);
   };
 
-  const removeDbItem = (id: number) => {
+  // ✅ ID 기반 삭제로 수정
+  const removeDbItem = (targetId: number) => {
     if (dbItems.length <= 1) return;
-    setDbItems((prev) => prev.filter((item) => item.id !== id));
+    setDbItems((prev) => prev.filter((item) => item.id !== targetId));
     setErrors((prev) => {
       const copy = { ...prev };
-      delete copy[id.toString()];
+      delete copy[targetId.toString()];
       return copy;
     });
   };
@@ -304,25 +305,31 @@ export default function Step8_DB() {
 
   return (
     <div className="space-y-4">
-      {dbItems.map((item) => (
+      {dbItems.map((item, index) => (
         <div
           key={`db-item-${item.id}`}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          <DBTypeSection item={item} onTypeClick={handleTypeClick} />
-          <DBSelectionSection item={item} onNameClick={handleNameClick} />
-          <VersionAndSizeSection item={item} errors={errors} onChange={handleChange} />
+          {/* ✅ 프론트엔드와 동일한 X 위치 */}
+          <div className="flex justify-between items-start">
+            <div className="flex-1 space-y-4">
+              <DBTypeSection item={item} onTypeClick={handleTypeClick} />
+              <DBSelectionSection item={item} onNameClick={handleNameClick} />
+              <VersionAndSizeSection item={item} errors={errors} onChange={handleChange} />
+            </div>
 
-          {dbItems.length > 1 && (
-            <button
-              type="button"
-              onClick={() => removeDbItem(item.id)}
-              className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
-              aria-label="데이터베이스 항목 삭제"
-            >
-              ×
-            </button>
-          )}
+            {/* ✅ X 버튼을 프론트엔드와 동일한 위치로 이동 */}
+            {dbItems.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeDbItem(item.id)}
+                className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ml-4 mt-1"
+                aria-label={`데이터베이스 항목 ${index + 1} 삭제`}
+              >
+                ×
+              </button>
+            )}
+          </div>
         </div>
       ))}
 

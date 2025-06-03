@@ -122,10 +122,9 @@ export default function Step6_Backend() {
     ]);
   };
 
-  const handleRemove = (index: number) => {
-    const updated = [...items];
-    updated.splice(index, 1);
-    setItems(updated);
+  // ✅ ID 기반 삭제로 수정
+  const handleRemove = (targetId: number) => {
+    setItems(prevItems => prevItems.filter(item => item.id !== targetId));
   };
 
   const handleDomainChange = (value: string) => {
@@ -149,185 +148,189 @@ export default function Step6_Backend() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
-        {items.map((item, index) => (
-          <div key={`backend-item-${item.id}`} className="space-y-4">
-            {/* 언어 선택 */}
-            <fieldset>
-              <legend className="text-sm font-medium mb-3">
-                백엔드 언어 선택 {index + 1}
-                <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
-              </legend>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                {languageCards.map((lang) => (
-                  <button
-                    key={`lang-${item.id}-${lang.name}`}
-                    type="button"
-                    onClick={() => handleLanguageClick(index, lang.name)}
-                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
-                      ${item.language === lang.name
-                        ? 'border-violet-500 bg-violet-600 text-white'
-                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                    `}
-                    aria-pressed={item.language === lang.name}
-                    aria-label={`${lang.label} ${item.language === lang.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
-                  >
-                    <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
-                    <span className="text-sm font-semibold">{lang.label}</span>
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-
-            {/* 언어 버전 선택 */}
-            {item.language && (
-              <div>
-                <label htmlFor={`language-version-select-${item.id}`} className="block mb-1 text-sm font-medium">언어 버전 선택</label>
-                <select
-                  id={`language-version-select-${item.id}`}
-                  value={item.languageVersion}
-                  onChange={(e) => handleChange(index, 'languageVersion', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  aria-label={`${item.language} 버전 선택`}
-                >
-                  <option value="">언어 버전 선택</option>
-                  {(languageOptions[item.language] || []).map((version) => (
-                    <option key={`version-${item.id}-${version}`} value={version}>{version}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* 프레임워크 선택 */}
-            {item.language && (
+      {items.map((item, index) => (
+        <div key={`backend-item-${item.id}`} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
+          {/* ✅ 프론트엔드와 동일한 레이아웃: 제목과 X 버튼을 같은 행에 배치 */}
+          <div className="flex justify-between items-start">
+            <div className="flex-1 space-y-4">
+              {/* 언어 선택 */}
               <fieldset>
                 <legend className="text-sm font-medium mb-3">
-                  {item.language} 프레임워크 선택
+                  백엔드 언어 선택 {index + 1}
                   <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
                 </legend>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                  {(frameworkCards[item.language] || []).map((fw) => (
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+                  {languageCards.map((lang) => (
                     <button
-                      key={`fw-${item.id}-${fw.name}`}
+                      key={`lang-${item.id}-${lang.name}`}
                       type="button"
-                      onClick={() => handleFrameworkClick(index, fw.name)}
+                      onClick={() => handleLanguageClick(index, lang.name)}
                       className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
-                        ${item.framework === fw.name
+                        ${item.language === lang.name
                           ? 'border-violet-500 bg-violet-600 text-white'
                           : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
                       `}
-                      aria-pressed={item.framework === fw.name}
-                      aria-label={`${fw.label} ${item.framework === fw.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                      aria-pressed={item.language === lang.name}
+                      aria-label={`${lang.label} ${item.language === lang.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
                     >
-                      <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
-                      <span className="text-sm font-semibold">{fw.label}</span>
+                      <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                      <span className="text-sm font-semibold">{lang.label}</span>
                     </button>
                   ))}
                 </div>
               </fieldset>
-            )}
 
-            {/* 프레임워크 버전 선택 */}
-            {item.framework && (
-              <div>
-                <label htmlFor={`framework-version-select-${item.id}`} className="block mb-1 text-sm font-medium">프레임워크 버전 선택</label>
-                <select
-                  id={`framework-version-select-${item.id}`}
-                  value={item.frameworkVersion}
-                  onChange={(e) => handleChange(index, 'frameworkVersion', e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  aria-label={`${item.framework} 버전 선택`}
-                >
-                  <option value="">프레임워크 버전 선택</option>
-                  {(frameworkOptions[item.framework] || []).map((fwVersion) => (
-                    <option key={`fw-version-${item.id}-${fwVersion}`} value={fwVersion}>{fwVersion}</option>
-                  ))}
-                </select>
-              </div>
-            )}
+              {/* 언어 버전 선택 */}
+              {item.language && (
+                <div>
+                  <label htmlFor={`language-version-select-${item.id}`} className="block mb-1 text-sm font-medium">언어 버전 선택</label>
+                  <select
+                    id={`language-version-select-${item.id}`}
+                    value={item.languageVersion}
+                    onChange={(e) => handleChange(index, 'languageVersion', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    aria-label={`${item.language} 버전 선택`}
+                  >
+                    <option value="">언어 버전 선택</option>
+                    {(languageOptions[item.language] || []).map((version) => (
+                      <option key={`version-${item.id}-${version}`} value={version}>{version}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
+              {/* 프레임워크 선택 */}
+              {item.language && (
+                <fieldset>
+                  <legend className="text-sm font-medium mb-3">
+                    {item.language} 프레임워크 선택
+                    <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+                  </legend>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                    {(frameworkCards[item.language] || []).map((fw) => (
+                      <button
+                        key={`fw-${item.id}-${fw.name}`}
+                        type="button"
+                        onClick={() => handleFrameworkClick(index, fw.name)}
+                        className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
+                          ${item.framework === fw.name
+                            ? 'border-violet-500 bg-violet-600 text-white'
+                            : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                        `}
+                        aria-pressed={item.framework === fw.name}
+                        aria-label={`${fw.label} ${item.framework === fw.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                      >
+                        <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                        <span className="text-sm font-semibold">{fw.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
+
+              {/* 프레임워크 버전 선택 */}
+              {item.framework && (
+                <div>
+                  <label htmlFor={`framework-version-select-${item.id}`} className="block mb-1 text-sm font-medium">프레임워크 버전 선택</label>
+                  <select
+                    id={`framework-version-select-${item.id}`}
+                    value={item.frameworkVersion}
+                    onChange={(e) => handleChange(index, 'frameworkVersion', e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    aria-label={`${item.framework} 버전 선택`}
+                  >
+                    <option value="">프레임워크 버전 선택</option>
+                    {(frameworkOptions[item.framework] || []).map((fwVersion) => (
+                      <option key={`fw-version-${item.id}-${fwVersion}`} value={fwVersion}>{fwVersion}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* ✅ X 버튼을 프론트엔드와 동일한 위치로 이동 */}
             {items.length > 1 && (
               <button
                 type="button"
-                onClick={() => handleRemove(index)}
-                className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                onClick={() => handleRemove(item.id)}
+                className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ml-4"
                 aria-label={`백엔드 항목 ${index + 1} 삭제`}
               >
                 ✕
               </button>
             )}
           </div>
-        ))}
+        </div>
+      ))}
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          aria-label="새 백엔드 항목 추가"
-        >
-          + 백엔드 추가
-        </button>
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        aria-label="새 백엔드 항목 추가"
+      >
+        + 백엔드 추가
+      </button>
 
-        {/* PaaS 도메인 설정 */}
-        {formData.env === 'paas' && (
-          <>
-            <div className="mt-6">
-              <label htmlFor="api-domain-input" className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API 도메인</label>
-              <input
-                id="api-domain-input"
-                type="text"
-                value={apiDomain}
-                onChange={(e) => handleDomainChange(e.target.value)}
-                placeholder="예: api.example.com"
-                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
-                  domainError ? 'border-red-500' : ''
-                }`}
-                aria-describedby={domainError ? 'api-domain-error' : undefined}
-              />
-              {domainError && (
-                <p id="api-domain-error" className="text-red-500 text-xs mt-1" role="alert">
-                  도메인 형식이 올바르지 않습니다.
-                </p>
-              )}
-            </div>
+      {/* PaaS 도메인 설정 */}
+      {formData.env === 'paas' && (
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
+          <div>
+            <label htmlFor="api-domain-input" className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API 도메인</label>
+            <input
+              id="api-domain-input"
+              type="text"
+              value={apiDomain}
+              onChange={(e) => handleDomainChange(e.target.value)}
+              placeholder="예: api.example.com"
+              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
+                domainError ? 'border-red-500' : ''
+              }`}
+              aria-describedby={domainError ? 'api-domain-error' : undefined}
+            />
+            {domainError && (
+              <p id="api-domain-error" className="text-red-500 text-xs mt-1" role="alert">
+                도메인 형식이 올바르지 않습니다.
+              </p>
+            )}
+          </div>
 
-            <fieldset className="mt-6 space-y-2">
-              <legend className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</legend>
-              {apiPaths.map((path, pathIndex) => (
-                <div key={`api-path-${pathIndex}-${path}`} className="flex items-center gap-2">
-                  <label htmlFor={`api-path-input-${pathIndex}`} className="sr-only">API 경로 {pathIndex + 1}</label>
-                  <input
-                    id={`api-path-input-${pathIndex}`}
-                    type="text"
-                    value={path}
-                    onChange={(e) => handlePathChange(pathIndex, e.target.value)}
-                    placeholder="/api"
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  />
-                  {apiPaths.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePath(pathIndex)}
-                      className="text-red-500 text-xl hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
-                      aria-label={`API 경로 ${pathIndex + 1} 삭제`}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={handleAddPath}
-                className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                aria-label="새 API 경로 추가"
-              >
-                + 경로 추가
-              </button>
-            </fieldset>
-          </>
-        )}
-      </div>
+          <fieldset className="space-y-2">
+            <legend className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</legend>
+            {apiPaths.map((path, pathIndex) => (
+              <div key={`api-path-${pathIndex}-${path}`} className="flex items-center gap-2">
+                <label htmlFor={`api-path-input-${pathIndex}`} className="sr-only">API 경로 {pathIndex + 1}</label>
+                <input
+                  id={`api-path-input-${pathIndex}`}
+                  type="text"
+                  value={path}
+                  onChange={(e) => handlePathChange(pathIndex, e.target.value)}
+                  placeholder="/api"
+                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+                {apiPaths.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePath(pathIndex)}
+                    className="text-red-500 text-xl hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                    aria-label={`API 경로 ${pathIndex + 1} 삭제`}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddPath}
+              className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              aria-label="새 API 경로 추가"
+            >
+              + 경로 추가
+            </button>
+          </fieldset>
+        </div>
+      )}
     </div>
   );
 }

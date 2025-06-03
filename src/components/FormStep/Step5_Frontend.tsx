@@ -66,10 +66,9 @@ export default function Step5_Frontend() {
     setItems([...items, { id: Date.now(), framework: '', version: '' }]);
   };
 
-  const handleRemove = (index: number) => {
-    const updated = [...items];
-    updated.splice(index, 1);
-    setItems(updated);
+  // ✅ 수정된 삭제 핸들러 - 인덱스 기반에서 ID 기반으로 변경
+  const handleRemove = (targetId: number) => {
+    setItems(prevItems => prevItems.filter(item => item.id !== targetId));
   };
 
   const handleDomainChange = (value: string) => {
@@ -79,11 +78,11 @@ export default function Step5_Frontend() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
-        {items.map((item, i) => (
-          <div key={item.id} className="space-y-4">
-            {/* 프레임워크 선택 */}
-            <fieldset>
+      {items.map((item, i) => (
+        <div key={item.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
+          {/* ✅ 백엔드와 동일한 레이아웃: 제목과 X 버튼을 같은 행에 배치 */}
+          <div className="flex justify-between items-center">
+            <fieldset className="flex-1">
               <legend className="text-sm font-medium mb-3">
                 프론트엔드 프레임워크 선택 {i + 1}
                 <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
@@ -113,76 +112,75 @@ export default function Step5_Frontend() {
               </div>
             </fieldset>
 
-            {/* 버전 선택 + 삭제 */}
-            {item.framework && (
-              <div className="grid grid-cols-[1fr_40px] gap-2 items-center">
-                <div>
-                  <label htmlFor={`version-select-${item.id}`} className="block mb-1 text-sm font-medium">
-                    {item.framework} 버전 선택
-                  </label>
-                  <select
-                    id={`version-select-${item.id}`}
-                    value={item.version}
-                    onChange={(e) => handleChange(i, 'version', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                    aria-label={`${item.framework} 버전 선택`}
-                  >
-                    <option value="">버전 선택</option>
-                    {(frontendOptions[item.framework] || []).map((v) => (
-                      <option key={v} value={v}>{v}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {items.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(i)}
-                    className="text-red-600 font-bold text-xl text-center hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
-                    aria-label={`프론트엔드 항목 ${i + 1} 삭제`}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
+            {/* ✅ X 버튼을 오른쪽 상단으로 이동 (백엔드와 동일한 위치) */}
+            {items.length > 1 && (
+              <button
+                type="button"
+                onClick={() => handleRemove(item.id)}
+                className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ml-4"
+                aria-label={`프론트엔드 항목 ${i + 1} 삭제`}
+              >
+                ✕
+              </button>
             )}
           </div>
-        ))}
 
-        <button
-          type="button"
-          onClick={handleAdd}
-          className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          aria-label="새 프론트엔드 항목 추가"
-        >
-          + 프론트엔드 추가
-        </button>
+          {/* 버전 선택 */}
+          {item.framework && (
+            <div>
+              <label htmlFor={`version-select-${item.id}`} className="block mb-1 text-sm font-medium">
+                {item.framework} 버전 선택
+              </label>
+              <select
+                id={`version-select-${item.id}`}
+                value={item.version}
+                onChange={(e) => handleChange(i, 'version', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                aria-label={`${item.framework} 버전 선택`}
+              >
+                <option value="">버전 선택</option>
+                {(frontendOptions[item.framework] || []).map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+      ))}
 
-        {/* 도메인 입력 */}
-        {formData.env === 'paas' && (
-          <div>
-            <label htmlFor="frontend-domain-input" className="block mt-6 mb-1 text-sm font-medium text-gray-900 dark:text-white">
-              프론트 도메인 (필수 항목 X)
-            </label>
-            <input
-              id="frontend-domain-input"
-              type="text"
-              value={frontendDomain}
-              onChange={(e) => handleDomainChange(e.target.value)}
-              placeholder="예: www.example.com"
-              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
-                domainError ? 'border-red-500' : ''
-              }`}
-              aria-describedby={domainError ? 'domain-error' : undefined}
-            />
-            {domainError && (
-              <p id="domain-error" className="text-red-500 text-xs mt-1" role="alert">
-                도메인 형식이 올바르지 않습니다.
-              </p>
-            )}
-          </div>
-        )}
-      </div>
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        aria-label="새 프론트엔드 항목 추가"
+      >
+        + 프론트엔드 추가
+      </button>
+
+      {/* 도메인 입력 */}
+      {formData.env === 'paas' && (
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+          <label htmlFor="frontend-domain-input" className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">
+            프론트 도메인 (필수 항목 X)
+          </label>
+          <input
+            id="frontend-domain-input"
+            type="text"
+            value={frontendDomain}
+            onChange={(e) => handleDomainChange(e.target.value)}
+            placeholder="예: www.example.com"
+            className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500 ${
+              domainError ? 'border-red-500' : ''
+            }`}
+            aria-describedby={domainError ? 'domain-error' : undefined}
+          />
+          {domainError && (
+            <p id="domain-error" className="text-red-500 text-xs mt-1" role="alert">
+              도메인 형식이 올바르지 않습니다.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

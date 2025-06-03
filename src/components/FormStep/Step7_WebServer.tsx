@@ -58,9 +58,10 @@ export default function Step7_WebServer() {
     ]);
   };
 
-  const removeWebServerItem = (id: number) => {
+  // ✅ ID 기반 삭제로 수정
+  const removeWebServerItem = (targetId: number) => {
     if (webServerItems.length <= 1) return;
-    setWebServerItems((prev) => prev.filter((item) => item.id !== id));
+    setWebServerItems((prev) => prev.filter((item) => item.id !== targetId));
   };
 
   const handleVersionChange = (id: number, value: string) => {
@@ -73,74 +74,79 @@ export default function Step7_WebServer() {
 
   return (
     <div className="space-y-4">
-      {webServerItems.map((item) => (
+      {webServerItems.map((item, index) => (
         <div
           key={item.id}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          {/* 서버 선택 */}
-          <fieldset>
-            <legend className="text-sm font-medium mb-3">
-              웹서버 선택
-              <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
-            </legend>
-            <div className="grid grid-cols-3 gap-4">
-              {serverCards.map((server) => (
-                <button
-                  key={server.name}
-                  type="button"
-                  onClick={() => handleServerClick(item.id, server.name)}
-                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
-                    ${item.server === server.name
-                      ? 'border-violet-500 bg-violet-600 text-white'
-                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                  `}
-                  aria-pressed={item.server === server.name}
-                  aria-label={`${server.label} ${item.server === server.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
-                >
-                  <img
-                    src={server.src}
-                    alt=""
-                    className="h-14 mx-auto object-contain mb-2"
-                  />
-                  <span className="text-sm font-semibold">{server.label}</span>
-                </button>
-              ))}
-            </div>
-          </fieldset>
+          {/* ✅ 프론트엔드와 동일한 레이아웃: 제목과 X 버튼을 같은 행에 배치 */}
+          <div className="flex justify-between items-start">
+            <div className="flex-1 space-y-4">
+              {/* 서버 선택 */}
+              <fieldset>
+                <legend className="text-sm font-medium mb-3">
+                  웹서버 선택 {index + 1}
+                  <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+                </legend>
+                <div className="grid grid-cols-3 gap-4">
+                  {serverCards.map((server) => (
+                    <button
+                      key={server.name}
+                      type="button"
+                      onClick={() => handleServerClick(item.id, server.name)}
+                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
+                        ${item.server === server.name
+                          ? 'border-violet-500 bg-violet-600 text-white'
+                          : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                      `}
+                      aria-pressed={item.server === server.name}
+                      aria-label={`${server.label} ${item.server === server.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                    >
+                      <img
+                        src={server.src}
+                        alt=""
+                        className="h-14 mx-auto object-contain mb-2"
+                      />
+                      <span className="text-sm font-semibold">{server.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
 
-          {/* 버전 선택 */}
-          {item.server && (
-            <div>
-              <label htmlFor={`version-select-${item.id}`} className="block mb-1 text-sm font-medium">
-                {item.server} 버전 선택
-              </label>
-              <select
-                id={`version-select-${item.id}`}
-                value={item.version}
-                onChange={(e) => handleVersionChange(item.id, e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                aria-label={`${item.server} 버전 선택`}
+              {/* 버전 선택 */}
+              {item.server && (
+                <div>
+                  <label htmlFor={`version-select-${item.id}`} className="block mb-1 text-sm font-medium">
+                    {item.server} 버전 선택
+                  </label>
+                  <select
+                    id={`version-select-${item.id}`}
+                    value={item.version}
+                    onChange={(e) => handleVersionChange(item.id, e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    aria-label={`${item.server} 버전 선택`}
+                  >
+                    <option value="">버전 선택</option>
+                    {(webServerOptions[item.server as ValidWebServerType] || []).map((ver) => (
+                      <option key={ver} value={ver}>{ver}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* ✅ X 버튼을 프론트엔드와 동일한 위치로 이동 */}
+            {webServerItems.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeWebServerItem(item.id)}
+                className="text-red-500 text-xl hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ml-4"
+                aria-label={`웹서버 항목 ${index + 1} 삭제`}
               >
-                <option value="">버전 선택</option>
-                {(webServerOptions[item.server as ValidWebServerType] || []).map((ver) => (
-                  <option key={ver} value={ver}>{ver}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* 제거 버튼 */}
-          {webServerItems.length > 1 && (
-            <button
-              type="button"
-              onClick={() => removeWebServerItem(item.id)}
-              className="text-red-500 text-xl hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
-              aria-label="웹서버 항목 삭제"
-            >
-              ×
-            </button>
-          )}
+                ×
+              </button>
+            )}
+          </div>
         </div>
       ))}
 

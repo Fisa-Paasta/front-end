@@ -4,7 +4,7 @@ import { useSubmitted, SubmittedCard } from '@/context/SubmittedContext';
 
 import {
   Hourglass, CheckCircle, RefreshCw, ShieldCheck, Hammer,
-  PartyPopper, HelpCircle, Pin, FileText, CalendarDays
+  PartyPopper, HelpCircle
 } from 'lucide-react';
 
 interface DashboardDetailProps {
@@ -136,7 +136,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
 
   return (
     <>
-      {/* ✅ 문제 1 해결: 메인 모달 - AdminCardDetail.tsx 스타일 참고 */}
+      {/* ✅ 메인 모달 - AdminCardDetail.tsx 스타일 참고 */}
       <div className="fixed inset-0 z-50 w-full h-full bg-black bg-opacity-60 flex items-center justify-center" style={{ 
         padding: 0, 
         margin: 0, 
@@ -198,7 +198,7 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
         </div>
       </div>
 
-      {/* ✅ 문제 2 해결: 신청서 상세 모달 - z-70 (승인 이력보다 위) */}
+      {/* ✅ 신청서 상세 모달 - z-70 (승인 이력보다 위) */}
       {showDetailModal && selectedCard?.formDataSnapshot && (
         <div className="fixed inset-0 z-[70] bg-black bg-opacity-80 flex items-center justify-center p-4">
           <ApplicationDetailModal
