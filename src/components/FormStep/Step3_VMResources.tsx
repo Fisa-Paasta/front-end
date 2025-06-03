@@ -19,6 +19,14 @@ export default function Step3_VMResources() {
     disk: initialRes.disk || ''
   });
 
+  // ✅ 유효성 검사 상태 추가
+  const [errors, setErrors] = useState({
+    cpu: false,
+    ram: false,
+    disk: false,
+    ebsSize: false
+  });
+
   useEffect(() => {
     updateFormData('vm', {
       ...formData.vm,
@@ -34,10 +42,22 @@ export default function Step3_VMResources() {
   }, [localResources]);
 
   const handleVmChange = (field: 'environment' | 'ec2Type' | 'ebsType' | 'ebsSize', value: string) => {
+    // ✅ EBS 크기 유효성 검사
+    if (field === 'ebsSize') {
+      const numValue = parseInt(value, 10);
+      const isValid = value === '' || (!isNaN(numValue) && numValue > 0);
+      setErrors(prev => ({ ...prev, ebsSize: !isValid }));
+    }
+    
     setLocalVM(prev => ({ ...prev, [field]: value }));
   };
 
   const handleResourceChange = (field: 'cpu' | 'ram' | 'disk', value: string) => {
+    // ✅ 리소스 유효성 검사
+    const numValue = parseInt(value, 10);
+    const isValid = value === '' || (!isNaN(numValue) && numValue > 0);
+    setErrors(prev => ({ ...prev, [field]: !isValid }));
+    
     setLocalResources(prev => ({ ...prev, [field]: value }));
   };
 
@@ -64,11 +84,20 @@ export default function Step3_VMResources() {
               <input
                 id="cpu-cores-input"
                 type="number"
+                min="1"
                 value={localResources.cpu}
                 onChange={(e) => handleResourceChange('cpu', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.cpu ? 'border-red-500' : ''
+                }`}
                 placeholder="예: 4"
+                aria-describedby={errors.cpu ? 'cpu-error' : undefined}
               />
+              {errors.cpu && (
+                <p id="cpu-error" className="text-red-500 text-xs mt-1" role="alert">
+                  CPU는 1 이상의 양수를 입력해주세요.
+                </p>
+              )}
             </div>
 
             <div>
@@ -76,11 +105,20 @@ export default function Step3_VMResources() {
               <input
                 id="ram-gb-input"
                 type="number"
+                min="1"
                 value={localResources.ram}
                 onChange={(e) => handleResourceChange('ram', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.ram ? 'border-red-500' : ''
+                }`}
                 placeholder="예: 16"
+                aria-describedby={errors.ram ? 'ram-error' : undefined}
               />
+              {errors.ram && (
+                <p id="ram-error" className="text-red-500 text-xs mt-1" role="alert">
+                  RAM은 1 이상의 양수를 입력해주세요.
+                </p>
+              )}
             </div>
 
             <div>
@@ -88,11 +126,20 @@ export default function Step3_VMResources() {
               <input
                 id="disk-gb-input"
                 type="number"
+                min="1"
                 value={localResources.disk}
                 onChange={(e) => handleResourceChange('disk', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.disk ? 'border-red-500' : ''
+                }`}
                 placeholder="예: 100"
+                aria-describedby={errors.disk ? 'disk-error' : undefined}
               />
+              {errors.disk && (
+                <p id="disk-error" className="text-red-500 text-xs mt-1" role="alert">
+                  DISK는 1 이상의 양수를 입력해주세요.
+                </p>
+              )}
             </div>
           </>
         )}
@@ -142,9 +189,17 @@ export default function Step3_VMResources() {
                 min="1"
                 value={localVM.ebsSize || ''}
                 onChange={(e) => handleVmChange('ebsSize', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white"
+                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.ebsSize ? 'border-red-500' : ''
+                }`}
                 placeholder="예: 50"
+                aria-describedby={errors.ebsSize ? 'ebs-size-error' : undefined}
               />
+              {errors.ebsSize && (
+                <p id="ebs-size-error" className="text-red-500 text-xs mt-1" role="alert">
+                  EBS 볼륨 크기는 1 이상의 양수를 입력해주세요.
+                </p>
+              )}
             </div>
           </>
         )}
