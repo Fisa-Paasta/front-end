@@ -72,6 +72,19 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
     onClose();
   };
 
+  // ✅ 고유 키 생성 함수
+  const generateHistoryKey = (entry: HistoryEntry, index: number): string => {
+    // timestamp가 있으면 timestamp + index 조합 사용
+    if (entry.timestamp) {
+      return `history-${entry.timestamp}-${index}`;
+    }
+    
+    // timestamp가 없으면 by + note + index 조합 사용
+    const by = entry.by ?? 'unknown';
+    const note = entry.note ?? 'no-note';
+    return `history-${by}-${note.slice(0, 10)}-${index}`;
+  };
+
   const renderAction = () => {
     switch (item.status) {
       case '승인처리중':
@@ -224,9 +237,9 @@ export default function DashboardDetail({ item, onClose }: DashboardDetailProps)
               </button>
             </div>
             <div className="space-y-3 max-h-80 overflow-y-auto">
-              {(latestItem.historyList as HistoryEntry[] || []).length > 0 ? (
-                (latestItem.historyList as HistoryEntry[] || []).map((entry, index) => (
-                  <div key={`history-${index}`} className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              {(latestItem.historyList as HistoryEntry[] ?? []).length > 0 ? (
+                (latestItem.historyList as HistoryEntry[] ?? []).map((entry, index) => (
+                  <div key={generateHistoryKey(entry, index)} className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-medium">{entry.by ?? '시스템'}</span>
                       <span className="text-xs text-gray-500">

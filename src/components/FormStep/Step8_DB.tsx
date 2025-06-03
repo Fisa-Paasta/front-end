@@ -72,6 +72,7 @@ const DBTypeSection = ({ item, onTypeClick }: DBTypeSectionProps) => (
     <fieldset>
       <legend className="text-sm font-medium mb-2">
         데이터베이스 타입 선택
+        {' '}
         <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
       </legend>
       <div className="grid grid-cols-2 gap-4">
@@ -112,6 +113,7 @@ const DBSelectionSection = ({ item, onNameClick }: DBSelectionSectionProps) => {
       <fieldset>
         <legend className="text-sm font-medium mb-2">
           {item.type} 데이터베이스 선택
+          {' '}
           <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
         </legend>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

@@ -1,6 +1,6 @@
 import { useSurvey } from '@/context/SurveyContext';
 import { FileText } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 interface Props {
   onClose: () => void;
@@ -43,89 +43,37 @@ const KeyGroup = ({ children, title }: { children: React.ReactNode; title?: stri
 
 export default function InformationModal({ onClose, onSubmit }: Props) {
   const { formData } = useSurvey();
-  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    const dialog = dialogRef.current;
-    if (dialog) {
-      dialog.showModal();
-      
-      // 포커스 관리
-      const firstButton = dialog.querySelector('button');
-      if (firstButton) {
-        firstButton.focus();
-      }
-    }
-
-    // ESC 키 핸들링을 위한 document 레벨 이벤트
     const handleEscapeKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
-        handleClose();
+        onClose();
       }
     };
 
     document.addEventListener('keydown', handleEscapeKey);
-
     return () => {
       document.removeEventListener('keydown', handleEscapeKey);
-      if (dialog) {
-        dialog.close();
-      }
     };
-  }, []);
-
-  const handleClose = () => {
-    const dialog = dialogRef.current;
-    if (dialog) {
-      dialog.close();
-    }
-    onClose();
-  };
-
-  const handleSubmit = () => {
-    const dialog = dialogRef.current;
-    if (dialog) {
-      dialog.close();
-    }
-    onSubmit();
-  };
+  }, [onClose]);
 
   return (
-    <dialog 
-      ref={dialogRef}
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop:bg-black/60"
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-      style={{ 
-        padding: 0, 
-        margin: 0, 
-        maxWidth: '100vw', 
-        maxHeight: '100vh',
-        border: 'none',
-        background: 'rgba(0, 0, 0, 0.6)'
-      }}
-    >
-      {/* ✅ 크기 대폭 확장: max-w-6xl → max-w-7xl, 패딩과 여백 증가 */}
-      <div className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white rounded-2xl p-8 w-full max-w-7xl mx-8 shadow-2xl overflow-y-auto max-h-[90vh] space-y-8">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white rounded-2xl p-8 w-full max-w-6xl shadow-2xl overflow-y-auto max-h-[90vh] space-y-8">
         <header>
-          <h2 id="modal-title" className="text-2xl font-bold flex items-center gap-3 mb-2">
-            <FileText className="w-6 h-6" aria-hidden="true" />
+          <h2 className="text-2xl font-bold flex items-center gap-3 mb-2">
+            <FileText className="w-6 h-6" />
             신청서 상세 내역
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             신청하신 인프라 환경의 상세 설정 내역을 확인하실 수 있습니다.
           </p>
-          <p id="modal-description" className="sr-only">
-            신청하신 인프라 환경의 상세 설정 내역을 확인하실 수 있습니다.
-          </p>
         </header>
 
-        {/* ✅ 2열 그리드 레이아웃으로 공간 효율성 증대 */}
         <main className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* 왼쪽 열 */}
           <div className="space-y-8">
-            <section aria-labelledby="basic-info-heading">
+            <section>
               <KeyGroup title="🔧 기본 환경 설정">
                 <KeyValue label="환경 타입" value={formatValue(formData.env)} />
                 {formData.env === 'iaas' ? (
@@ -144,7 +92,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
               </KeyGroup>
             </section>
 
-            <section aria-labelledby="resource-info-heading" className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
+            <section className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
               <KeyGroup title="💻 리소스 설정">
                 {formData.env === 'iaas' && formData.vm.environment === 'aws' && (
                   <>
@@ -180,7 +128,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
               </KeyGroup>
             </section>
 
-            <section aria-labelledby="os-info-heading" className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
+            <section className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
               <KeyGroup title="🖥️ 운영체제">
                 <KeyValue label="OS 종류" value={formatValue(`${formatName(formData.os.name)}`)} />
                 <KeyValue label="OS 버전" value={formatValue(formData.os.version)} />
@@ -188,9 +136,8 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
             </section>
           </div>
 
-          {/* 오른쪽 열 */}
           <div className="space-y-8">
-            <section aria-labelledby="frontend-info-heading">
+            <section>
               <KeyGroup title="🎨 프론트엔드">
                 {formData.frontendItems?.length > 0 ? (
                   formData.frontendItems.map((f, index) => (
@@ -207,7 +154,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
               </KeyGroup>
             </section>
 
-            <section aria-labelledby="backend-info-heading" className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
+            <section className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
               <KeyGroup title="⚙️ 백엔드">
                 {formData.backendItems?.length > 0 ? (
                   formData.backendItems.map((b, index) => (
@@ -227,7 +174,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
               </KeyGroup>
             </section>
 
-            <section aria-labelledby="webserver-info-heading" className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
+            <section className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
               <KeyGroup title="🌐 웹서버">
                 {formData.webServerItems?.length > 0 ? (
                   formData.webServerItems.map((w, index) => (
@@ -243,7 +190,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
               </KeyGroup>
             </section>
 
-            <section aria-labelledby="database-info-heading" className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
+            <section className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
               <KeyGroup title="🗄️ 데이터베이스">
                 {formData.dbItems?.length > 0 ? (
                   formData.dbItems.map((d, index) => (
@@ -264,20 +211,20 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
         <footer className="flex justify-end gap-3 pt-6 border-t border-zinc-300 dark:border-zinc-700">
           <button
             type="button"
-            onClick={handleClose}
+            onClick={onClose}
             className="px-6 py-3 text-sm rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition"
           >
             닫기
           </button>
           <button
             type="button"
-            onClick={handleSubmit}
+            onClick={onSubmit}
             className="px-6 py-3 text-sm rounded-md bg-[#5A3EBA] text-white hover:bg-[#4932A0] focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
           >
             다음
           </button>
         </footer>
       </div>
-    </dialog>
+    </div>
   );
 }

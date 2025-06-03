@@ -62,6 +62,7 @@ export default function Step4_OS() {
         <fieldset>
           <legend className="text-sm font-medium mb-3">
             운영 체제 선택
+            {' '}
             <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
           </legend>
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
