@@ -338,7 +338,7 @@ export default function Step8_DB() {
       <button
         type="button"
         onClick={addDbItem}
-        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
         aria-label="새 데이터베이스 항목 추가"
       >
         + 데이터베이스 추가

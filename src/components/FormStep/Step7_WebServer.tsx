@@ -154,7 +154,7 @@ export default function Step7_WebServer() {
       <button
         type="button"
         onClick={addWebServerItem}
-        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="mt-2 px-3 py-1 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
         aria-label="새 웹서버 항목 추가"
       >
         + 웹서버 추가

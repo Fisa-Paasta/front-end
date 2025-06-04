@@ -287,6 +287,8 @@ export default function Step6_Backend() {
                 domainError ? 'border-red-500' : ''
               }`}
               aria-describedby={domainError ? 'api-domain-error' : undefined}
+              autoComplete="off"
+              spellCheck="false"
             />
             {domainError && (
               <p id="api-domain-error" className="text-red-500 text-xs mt-1" role="alert">
@@ -298,7 +300,7 @@ export default function Step6_Backend() {
           <fieldset className="space-y-2">
             <legend className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</legend>
             {apiPaths.map((path, pathIndex) => (
-              <div key={`api-path-${pathIndex}-${path}`} className="flex items-center gap-2">
+              <div key={`api-path-${pathIndex}`} className="flex items-center gap-2">
                 <label htmlFor={`api-path-input-${pathIndex}`} className="sr-only">API 경로 {pathIndex + 1}</label>
                 <input
                   id={`api-path-input-${pathIndex}`}
@@ -307,6 +309,8 @@ export default function Step6_Backend() {
                   onChange={(e) => handlePathChange(pathIndex, e.target.value)}
                   placeholder="/api"
                   className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  autoComplete="off"
+                  spellCheck="false"
                 />
                 {apiPaths.length > 1 && (
                   <button
