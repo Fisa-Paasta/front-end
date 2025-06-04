@@ -1,6 +1,9 @@
 import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
 import { FrontendItem } from '@/types/survey';
+import {
+  Trash2Icon
+} from 'lucide-react';
 
 const frontendOptions: Record<string, string[]> = {
   react: ['19.1.0', '18.3.1', '17.0.2'],
@@ -80,71 +83,69 @@ export default function Step5_Frontend() {
     <div className="space-y-4">
       {items.map((item, i) => (
         <div key={item.id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4">
-          {/* ✅ 백엔드와 동일한 레이아웃: 제목과 X 버튼을 같은 행에 배치 */}
-          <div className="flex justify-between items-center">
-            <fieldset className="flex-1">
-              <legend className="text-sm font-medium mb-3">
+          {/* ✅ 휴지통 버튼을 legend에 통합 */}
+          <fieldset className="flex-1">
+            <legend className="text-sm font-medium mb-3 flex items-center justify-between">
+              <span>
                 프론트엔드 프레임워크 선택 {i + 1}
                 <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
-              </legend>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                {frontendFrameworks.map((fw) => (
-                  <button
-                    key={fw.name}
-                    type="button"
-                    onClick={() => handleFrameworkClick(i, fw.name)}
-                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
-                      ${item.framework === fw.name
-                        ? 'border-violet-500 bg-violet-600 text-white'
-                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                    `}
-                    aria-pressed={item.framework === fw.name}
-                    aria-label={`${fw.label} ${item.framework === fw.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
-                  >
-                    <img
-                      src={fw.src}
-                      alt={`${fw.label} 로고`}
-                      className="w-full h-16 object-contain mb-2"
-                    />
-                    <span className="text-sm font-semibold">{fw.label}</span>
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-
-            {/* ✅ X 버튼을 오른쪽 상단으로 이동 (백엔드와 동일한 위치) */}
-            {items.length > 1 && (
-              <button
-                type="button"
-                onClick={() => handleRemove(item.id)}
-                className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ml-4"
-                aria-label={`프론트엔드 항목 ${i + 1} 삭제`}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* 버전 선택 */}
-          {item.framework && (
-            <div>
-              <label htmlFor={`version-select-${item.id}`} className="block mb-1 text-sm font-medium">
-                {item.framework} 버전 선택
-              </label>
-              <select
-                id={`version-select-${item.id}`}
-                value={item.version}
-                onChange={(e) => handleChange(i, 'version', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                aria-label={`${item.framework} 버전 선택`}
-              >
-                <option value="">버전 선택</option>
-                {(frontendOptions[item.framework] || []).map((v) => (
-                  <option key={v} value={v}>{v}</option>
-                ))}
-              </select>
+              </span>
+              {items.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemove(item.id)}
+                  className="text-red-600 text-lg hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded p-1"
+                  aria-label={`프론트엔드 항목 ${i + 1} 삭제`}
+                >
+                  <Trash2Icon color='black' size={18} />
+                </button>
+              )}
+            </legend>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+              {frontendFrameworks.map((fw) => (
+                <button
+                  key={fw.name}
+                  type="button"
+                  onClick={() => handleFrameworkClick(i, fw.name)}
+                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
+                    ${item.framework === fw.name
+                      ? 'border-violet-500 bg-violet-600 text-white'
+                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                  `}
+                  aria-pressed={item.framework === fw.name}
+                  aria-label={`${fw.label} ${item.framework === fw.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                >
+                  <img
+                    src={fw.src}
+                    alt={`${fw.label} 로고`}
+                    className="w-full h-16 object-contain mb-2"
+                  />
+                  <span className="text-sm font-semibold">{fw.label}</span>
+                </button>
+              ))}
             </div>
-          )}
+
+            {/* 버전 선택 */}
+            {item.framework && (
+              <div className="mt-4">
+                <label htmlFor={`version-select-${item.id}`} className="block mb-1 text-sm font-medium">
+                  {item.framework} 버전 선택
+                </label>
+                <select
+                  id={`version-select-${item.id}`}
+                  value={item.version}
+                  onChange={(e) => handleChange(i, 'version', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  aria-label={`${item.framework} 버전 선택`}
+                >
+                  <option value="">버전 선택</option>
+                  {(frontendOptions[item.framework] || []).map((v) => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </fieldset>
         </div>
       ))}
 

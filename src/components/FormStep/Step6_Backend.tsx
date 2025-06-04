@@ -1,6 +1,9 @@
 import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
 import { BackendItem, BackendLanguage, BackendFramework } from '@/types/survey';
+import {
+  Trash2Icon
+} from 'lucide-react';
 
 const languageOptions: Record<string, string[]> = {
   java: ['JDK 11 (LTS)', 'JDK 17 (LTS)', 'JDK 21 (LTS)'],
@@ -150,116 +153,111 @@ export default function Step6_Backend() {
     <div className="space-y-4">
       {items.map((item, index) => (
         <div key={`backend-item-${item.id}`} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-6">
-          {/* ✅ 프론트엔드와 동일한 레이아웃: 제목과 X 버튼을 같은 행에 배치 */}
-          <div className="flex justify-between items-start">
-            <div className="flex-1 space-y-4">
-              {/* 언어 선택 */}
-              <fieldset>
-                <legend className="text-sm font-medium mb-3">
-                  백엔드 언어 선택 {index + 1}
-                  <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
-                </legend>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                  {languageCards.map((lang) => (
-                    <button
-                      key={`lang-${item.id}-${lang.name}`}
-                      type="button"
-                      onClick={() => handleLanguageClick(index, lang.name)}
-                      className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
-                        ${item.language === lang.name
-                          ? 'border-violet-500 bg-violet-600 text-white'
-                          : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                      `}
-                      aria-pressed={item.language === lang.name}
-                      aria-label={`${lang.label} ${item.language === lang.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
-                    >
-                      <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
-                      <span className="text-sm font-semibold">{lang.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-
-              {/* 언어 버전 선택 */}
-              {item.language && (
-                <div>
-                  <label htmlFor={`language-version-select-${item.id}`} className="block mb-1 text-sm font-medium">언어 버전 선택</label>
-                  <select
-                    id={`language-version-select-${item.id}`}
-                    value={item.languageVersion}
-                    onChange={(e) => handleChange(index, 'languageVersion', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                    aria-label={`${item.language} 버전 선택`}
-                  >
-                    <option value="">언어 버전 선택</option>
-                    {(languageOptions[item.language] || []).map((version) => (
-                      <option key={`version-${item.id}-${version}`} value={version}>{version}</option>
-                    ))}
-                  </select>
-                </div>
+          {/* ✅ 휴지통 버튼을 언어 선택 legend에 통합 */}
+          <fieldset>
+            <legend className="text-sm font-medium mb-3 flex items-center justify-between">
+              <span>
+                백엔드 언어 선택 {index + 1}
+                <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+              </span>
+              {items.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemove(item.id)}
+                  className="text-red-600 text-lg hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded p-1"
+                  aria-label={`백엔드 항목 ${index + 1} 삭제`}
+                >
+                  <Trash2Icon color='black' size={18} />
+                </button>
               )}
-
-              {/* 프레임워크 선택 */}
-              {item.language && (
-                <fieldset>
-                  <legend className="text-sm font-medium mb-3">
-                    {item.language} 프레임워크 선택
-                    <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
-                  </legend>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                    {(frameworkCards[item.language] || []).map((fw) => (
-                      <button
-                        key={`fw-${item.id}-${fw.name}`}
-                        type="button"
-                        onClick={() => handleFrameworkClick(index, fw.name)}
-                        className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
-                          ${item.framework === fw.name
-                            ? 'border-violet-500 bg-violet-600 text-white'
-                            : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
-                        `}
-                        aria-pressed={item.framework === fw.name}
-                        aria-label={`${fw.label} ${item.framework === fw.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
-                      >
-                        <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
-                        <span className="text-sm font-semibold">{fw.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-              )}
-
-              {/* 프레임워크 버전 선택 */}
-              {item.framework && (
-                <div>
-                  <label htmlFor={`framework-version-select-${item.id}`} className="block mb-1 text-sm font-medium">프레임워크 버전 선택</label>
-                  <select
-                    id={`framework-version-select-${item.id}`}
-                    value={item.frameworkVersion}
-                    onChange={(e) => handleChange(index, 'frameworkVersion', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                    aria-label={`${item.framework} 버전 선택`}
-                  >
-                    <option value="">프레임워크 버전 선택</option>
-                    {(frameworkOptions[item.framework] || []).map((fwVersion) => (
-                      <option key={`fw-version-${item.id}-${fwVersion}`} value={fwVersion}>{fwVersion}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
+            </legend>
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+              {languageCards.map((lang) => (
+                <button
+                  key={`lang-${item.id}-${lang.name}`}
+                  type="button"
+                  onClick={() => handleLanguageClick(index, lang.name)}
+                  className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
+                    ${item.language === lang.name
+                      ? 'border-violet-500 bg-violet-600 text-white'
+                      : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                  `}
+                  aria-pressed={item.language === lang.name}
+                  aria-label={`${lang.label} ${item.language === lang.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                >
+                  <img src={lang.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                  <span className="text-sm font-semibold">{lang.label}</span>
+                </button>
+              ))}
             </div>
+          </fieldset>
 
-            {/* ✅ X 버튼을 프론트엔드와 동일한 위치로 이동 */}
-            {items.length > 1 && (
-              <button
-                type="button"
-                onClick={() => handleRemove(item.id)}
-                className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ml-4"
-                aria-label={`백엔드 항목 ${index + 1} 삭제`}
+          {/* 언어 버전 선택 */}
+          {item.language && (
+            <div>
+              <label htmlFor={`language-version-select-${item.id}`} className="block mb-1 text-sm font-medium">언어 버전 선택</label>
+              <select
+                id={`language-version-select-${item.id}`}
+                value={item.languageVersion}
+                onChange={(e) => handleChange(index, 'languageVersion', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                aria-label={`${item.language} 버전 선택`}
               >
-                ✕
-              </button>
-            )}
-          </div>
+                <option value="">언어 버전 선택</option>
+                {(languageOptions[item.language] || []).map((version) => (
+                  <option key={`version-${item.id}-${version}`} value={version}>{version}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* 프레임워크 선택 */}
+          {item.language && (
+            <fieldset>
+              <legend className="text-sm font-medium mb-3">
+                {item.language} 프레임워크 선택
+                <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+              </legend>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                {(frameworkCards[item.language] || []).map((fw) => (
+                  <button
+                    key={`fw-${item.id}-${fw.name}`}
+                    type="button"
+                    onClick={() => handleFrameworkClick(index, fw.name)}
+                    className={`p-3 rounded-lg border-2 cursor-pointer text-center transition shadow-sm block w-full
+                      ${item.framework === fw.name
+                        ? 'border-violet-500 bg-violet-600 text-white'
+                        : 'border-gray-300 bg-white hover:bg-gray-100 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white'}
+                    `}
+                    aria-pressed={item.framework === fw.name}
+                    aria-label={`${fw.label} ${item.framework === fw.name ? '선택됨 (클릭하여 해제)' : '선택하기'}`}
+                  >
+                    <img src={fw.src} alt="" className="h-14 mx-auto object-contain mb-2" />
+                    <span className="text-sm font-semibold">{fw.label}</span>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
+          {/* 프레임워크 버전 선택 */}
+          {item.framework && (
+            <div>
+              <label htmlFor={`framework-version-select-${item.id}`} className="block mb-1 text-sm font-medium">프레임워크 버전 선택</label>
+              <select
+                id={`framework-version-select-${item.id}`}
+                value={item.frameworkVersion}
+                onChange={(e) => handleChange(index, 'frameworkVersion', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                aria-label={`${item.framework} 버전 선택`}
+              >
+                <option value="">프레임워크 버전 선택</option>
+                {(frameworkOptions[item.framework] || []).map((fwVersion) => (
+                  <option key={`fw-version-${item.id}-${fwVersion}`} value={fwVersion}>{fwVersion}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       ))}
 

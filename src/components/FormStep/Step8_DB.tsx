@@ -1,6 +1,9 @@
 import { useSurvey } from '@/context/SurveyContext';
 import { useState, useEffect } from 'react';
 import { DBItem, DBType, DBName } from '@/types/survey';
+import {
+  Trash2Icon
+} from 'lucide-react';
 
 type ValidDBType = Exclude<DBType, ''>;
 
@@ -64,16 +67,30 @@ const hasError = (errors: Record<string, Record<string, boolean>>, id: number, f
 // DB 타입 섹션 컴포넌트
 interface DBTypeSectionProps {
   item: DBItem;
+  index: number;
   onTypeClick: (id: number, value: string) => void;
+  onRemove: (targetId: number) => void;
+  itemsLength: number;
 }
 
-const DBTypeSection = ({ item, onTypeClick }: DBTypeSectionProps) => (
+const DBTypeSection = ({ item, index, onTypeClick, onRemove, itemsLength }: DBTypeSectionProps) => (
   <div className="space-y-2">
     <fieldset>
-      <legend className="text-sm font-medium mb-2">
-        데이터베이스 타입 선택
-        {' '}
-        <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+      <legend className="text-sm font-medium mb-2 flex items-center justify-between">
+        <span>
+          데이터베이스 타입 선택 {index + 1}
+          <span className="text-xs text-gray-500 ml-2">(선택된 항목을 다시 클릭하면 해제됩니다)</span>
+        </span>
+        {itemsLength > 1 && (
+          <button
+            type="button"
+            onClick={() => onRemove(item.id)}
+            className="text-red-600 text-lg hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded p-1"
+            aria-label={`데이터베이스 항목 ${index + 1} 삭제`}
+          >
+            <Trash2Icon color='black' size={18} />
+          </button>
+        )}
       </legend>
       <div className="grid grid-cols-2 gap-4">
         {dbTypeCards.map((type) => (
@@ -312,26 +329,15 @@ export default function Step8_DB() {
           key={`db-item-${item.id}`}
           className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm space-y-4"
         >
-          {/* ✅ 프론트엔드와 동일한 X 위치 */}
-          <div className="flex justify-between items-start">
-            <div className="flex-1 space-y-4">
-              <DBTypeSection item={item} onTypeClick={handleTypeClick} />
-              <DBSelectionSection item={item} onNameClick={handleNameClick} />
-              <VersionAndSizeSection item={item} errors={errors} onChange={handleChange} />
-            </div>
-
-            {/* ✅ X 버튼을 프론트엔드와 동일한 위치로 이동 */}
-            {dbItems.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeDbItem(item.id)}
-                className="text-red-600 text-xl hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 rounded ml-4 mt-1"
-                aria-label={`데이터베이스 항목 ${index + 1} 삭제`}
-              >
-                ×
-              </button>
-            )}
-          </div>
+          <DBTypeSection 
+            item={item} 
+            index={index}
+            onTypeClick={handleTypeClick} 
+            onRemove={removeDbItem}
+            itemsLength={dbItems.length}
+          />
+          <DBSelectionSection item={item} onNameClick={handleNameClick} />
+          <VersionAndSizeSection item={item} errors={errors} onChange={handleChange} />
         </div>
       ))}
 
