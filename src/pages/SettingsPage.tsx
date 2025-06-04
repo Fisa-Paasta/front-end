@@ -5,7 +5,6 @@ import {
   Sun,
   User2,
   Settings,
-  Code2,
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -57,33 +56,19 @@ export default function SettingsPage() {
               다크 모드 {isDark ? '사용 중' : '해제됨'}
             </span>
             <label htmlFor="dark-mode-toggle" className="inline-flex items-center cursor-pointer">
-  <span className="sr-only">다크 모드 토글</span>
-  <input
-    id="dark-mode-toggle"
-    type="checkbox"
-    checked={isDark}
-    onChange={toggleTheme}
-    className="sr-only peer"
-  />
-  <div className="w-11 h-6 bg-gray-300 peer-checked:bg-purple-500 rounded-full relative transition-all duration-300">
-    <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 peer-checked:translate-x-full" />
-  </div>
-</label>
-
+              <span className="sr-only">다크 모드 토글</span>
+              <input
+                id="dark-mode-toggle"
+                type="checkbox"
+                checked={isDark}
+                onChange={toggleTheme}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-300 peer-checked:bg-purple-500 rounded-full relative transition-all duration-300">
+                <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 peer-checked:translate-x-full" />
+              </div>
+            </label>
           </div>
-        </div>
-
-        <div className="border-t border-border-light dark:border-border-dark" />
-
-        {/* ✅ 3. 개발자 옵션 */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Code2 className="w-5 h-5" />
-            개발자 옵션
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            이 섹션은 관리자 또는 개발자에게만 노출됩니다.
-          </p>
         </div>
       </div>
     </Layout>

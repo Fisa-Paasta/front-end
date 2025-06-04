@@ -96,7 +96,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       <div className="flex items-center justify-between px-2 mb-6">
         {!collapsed && user && (
           <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            👤 {user.userName}({user.userId})
+            👤 {user.userName} ({user.userId})
           </div>
         )}
         <button

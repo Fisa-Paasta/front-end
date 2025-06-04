@@ -56,22 +56,59 @@ export default function InitPage() {
   };
 
   const { setUser } = useAuth();
+  
+  // 부서별 권한 검증 함수
+  const validateDepartmentAccess = (employeeId: string, department: string): { isValid: boolean; role: 'admin' | 'user' | null } => {
+    const isITInfraDept = department === '은행-IT인프라팀';
+    
+    // 임시 관리자 계정 (12345678)
+    if (employeeId === '12345678') {
+      if (isITInfraDept) {
+        return { isValid: true, role: 'admin' };
+      } else {
+        return { isValid: false, role: null };
+      }
+    }
+    
+    // 임시 사용자 계정 (99991234)
+    if (employeeId === '99991234') {
+      if (isITInfraDept) {
+        return { isValid: false, role: null };
+      } else {
+        return { isValid: true, role: 'user' };
+      }
+    }
+    
+    // 기타 계정들은 백엔드에서 처리
+    return { isValid: true, role: null };
+  };
+
   const handleLogin = async () => {
     if (!validateForm()) return;
+    
+    // 부서 권한 검증
+    const accessCheck = validateDepartmentAccess(form.id, form.department);
+    
+    if (!accessCheck.isValid) {
+      alert('❌ 권한이 없습니다.');
+
+      // 로그인 실패 시 비밀번호 필드 초기화
+      setForm(prev => ({ ...prev, password: '' }));
+      return;
+    }
   
     const isTempUserLogin =
       form.id === '99991234' &&
       form.password === 'user123!' &&
-      form.department.trim() !== '';
+      accessCheck.role === 'user';
   
     const isTempAdminLogin =
       form.id === '12345678' &&
       form.password === 'VMware1!' &&
-      form.department.trim() !== '';
+      accessCheck.role === 'admin';
   
     // ✅ 1. 임시 사용자 로그인 처리
     if (isTempUserLogin) {
-      alert('✅ 임시 사용자 계정으로 로그인합니다');
       localStorage.setItem('token', 'test-user-token');
       localStorage.setItem('userName', '임시 사용자');
       localStorage.setItem('userId', form.id);
@@ -87,53 +124,64 @@ export default function InitPage() {
       return;
     }
   
-  // ✅ 2. 임시 관리자 로그인 처리
-  if (isTempAdminLogin) {
-    alert('✅ 임시 관리자 계정으로 로그인합니다');
-    localStorage.setItem('token', 'test-admin-token');
-    localStorage.setItem('userName', '테스트 관리자');
-    localStorage.setItem('userId', form.id);
-    localStorage.setItem('role', 'admin');
+    // ✅ 2. 임시 관리자 로그인 처리
+    if (isTempAdminLogin) {
+      localStorage.setItem('token', 'test-admin-token');
+      localStorage.setItem('userName', '테스트 관리자');
+      localStorage.setItem('userId', form.id);
+      localStorage.setItem('role', 'admin');
 
-    setUser({
-      userId: form.id,
-      userName: '테스트 관리자',
-      role: 'admin',
-    });
+      setUser({
+        userId: form.id,
+        userName: '테스트 관리자',
+        role: 'admin',
+      });
 
-    navigate('/admin');
-    return;
-  }
+      navigate('/admin');
+      return;
+    }
 
-  // ✅ 3. 실제 API 요청 처리
-  try {
-    const res = await fetch('http://localhost:8080/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
+    // ✅ 3. 실제 API 요청 처리 - 예외 처리 개선
+    try {
+      const res = await fetch('http://localhost:8080/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || '로그인 실패');
+      if (!res.ok) {
+        // ✅ SonarQube 이슈 수정: || 대신 ?? 사용
+        const errorData = await res.json().catch(() => ({ message: '로그인 실패' }));
+        throw new Error(errorData.message ?? '로그인 실패');
+      }
 
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('userName', data.name);
-    localStorage.setItem('userId', form.id);
-    localStorage.setItem('role', data.role);
+      const data = await res.json();
 
-    setUser({
-      userId: form.id,
-      userName: data.name,
-      role: data.role,
-    });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userName', data.name);
+      localStorage.setItem('userId', form.id);
+      localStorage.setItem('role', data.role);
 
-    navigate(data.role === 'admin' ? '/admin' : '/home');
-  } catch (err: any) {
-    alert('❌ 백엔드 로그인 실패\n' + err.message);
-  }
-};
+      setUser({
+        userId: form.id,
+        userName: data.name,
+        role: data.role,
+      });
 
-
+      navigate(data.role === 'admin' ? '/admin' : '/home');
+    } catch (error) {
+      // ✅ 예외를 적절히 처리
+      console.error('로그인 오류:', error);
+      
+      // 구체적인 오류 메시지 표시
+      if (error instanceof Error) {
+        alert('❌ 권한이 없습니다.');
+      }
+      
+      // 로그인 실패 시 비밀번호 필드 초기화
+      setForm(prev => ({ ...prev, password: '' }));
+    }
+  };
 
   return (
     <div className="flex h-screen transition-colors duration-500 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark">

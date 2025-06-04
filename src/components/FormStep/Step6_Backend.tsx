@@ -135,8 +135,7 @@ export default function Step6_Backend() {
     setDomainError(value !== '' && !/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(value));
   };
 
-  const handlePathChange = (pathId: string, value: string) => {
-    const pathIndex = parseInt(pathId.split('-')[2], 10); // "api-path-0" -> 0
+  const handlePathChange = (pathIndex: number, value: string) => {
     const updated = [...apiPaths];
     updated[pathIndex] = value;
     setApiPaths(updated);
@@ -144,8 +143,7 @@ export default function Step6_Backend() {
 
   const handleAddPath = () => setApiPaths([...apiPaths, '']);
   
-  const handleRemovePath = (pathId: string) => {
-    const pathIndex = parseInt(pathId.split('-')[2], 10); // "api-path-0" -> 0
+  const handleRemovePath = (pathIndex: number) => {
     const updated = [...apiPaths];
     updated.splice(pathIndex, 1);
     setApiPaths(updated);
@@ -300,16 +298,16 @@ export default function Step6_Backend() {
           <fieldset className="space-y-2">
             <legend className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">API Prefix Path</legend>
             {apiPaths.map((path, pathIndex) => {
-              // ✅ 소나큐브 수정: 고유한 ID 생성 (배열 인덱스 대신 사용)
-              const pathId = `api-path-${Date.now()}-${pathIndex}`;
+              // ✅ 소나큐브 수정: 안정적인 고유 키 생성 (pathIndex만 사용)
+              const stableKey = `api-path-${pathIndex}`;
               return (
-                <div key={pathId} className="flex items-center gap-2">
-                  <label htmlFor={`api-path-input-${pathId}`} className="sr-only">API 경로 {pathIndex + 1}</label>
+                <div key={stableKey} className="flex items-center gap-2">
+                  <label htmlFor={`api-path-input-${pathIndex}`} className="sr-only">API 경로 {pathIndex + 1}</label>
                   <input
-                    id={`api-path-input-${pathId}`}
+                    id={`api-path-input-${pathIndex}`}
                     type="text"
                     value={path}
-                    onChange={(e) => handlePathChange(pathId, e.target.value)}
+                    onChange={(e) => handlePathChange(pathIndex, e.target.value)}
                     placeholder="/api"
                     className="w-full px-3 py-2 border rounded-md bg-white dark:bg-input-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                     autoComplete="off"
@@ -318,7 +316,7 @@ export default function Step6_Backend() {
                   {apiPaths.length > 1 && (
                     <button
                       type="button"
-                      onClick={() => handleRemovePath(pathId)}
+                      onClick={() => handleRemovePath(pathIndex)}
                       className="text-red-500 text-xl hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
                       aria-label={`API 경로 ${pathIndex + 1} 삭제`}
                     >
