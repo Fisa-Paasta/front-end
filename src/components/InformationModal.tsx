@@ -139,7 +139,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
           <div className="space-y-8">
             <section>
               <KeyGroup title="🎨 프론트엔드">
-                {formData.frontendItems?.length > 0 ? (
+                {formData.frontendItems?.length > 0 && formData.frontendItems.some(f => f.framework || f.version) ? (
                   formData.frontendItems.map((f, index) => (
                     <KeyValue 
                       key={`frontend-item-${f.id}-${f.framework}`} 
@@ -156,7 +156,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
 
             <section className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
               <KeyGroup title="⚙️ 백엔드">
-                {formData.backendItems?.length > 0 ? (
+                {formData.backendItems?.length > 0 && formData.backendItems.some(b => b.language || b.framework) ? (
                   formData.backendItems.map((b, index) => (
                     <KeyValue
                       key={`backend-item-${b.id}-${b.language}-${b.framework}`}
@@ -168,15 +168,23 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
                   <KeyValue label="백엔드" value={formatValue('')} />
                 )}
                 <KeyValue label="API 도메인" value={formatValue(formData.apiDomain)} />
-                {formData.apiPaths?.length > 0 && formData.apiPaths.map((p, pathIndex) => (
-                  <KeyValue key={`api-path-${pathIndex}-${p}`} label={`API 경로 ${pathIndex + 1}`} value={formatValue(p)} />
-                ))}
+                {formData.apiPaths?.length > 0 && formData.apiPaths.some(p => p.trim()) ? (
+                  formData.apiPaths.filter(p => p.trim()).map((p, pathIndex) => (
+                    <KeyValue 
+                      key={`api-path-${pathIndex}-${p}`} 
+                      label={`API 경로 ${pathIndex + 1}`} 
+                      value={formatValue(p)} 
+                    />
+                  ))
+                ) : (
+                  <KeyValue label="API 경로" value={formatValue('')} />
+                )}
               </KeyGroup>
             </section>
 
             <section className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
               <KeyGroup title="🌐 웹서버">
-                {formData.webServerItems?.length > 0 ? (
+                {formData.webServerItems?.length > 0 && formData.webServerItems.some(w => w.server || w.version) ? (
                   formData.webServerItems.map((w, index) => (
                     <KeyValue 
                       key={`webserver-item-${w.id}-${w.server}`} 
@@ -192,7 +200,7 @@ export default function InformationModal({ onClose, onSubmit }: Props) {
 
             <section className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-6">
               <KeyGroup title="🗄️ 데이터베이스">
-                {formData.dbItems?.length > 0 ? (
+                {formData.dbItems?.length > 0 && formData.dbItems.some(d => d.type || d.name || d.version || d.size) ? (
                   formData.dbItems.map((d, index) => (
                     <KeyValue
                       key={`db-item-${d.id}-${d.name}`}

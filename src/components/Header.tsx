@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext'; // ✅ AuthContext 사용
 import {
   ClipboardList,
   Pencil,
@@ -8,30 +8,11 @@ import {
 } from 'lucide-react';
 
 export default function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
-
-  const isTokenValid = (token: string | null): boolean => {
-    if (!token) return false;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const now = Math.floor(Date.now() / 1000);
-      return payload.exp > now;
-    } catch {
-      return false;
-    }
-  };
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(isTokenValid(token));
-  }, []);
+  const { user, logout } = useAuth(); // ✅ AuthContext에서 user와 logout 가져오기
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    setIsLoggedIn(false);
+    logout(); // ✅ AuthContext의 logout 함수 사용
     navigate('/init');
   };
 
@@ -62,7 +43,8 @@ export default function Header() {
           </Link>
         </nav>
 
-        {isLoggedIn ? (
+        {/* ✅ user 존재 여부로 로그인 상태 확인 */}
+        {user ? (
           <button
             onClick={handleLogout}
             className="px-5 py-2 text-base bg-red-600 hover:bg-red-700 text-white rounded transition font-semibold"

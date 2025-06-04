@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import {
   Menu,
   ChevronLeft,
@@ -10,6 +9,7 @@ import {
   Moon
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface SidebarProps {
   readonly collapsed: boolean;
@@ -69,13 +69,8 @@ function MenuItem({ icon: Icon, text, to, onClick, collapsed }: MenuItemProps) {
 }
 
 export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user } = useAuth(); // ✅ AuthContext에서 user 정보 가져오기
   const { theme, toggleTheme } = useTheme();
-
-  useEffect(() => {
-    const id = localStorage.getItem('userId');
-    setUserId(id);
-  }, []);
 
   // ✅ 보안 강화된 외부 링크 열기 함수
   const openFeedbackForm = () => {
@@ -99,9 +94,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       aria-label="주요 네비게이션"
     >
       <div className="flex items-center justify-between px-2 mb-6">
-        {!collapsed && userId && (
+        {!collapsed && user && (
           <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            👤 {userId}
+            👤 {user.userName}({user.userId})
           </div>
         )}
         <button

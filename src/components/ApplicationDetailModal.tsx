@@ -129,62 +129,82 @@ export default function ApplicationDetailModal({ item, onClose }: Props) {
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
           <KeyGroup>
-            {formData.frontendItems.map((f) => (
-              <KeyValue
-                key={`frontend-${f.id}-${f.framework}`}
-                label="Frontend"
-                value={formatValue(`${formatName(f.framework)} ${f.version}`)}
-              />
-            ))}
-            <KeyValue label="도메인" value={formatValue(formData.frontendDomain)} />
+            {formData.frontendItems?.length > 0 && formData.frontendItems.some(f => f.framework || f.version) ? (
+              formData.frontendItems.map((f) => (
+                <KeyValue
+                  key={`frontend-${f.id}-${f.framework}`}
+                  label="Frontend"
+                  value={formatValue(`${formatName(f.framework)} ${f.version}`)}
+                />
+              ))
+            ) : (
+              <KeyValue label="Frontend" value={formatValue('')} />
+            )}
+            <KeyValue label="프론트 도메인" value={formatValue(formData.frontendDomain)} />
           </KeyGroup>
         </div>
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
           <KeyGroup>
-            {formData.backendItems.map((b) => (
-              <KeyValue
-                key={`backend-${b.id}-${b.language}-${b.framework}`}
-                label="Backend"
-                value={formatValue(
-                  `${formatName(b.language)} ${b.languageVersion} / ${formatName(b.framework)} ${b.frameworkVersion}`
-                )}
-              />
-            ))}
+            {formData.backendItems?.length > 0 && formData.backendItems.some(b => b.language || b.framework) ? (
+              formData.backendItems.map((b) => (
+                <KeyValue
+                  key={`backend-${b.id}-${b.language}-${b.framework}`}
+                  label="Backend"
+                  value={formatValue(
+                    `${formatName(b.language)} ${b.languageVersion} / ${formatName(b.framework)} ${b.frameworkVersion}`
+                  )}
+                />
+              ))
+            ) : (
+              <KeyValue label="Backend" value={formatValue('')} />
+            )}
             <KeyValue label="API 도메인" value={formatValue(formData.apiDomain)} />
-            {formData.apiPaths?.map((p, pathIndex) => (
-              <KeyValue
-                key={`api-path-${pathIndex}-${p}`}
-                label="경로"
-                value={formatValue(p)}
-              />
-            ))}
+            {formData.apiPaths?.length > 0 && formData.apiPaths.some(p => p.trim()) ? (
+              formData.apiPaths.filter(p => p.trim()).map((p, pathIndex) => (
+                <KeyValue
+                  key={`api-path-${pathIndex}-${p}`}
+                  label={`API 경로 ${pathIndex + 1}`}
+                  value={formatValue(p)}
+                />
+              ))
+            ) : (
+              <KeyValue label="API 경로" value={formatValue('')} />
+            )}
           </KeyGroup>
         </div>
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
           <KeyGroup>
-            {formData.webServerItems.map((w) => (
-              <KeyValue
-                key={`webserver-${w.id}-${w.server}`}
-                label="Web Server"
-                value={formatValue(`${formatName(w.server)} ${w.version}`)}
-              />
-            ))}
+            {formData.webServerItems?.length > 0 && formData.webServerItems.some(w => w.server || w.version) ? (
+              formData.webServerItems.map((w) => (
+                <KeyValue
+                  key={`webserver-${w.id}-${w.server}`}
+                  label="Web Server"
+                  value={formatValue(`${formatName(w.server)} ${w.version}`)}
+                />
+              ))
+            ) : (
+              <KeyValue label="Web Server" value={formatValue('')} />
+            )}
           </KeyGroup>
         </div>
 
         <div className="border-t border-dashed border-zinc-300 dark:border-zinc-600 pt-4">
           <KeyGroup>
-            {formData.dbItems.map((d) => (
-              <KeyValue
-                key={`db-${d.id}-${d.name}`}
-                label="DB"
-                value={formatValue(
-                  `${formatName(d.type)} / ${formatName(d.name)} ${d.version} (${d.size} GB)`
-                )}
-              />
-            ))}
+            {formData.dbItems?.length > 0 && formData.dbItems.some(d => d.type || d.name || d.version || d.size) ? (
+              formData.dbItems.map((d) => (
+                <KeyValue
+                  key={`db-${d.id}-${d.name}`}
+                  label="DB"
+                  value={formatValue(
+                    `${formatName(d.type)} / ${formatName(d.name)} ${d.version} (${d.size} GB)`
+                  )}
+                />
+              ))
+            ) : (
+              <KeyValue label="DB" value={formatValue('')} />
+            )}
           </KeyGroup>
         </div>
 
