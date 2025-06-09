@@ -56,7 +56,7 @@ export default function AdminPage() {
     try {
       console.log(`🗑️ 삭제 요청 시작: ${id}`);
       
-      const response = await fetch(`http://localhost:8080/api/admin/applications/${id}/status`, {
+      const response = await fetch(`https://api.paasta.store/api/admin/applications/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export default function AdminPage() {
 
       console.log(`📤 서버로 전송할 상태: ${backendStatus}`);
 
-      const response = await fetch(`http://localhost:8080/api/admin/applications/${id}/status`, {
+      const response = await fetch(`https://api.paasta.store/api/admin/applications/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

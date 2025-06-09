@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // 토큰 검증 로직 분리
   const verifyTokenWithServer = useCallback(async (token: string): Promise<boolean> => {
     try {
-      const res = await fetch('http://localhost:8080/api/verify-token', {
+      const res = await fetch('https://api.paasta.store/api/verify-token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
