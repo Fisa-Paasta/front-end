@@ -139,8 +139,8 @@ const transformApplicationToCard = (app: any, existingCard?: SubmittedCard): Sub
 // 서버 요청 로직 분리
 const fetchApplicationsFromServer = async (isAdmin: boolean, userId?: string): Promise<any[]> => {
   const url = isAdmin
-    ? `https://api.paasta.store/api/admin/applications`
-    : `https://api.paasta.store/api/applications/employee/${userId}`;
+    ? `/api/admin/applications`
+    : `/api/applications/employee/${userId}`;
 
   const res = await fetch(url, {
     headers: {
@@ -208,7 +208,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     try {
       setIsLoading(true);
-      const response = await fetch('https://api.paasta.store/api/submit-card', {
+      const response = await fetch('/api/submit-card', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -279,7 +279,7 @@ export const SubmittedProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       setIsLoading(true);
 
-      const response = await fetch(`https://api.paasta.store/api/applications/${id}`, {
+      const response = await fetch(`/api/applications/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
