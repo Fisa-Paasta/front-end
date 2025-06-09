@@ -57,11 +57,9 @@ export default function InitPage() {
 
   const { setUser } = useAuth();
   
-  // 부서별 권한 검증 함수
   const validateDepartmentAccess = (employeeId: string, department: string): { isValid: boolean; role: 'admin' | 'user' | null } => {
     const isITInfraDept = department === '은행-IT인프라팀';
     
-    // 임시 관리자 계정 (12345678)
     if (employeeId === '12345678') {
       if (isITInfraDept) {
         return { isValid: true, role: 'admin' };
@@ -70,7 +68,6 @@ export default function InitPage() {
       }
     }
     
-    // 임시 사용자 계정 (99991234)
     if (employeeId === '99991234') {
       if (isITInfraDept) {
         return { isValid: false, role: null };
@@ -79,20 +76,16 @@ export default function InitPage() {
       }
     }
     
-    // 기타 계정들은 백엔드에서 처리
     return { isValid: true, role: null };
   };
 
   const handleLogin = async () => {
     if (!validateForm()) return;
     
-    // 부서 권한 검증
     const accessCheck = validateDepartmentAccess(form.id, form.department);
     
     if (!accessCheck.isValid) {
       alert('❌ 권한이 없습니다.');
-
-      // 로그인 실패 시 비밀번호 필드 초기화
       setForm(prev => ({ ...prev, password: '' }));
       return;
     }
@@ -107,7 +100,6 @@ export default function InitPage() {
       form.password === 'VMware1!' &&
       accessCheck.role === 'admin';
   
-    // ✅ 1. 임시 사용자 로그인 처리
     if (isTempUserLogin) {
       localStorage.setItem('token', 'test-user-token');
       localStorage.setItem('userName', '임시 사용자');
@@ -124,7 +116,6 @@ export default function InitPage() {
       return;
     }
   
-    // ✅ 2. 임시 관리자 로그인 처리
     if (isTempAdminLogin) {
       localStorage.setItem('token', 'test-admin-token');
       localStorage.setItem('userName', '테스트 관리자');
@@ -141,7 +132,6 @@ export default function InitPage() {
       return;
     }
 
-    // ✅ 3. 실제 API 요청 처리 - 예외 처리 개선
     try {
       const res = await fetch('http://localhost:8080/api/login', {
         method: 'POST',
@@ -150,7 +140,6 @@ export default function InitPage() {
       });
 
       if (!res.ok) {
-        // ✅ SonarQube 이슈 수정: || 대신 ?? 사용
         const errorData = await res.json().catch(() => ({ message: '로그인 실패' }));
         throw new Error(errorData.message ?? '로그인 실패');
       }
@@ -170,15 +159,12 @@ export default function InitPage() {
 
       navigate(data.role === 'admin' ? '/admin' : '/home');
     } catch (error) {
-      // ✅ 예외를 적절히 처리
       console.error('로그인 오류:', error);
       
-      // 구체적인 오류 메시지 표시
       if (error instanceof Error) {
         alert('❌ 권한이 없습니다.');
       }
       
-      // 로그인 실패 시 비밀번호 필드 초기화
       setForm(prev => ({ ...prev, password: '' }));
     }
   };
@@ -187,7 +173,8 @@ export default function InitPage() {
     <div className="flex h-screen transition-colors duration-500 bg-background-light dark:bg-background-dark text-foreground-light dark:text-foreground-dark">
       {/* 왼쪽 슬로건 */}
       <div className="w-[40%] bg-gradient-to-br from-purple-600 to-indigo-700 flex flex-col justify-center items-center px-12 space-y-10">
-        <img src="src/assets/logo.png" alt="Paasta 로고" className="w-28 h-28 drop-shadow-lg" />
+        {/* ✅ 경로 수정: src/assets/logo.png → /img/logo.png */}
+        <img src="/img/logo.png" alt="Paasta 로고" className="w-28 h-28 drop-shadow-lg" />
         <h1 className="text-5xl font-bold text-white">Paasta</h1>
         <p className="text-lg font-medium text-white/90 text-center transition-all duration-500 ease-in-out">
           {slogans[currentSloganIndex]}

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext'; // ✅ AuthContext 사용
+import { useAuth } from '@/context/AuthContext';
 import {
   ClipboardList,
   Pencil,
@@ -9,17 +9,18 @@ import {
 
 export default function Header() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth(); // ✅ AuthContext에서 user와 logout 가져오기
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    logout(); // ✅ AuthContext의 logout 함수 사용
+    logout();
     navigate('/init');
   };
 
   return (
     <header className="fixed top-0 left-0 w-full h-16 z-50 bg-background-dark dark:bg-background-dark text-foreground-dark dark:text-foreground-dark shadow-md px-6 flex items-center justify-between transition-colors duration-500">
       <Link to="/" className="flex items-center space-x-2">
-        <img src="src/assets/logo.png" alt="Paasta" className="h-8 w-auto" />
+        {/* ✅ 경로 수정: src/assets/logo.png → /img/logo.png */}
+        <img src="/img/logo.png" alt="Paasta" className="h-8 w-auto" />
         <span className="text-xl font-bold">Paasta</span>
       </Link>
 
@@ -43,7 +44,6 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* ✅ user 존재 여부로 로그인 상태 확인 */}
         {user ? (
           <button
             onClick={handleLogout}
